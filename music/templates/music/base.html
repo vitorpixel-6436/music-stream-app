@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Music App{% endblock %}</title>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Bootstrap Grid & Utilities only -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap-grid.min.css">
     <link rel="stylesheet" href="{% static 'music/css/modern.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
@@ -15,16 +19,26 @@
             <nav>
                 <ul class="sidebar-nav">
                     <li><a href="{% url 'music:index' %}"><span>🏠</span> Home</a></li>
-                    <li><a href="#"><span>🔍</span> Search</a></li>
-                    <li><a href="#"><span>📚</span> Library</a></li>
+                    <li><a href="{% url 'music:upload_page' %}"><span>🚀</span> Upload</a></li>
                     <li><a href="/admin/"><span>⚙️</span> Admin</a></li>
                 </ul>
             </nav>
         </aside>
+
         <main class="main-content">
+            {% if messages %}
+                <div class="messages-container no-print">
+                    {% for message in messages %}
+                        <div class="toast {{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
             {% block content %}{% endblock %}
         </main>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
