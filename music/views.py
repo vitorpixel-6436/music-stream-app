@@ -1,5 +1,8 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import FileResponse, JsonResponse, HttpResponse
+from django.http import Http404
+from django.utils.decorators import cache_page
+import logging
 from django.views.decorators.http import require_http_methods
 from django.core.files.storage import default_storage
 from .models import Track
@@ -43,6 +46,14 @@ def download_music(request, pk):
     music_file = get_object_or_404(Track, pk=pk)
     
     if not music_file.file:
+
+                try:
+            music_file = Track.objects.get(pk=pk)
+        except Track.DoesNotExist:
+            raise Http404('Track not found')
+        
+        if not music_file.file:
+            raise Http404('Audio file not found')
         return HttpResponse(status=404)
     
     file_path = music_file.file.path
@@ -60,6 +71,12 @@ def upload_music(request):
         return JsonResponse({'error': 'No file provided'}, status=400)
     
     file = request.FILES['file']
+        
+        try:
+                        Track.objects.filter(id=music_file.id).update(play_count=models.F('play_count') + 1)
+        except Exception as e:
+            logger = logging.getLogger(__name__)
+            logger.error(f'Error updating play count: {e}')
     title = request.POST.get('title', file.name)
     artist = request.POST.get('artist', '')
     album = request.POST.get('album', '')
