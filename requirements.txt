@@ -1,14 +1,60 @@
+# Core Django
 Django>=4.2.0
 DjangoRestFramework>=3.14.0
-Pillow>=10.0.0
-mutagen>=1.47.0
+
+# Database
+psycopg2-binary>=2.9.0
+
+# Environment
 python-dotenv>=1.0.0
+
+# Audio processing and metadata
+mutagen>=1.47.0
+PyDub>=0.25.1
+
+# FLAC support
+pyflac>=2.0.0
+
+# Audio conversion (ffmpeg wrapper)
+pydub>=0.25.1
+ffmpeg-python>=0.2.0
+
+# HTTP requests for downloading
 requests>=2.31.0
 PySocks>=1.7.1
+
+# Progress bars
+tqdm>=4.66.0
+
+# Celery for async tasks
 celery>=5.3.0
 redis>=5.0.0
-gunicorn>=21.0.0
-psycopg2-binary>=2.9.0
+
+# Image processing
+Pillow>=10.0.0
+
+# Web scraping (for music download features)
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+
+# YouTube/streaming site downloaders
+yt-dlp>=2023.11.0
+spotdl>=4.2.0
+
+# CORS headers
 django-cors-headers>=4.3.0
+
+# Filters
 django-filter>=23.3
+
+# Simple JWT authentication
 djangorestframework-simplejwt>=5.3.0
+
+# File upload validation
+django-cleanup>=8.0.0
+
+# Pagination
+django-rest-framework-pagination>=0.1.1
+
+# Gunicorn for production
+gunicorn>=21.0.0
