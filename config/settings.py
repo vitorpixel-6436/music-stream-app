@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import logging.handlers
 
 load_dotenv()
 
@@ -84,7 +85,37 @@ SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', 0))
 SECURE_HSTS_INCLUDE_SUBDOMAINS = os.getenv('SECURE_HSTS_INCLUDE_SUBDOMAINS', 'False') == 'True'
 
 # Logging Configuration
+# Logging Configuration with auto-directory creation
+LOGGING_DIR = BASE_DIR / 'logs'
+LOGGING_DIR.mkdir(exist_ok=True)  # Create logs directory if it doesn't exist
+
 LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': LOGGING_DIR / 'error.log',
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['file', 'console'],
+        'level': 'INFO',
+    },
+}
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
