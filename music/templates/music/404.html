@@ -1,0 +1,10 @@
+{% extends 'music/base.html' %}
+{% block title %}404 - Page Not Found{% endblock %}
+{% block content %}
+<div class="error-container" style="text-align: center; padding: 100px 20px;">
+    <h1 style="font-size: 6rem; margin-bottom: 20px; color: var(--accent-color);">404</h1>
+    <h2>Oops! Page Not Found</h2>
+    <p style="margin-bottom: 30px; color: var(--text-secondary);">The track or page you are looking for doesn't exist.</p>
+    <a href="{% url 'music:index' %}" class="btn-primary" style="text-decoration: none; padding: 12px 24px; border-radius: 8px; background: var(--accent-color); color: white;">Back to Home</a>
+</div>
+{% endblock %}
