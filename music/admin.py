@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Genre, Artist, Album, MusicFile, Playlist, Favorite, DownloadHistory, ConversionQueue
+from .models import Genre, Artist, Album, MusicFile, Playlist, Favorite
 from django.utils.html import format_html
 
 
