@@ -20,8 +20,8 @@
                 <p class="album-artist">{{ track.artist.name }}</p>
             </div>
             <div class="card-actions">
-                <button class="btn-play" onclick="playTrack({{ track.id }})">▶</button>
-                <a href="{% url 'music:download' track.pk %}" class="btn">Download</a>
+                <a href="{% url 'music:player' track.pk %}" class="btn-play">▶ Play</a>
+                <a href="{% url 'music:download' track.pk %}" class="btn">⬇ Download</a>
             </div>
         </div>
         {% empty %}
