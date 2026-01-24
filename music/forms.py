@@ -71,11 +71,12 @@ class SearchForm(forms.Form):
             ('-created_at', 'Newest'),
             ('title', 'A-Z'),
             ('-play_count', 'Popular'),
-        ],Debug and audit forms.py: Fix model references and validation
-
+        ],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
 - Renamed Track to MusicFile model reference
 - Simplified forms and removed redundant widgets
-- Aligned file size validation with views.py (50MB)
 - Improved SearchForm and AlbumCreateForm to match models.py fields
 - Removed "junk" fields that were not in models.py (cover_art -> cover)
         required=False,
