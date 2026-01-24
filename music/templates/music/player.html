@@ -1,0 +1,27 @@
+{% extends 'music/base.html' %}
+
+{% block title %}{{ music_file.title }} - Player{% endblock %}
+
+{% block content %}
+<div class="player-container">
+    <div class="player-info">
+        <h2>{{ music_file.title }}</h2>
+        <p class="artist">{{ music_file.artist }}</p>
+        {% if music_file.album %}
+        <p class="album">Album: {{ music_file.album }}</p>
+        {% endif %}
+    </div>
+    
+    <div class="audio-player">
+        <audio id="music-player" controls>
+            <source src="{% url 'music:stream' music_file.pk %}" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+    
+    <div class="player-controls">
+        <a href="{% url 'music:download' music_file.pk %}" class="btn btn-download">Download</a>
+        <a href="{% url 'music:index' %}" class="btn btn-back">Back to Library</a>
+    </div>
+</div>
+{% endblock %}
