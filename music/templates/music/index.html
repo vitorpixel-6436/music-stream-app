@@ -4,29 +4,73 @@
 {% block content %}
 <section class="hero-section">
     <div class="hero-content">
-        <h1 class="hero-title">🎶 Welcome to Music Library</h1>
-        <p>Listen, discover, and download your favorite tracks</p>
+        <h1 class="hero-title">🎶 Music Discovery</h1>
+        <p>Your premium personal streaming library</p>
+        
+        <form action="{% url 'music:index' %}" method="get" class="search-bar mt-4">
+            <input type="text" name="q" value="{{ search_query }}" placeholder="Search tracks, artists, albums..." class="search-input">
+            <button type="submit" class="btn">Search</button>
+            {% if search_query %}
+                <a href="{% url 'music:index' %}" class="btn" style="background: var(--danger); border-color: var(--danger);">Clear</a>
+            {% endif %}
+        </form>
     </div>
 </section>
 
-<section>
-    <h2>🔥 Recently Added</h2>
+<section class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>🔥 {% if search_query %}Search Results{% else %}Recently Added{% endif %}</h2>
+        
+        <div class="filters d-flex gap-2">
+            <form action="{% url 'music:index' %}" method="get" class="d-flex gap-2">
+                <select name="artist" class="search-input" onchange="this.form.submit()" style="width: auto;">
+                    <option value="">All Artists</option>
+                    {% for artist in all_artists %}
+                        <option value="{{ artist.id }}" {% if selected_artist == artist.id|stringformat:"s" %}selected{% endif %}>{{ artist.name }}</option>
+                    {% endfor %}
+                </select>
+                
+                <select name="sort" class="search-input" onchange="this.form.submit()" style="width: auto;">
+                    <option value="-created_at" {% if sort_by == '-created_at' %}selected{% endif %}>Newest</option>
+                    <option value="title" {% if sort_by == 'title' %}selected{% endif %}>A-Z</option>
+                    <option value="-play_count" {% if sort_by == '-play_count' %}selected{% endif %}>Popular</option>
+                </select>
+            </form>
+        </div>
+    </div>
+
     <div class="album-grid">
         {% for track in music_files %}
-        <div class="glass-card album-card">
-            <div class="album-image">🎵</div>
-            <div class="album-info">
-                <h3 class="album-title">{{ track.title }}</h3>
-                <p class="album-artist">{{ track.artist.name }}</p>
+            <div class="glass-card album-card">
+                <div class="album-image">🎵</div>
+                <div class="album-info">
+                    <h3 class="album-title">{{ track.title }}</h3>
+                    <p class="album-artist">{{ track.artist.name }}</p>
+                </div>
+                <div class="card-actions">
+                    <a href="{% url 'music:player' track.pk %}" class="btn-play" title="Play Now">▶</a>
+                    <a href="{% url 'music:download' track.pk %}" class="btn" title="Download">⬇</a>
+                </div>
             </div>
-            <div class="card-actions">
-                <a href="{% url 'music:player' track.pk %}" class="btn-play">▶ Play</a>
-                <a href="{% url 'music:download' track.pk %}" class="btn">⬇ Download</a>
-            </div>
-        </div>
         {% empty %}
-        <p>No tracks yet. <a href="/admin/">Upload some</a>!</p>
+            <div class="col-12 text-center py-5">
+                <p class="text-secondary">No tracks found. <a href="/admin/" class="color-accent">Upload some music</a> to get started!</p>
+            </div>
         {% endfor %}
     </div>
+
+    {% if music_files.has_other_pages %}
+    <div class="pagination mt-5 d-flex justify-content-center gap-2">
+        {% if music_files.has_previous %}
+            <a href="?page={{ music_files.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn">&laquo; Prev</a>
+        {% endif %}
+        
+        <span class="btn active">{{ music_files.number }} / {{ music_files.paginator.num_pages }}</span>
+        
+        {% if music_files.has_next %}
+            <a href="?page={{ music_files.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn">Next &raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
 </section>
 {% endblock %}
