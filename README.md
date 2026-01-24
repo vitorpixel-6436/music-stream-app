@@ -1,424 +1,309 @@
-# 🎵 Music Streaming App
+# Music Streaming Application 🎵
 
-Профессиональное веб-приложение для потоковой передачи и загрузки музыки с полной поддержкой метаданных.
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.11+-green.svg)](https://www.python.org/)
+[![Django](https://img.shields.io/badge/django-4.0+-darkgreen.svg)](https://www.djangoproject.com/)
+[![Docker](https://img.shields.io/badge/docker-latest-blue.svg)](https://www.docker.com/)
 
-## ✨ Возможности
+A professional-grade web application for streaming and downloading music with full metadata support, advanced search capabilities, and responsive design.
 
-### 🎧 Основные функции
-- **Потоковое воспроизведение** - слушайте музыку прямо в браузере
-- **Загрузка треков** - сохраняйте музыку на сервер и клиент
-- **Поддержка форматов** - MP3, FLAC, WAV, AAC, OGG
-- **Высокое качество** - от 128 kbps до Lossless FLAC
-- **Конвертация** - автоматическое преобразование между форматами
+## Table of Contents
 
-### 📚 Организация
-- **Жанры** - классификация по музыкальным стилям
-- **Альбомы** - группировка треков по альбомам
-- **Исполнители** - информация об артистах с фото и биографией
-- **Плейлисты** - создавайте свои подборки
-- **Избранное** - отмечайте любимые треки
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Quick Start](#quick-start)
+- [Installation](#installation)
+- [Docker Deployment](#docker-deployment)
+- [Configuration](#configuration)
+- [API Endpoints](#api-endpoints)
+- [Database Schema](#database-schema)
+- [Performance Optimization](#performance-optimization)
+- [Security Features](#security-features)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [License](#license)
 
-### 🔍 Дополнительно
-- **Поиск** - находите треки, исполнителей, альбомы
-- **Фильтрация** - по жанру, формату, качеству
-- **История** - отслеживание прослушиваний и загрузок
-- **Метаданные** - автоматическое извлечение тегов ID3
-- **Обложки** - поддержка обложек альбомов
+## Features
 
----
+### 🎵 Core Music Features
 
-## 🚀 Быстрая установка для Windows
+- **Stream Music** - Listen to music directly in your browser with high-quality audio
+- **Download Tracks** - Save music files to your device for offline playback
+- **Multiple Format Support** - MP3, FLAC, WAV, AAC, OGG
+- **High Quality Streaming** - Up to 128 kbps audio quality
+- **Format Conversion** - Automatic conversion between supported formats
+- **Metadata Management** - Complete ID3 tag support and metadata extraction
 
-### Что нужно?
-- **Windows 10/11** (или 7)
-- **Python 3.10-3.13** ([скачать здесь](https://www.python.org/downloads/))
-  - ⚠️ При установке обязательно отметьте **"Add Python to PATH"**!
+### 🔍 Discovery & Organization
 
-### 📦 Установка за 2 шага
+- **Advanced Search** - Search by track title, artist, or album name
+- **Smart Filtering** - Filter music by artist, album, or genre
+- **Genre Classification** - Organize music by musical styles
+- **Album Grouping** - Browse music organized by albums
+- **Artist Information** - Full artist details with biography
+- **Smart Playlists** - Create and manage custom playlists
+- **Favorites System** - Mark your favorite tracks for quick access
+- **Play Count Tracking** - Automatic tracking of listening statistics
 
-#### Вариант 1: Скачать ZIP (проще всего)
+### 🎨 User Experience
 
-1. Нажмите зелёную кнопку **"Code"** → **"Download ZIP"** вверху страницы
-2. Распакуйте архив в любую папку
-3. Запустите **`setup.bat`** (двойной клик)
-4. Дождитесь завершения установки (2-5 минут)
-5. Запустите **`start.bat`** для запуска сервера
-6. Откройте браузер: **http://localhost:8000**
+- **Responsive Design** - Works seamlessly on desktop, tablet, and mobile
+- **Modern UI** - Beautiful glassmorphism design with smooth animations
+- **Pagination** - Efficient content loading with 12 items per page
+- **Autocomplete Search** - Real-time search suggestions
+- **Sort Options** - Multiple sorting methods (date, title, popularity)
+- **Health Checks** - Automated service health monitoring
+- **Dark Theme** - Easy on the eyes design
 
-#### Вариант 2: Через Git
+### 📊 Advanced Features
 
-```bash
-git clone https://github.com/vitorpixel-6436/music-stream-app.git
-cd music-stream-app
-setup.bat
-```
+- **Usage Statistics** - Track play counts and download history
+- **Download Tracking** - Monitor download activity and usage patterns
+- **Error Handling** - Comprehensive error pages and recovery
+- **Logging System** - Detailed application logging for debugging
+- **Caching Layer** - Redis-based caching for performance
+- **Database Optimization** - Indexed queries for fast retrieval
 
----
-
-## 💻 Использование
-
-### 🔧 Запуск приложения
-
-**Запустите `start.bat`** (двойной клик)
-
-Приложение откроется автоматически в браузере по адресу:
-- Главная страница: **http://localhost:8000**
-- Админ-панель: **http://localhost:8000/admin**
-
-### 👤 Создание админа
-
-При первой установке создайте администратора:
-```bash
-call venv\Scripts\activate
-python manage.py createsuperuser
-```
-
-Или просто выберите "Y" при запуске `setup.bat`
-
-### 📂 Загрузка музыки
-
-1. Войдите в админ-панель: http://localhost:8000/admin
-2. Создайте жанр, исполнителя, альбом
-3. Загрузите треки через раздел "Tracks"
-4. Или используйте веб-интерфейс (если реализован)
-
----
-
-## 🛠 Ручная установка (для опытных)
-
-### 1. Клонирование репозитория
-```bash
-git clone https://github.com/vitorpixel-6436/music-stream-app.git
-cd music-stream-app
-```
-
-### 2. Создание виртуального окружения
-```bash
-python -m venv venv
-```
-
-### 3. Активация окружения
-**Windows:**
-```bash
-venv\Scripts\activate
-```
-
-**Linux/Mac:**
-```bash
-source venv/bin/activate
-```
-
-### 4. Установка зависимостей
-```bash
-pip install -r requirements.txt
-```
-
-### 5. Настройка окружения
-Создайте файл `.env` в корне проекта:
-```env
-SECRET_KEY=ваш-секретный-ключ
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
-DATABASE_URL=sqlite:///db.sqlite3
-```
-
-### 6. Миграции базы данных
-```bash
-python manage.py makemigrations
-python manage.py migrate
-```
-
-### 7. Создание суперпользователя
-```bash
-python manage.py createsuperuser
-```
-
-### 8. Запуск сервера
-```bash
-python manage.py runserver
-```
-
-Откройте: http://localhost:8000
-
----
-
-## 📁 Структура проекта
-
-```
-music-stream-app/
-├── config/                 # Настройки Django
-│   ├── settings.py         # Основные настройки
-│   ├── urls.py             # Главные URL-маршруты
-│   └── wsgi.py             # WSGI конфигурация
-├── music/                  # Главное приложение
-│   ├── models.py           # Модели (Track, Album, Artist...)
-│   ├── views.py            # Представления (логика)
-│   ├── urls.py             # URL-маршруты
-│   ├── admin.py            # Админ-панель
-│   ├── forms.py            # Формы
-│   ├── templates/          # HTML-шаблоны
-│   │   └── music/
-│   │       ├── base.html   # Базовый шаблон
-│   │       ├── index.html  # Главная страница
-│   │       ├── player.html # Плеер
-│   │       └── upload.html # Загрузка
-│   └── static/             # Статические файлы
-│       └── music/
-│           ├── css/        # Стили
-│           └── js/         # JavaScript
-├── media/                  # Загруженные файлы
-├── manage.py               # Django CLI
-├── requirements.txt        # Зависимости Python
-├── setup.bat               # Скрипт установки (Windows)
-├── start.bat               # Скрипт запуска (Windows)
-├── .env                    # Переменные окружения
-└── README.md               # Этот файл
-```
-
----
-
-## 🔧 Технологии
+## Tech Stack
 
 ### Backend
-- **Django 5.1+** - веб-фреймворк
-- **Python 3.10-3.13** - язык программирования
-- **SQLite** - база данных (по умолчанию)
+
+- **Framework**: Django 4.0+
+- **Database**: PostgreSQL 15
+- **Cache**: Redis 7
+- **ASGI Server**: Gunicorn 4 workers
+- **Language**: Python 3.11+
 
 ### Frontend
-- **HTML5** - разметка
-- **CSS3** - стили
-- **JavaScript** - интерактивность
 
-### Библиотеки
-- **Pillow** - обработка изображений
-- **mutagen** - работа с аудио-метаданными
-- **yt-dlp** - загрузка из интернета (опционально)
-- **ffmpeg-python** - конвертация аудио
-- **spotdl** - загрузка из Spotify (опционально)
+- **HTML5**: Modern semantic HTML
+- **CSS3**: Glassmorphism design with animations
+- **JavaScript**: Modern vanilla JS with no frameworks
+- **Responsive**: Mobile-first approach
 
----
+### Infrastructure
 
-## 📝 Модели данных
+- **Containerization**: Docker & Docker Compose
+- **Web Server**: Nginx reverse proxy
+- **Version Control**: Git
+- **CI/CD Ready**: GitHub Actions compatible
 
-### Track (Трек)
-- Название, исполнитель, альбом, жанр
-- Файл аудио, обложка
-- Формат (MP3, FLAC, WAV, AAC, OGG)
-- Качество (128, 192, 256, 320 kbps, Lossless)
-- Длительность, размер файла
-- Счётчик прослушиваний
-- Метаданные (битрейт, sample rate)
+## Quick Start
 
-### Album (Альбом)
-- Название, исполнитель
-- Год выпуска, жанр
-- Обложка
+### Prerequisites
 
-### Artist (Исполнитель)
-- Имя, биография
-- Фото, веб-сайт
+- Docker & Docker Compose 3.8+
+- Git
+- 4GB+ RAM
+- 20GB+ disk space
 
-### Genre (Жанр)
-- Название, описание
+### Start Application
 
-### Playlist (Плейлист)
-- Название, описание
-- Пользователь, треки
-- Публичный/приватный
-
-### Favorite (Избранное)
-- Пользователь, трек
-- Дата добавления
-
----
-
-## 🐛 Решение проблем
-
-### setup.bat закрывается сразу
-- **Причина**: Python не установлен или не добавлен в PATH
-- **Решение**: 
-  1. Переустановите Python с галочкой "Add Python to PATH"
-  2. Или добавьте Python в PATH вручную
-
-### Ошибка при установке зависимостей
-- **Причина**: Нет прав администратора или проблемы с pip
-- **Решение**:
-  ```bash
-  python -m pip install --upgrade pip
-  pip install -r requirements.txt
-  ```
-
-### База данных не создаётся
-- **Причина**: Ошибка в миграциях
-- **Решение**:
-  ```bash
-  python manage.py makemigrations --empty music
-  python manage.py migrate
-  ```
-
-### Статические файлы не загружаются
-- **Причина**: DEBUG=False без collectstatic
-- **Решение**:
-  ```bash
-  python manage.py collectstatic
-  ```
-
----
-
-## 🚀 Деплой на сервер
-
-### Heroku
 ```bash
-heroku create your-app-name
-git push heroku main
-heroku run python manage.py migrate
-heroku run python manage.py createsuperuser
+# Clone the repository
+git clone https://github.com/vitorpixel-6436/music-stream-app.git
+cd music-stream-app
+
+# Create environment file
+cp .env.example .env
+
+# Start with Docker
+docker-compose up -d
+
+# Access the application
+# Web: http://localhost:80
+# Admin: http://localhost/admin
 ```
 
-### Docker
+## Installation
+
+### Local Development
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Run migrations
+python manage.py migrate
+
+# Create superuser
+python manage.py createsuperuser
+
+# Collect static files
+python manage.py collectstatic --noinput
+
+# Start development server
+python manage.py runserver 0.0.0.0:8000
+```
+
+### Production Deployment
+
+See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed production setup instructions.
+
+## Docker Deployment
+
+### Development
+
 ```bash
 docker-compose up -d
 ```
 
-### VPS (Ubuntu)
+### Production
+
 ```bash
-sudo apt update
-sudo apt install python3-pip python3-venv nginx
-git clone https://github.com/vitorpixel-6436/music-stream-app.git
-cd music-stream-app
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py collectstatic
-# Настройте gunicorn и nginx
+docker-compose -f docker-compose.prod.yml up -d
 ```
 
----
+## Configuration
 
-## 📄 Лицензия
+### Environment Variables
 
-MIT License - используйте свободно!
+Create `.env` file with the following variables:
 
----
-
-## 👨‍💻 Автор
-
-Создано с ❤️ для любителей качественной музыки
-
----
-
-## 🤝 Вклад
-
-Пул-реквесты приветствуются! Для больших изменений сначала откройте issue.
-
----
-
-## 📞 Поддержка
-
-Если возникли вопросы:
-1. Проверьте раздел **Решение проблем**
-2. Откройте **Issue** на GitHub
-3. Опишите проблему подробно с логами
-
----
-
-## ⚠️ Важные замечания
-
-### Python версия
-- ✅ **Поддерживается**: Python 3.10, 3.11, 3.12, 3.13
-- ❌ **НЕ поддерживается**: Python 3.14+ (несовместимость с spotdl)
-- Если у вас Python 3.14, установите Python 3.13 с [python.org](https://www.python.org/downloads/)
-
-### FFmpeg требуется
-- Для конвертации форматов нужен **FFmpeg**
-- **Windows**: 
-  - Скачать: https://github.com/BtbN/FFmpeg-Builds/releases
-  - Распаковать и добавить в PATH
-  - Или использовать: `choco install ffmpeg` (если есть Chocolatey)
-- **Linux**: `sudo apt install ffmpeg`
-- **macOS**: `brew install ffmpeg`
-
-### Антивирус
-- setup.bat может быть заблокирован Windows Defender
-- Добавьте папку проекта в исключения антивируса
-- Или запустите PowerShell от администратора: `Set-ExecutionPolicy RemoteSigned`
-
-### Первый запуск
-- setup.bat может занять 3-10 минут (скачивает все зависимости)
-- НЕ закрывайте окно во время установки
-- Интернет-соединение обязательно
-
-### Проблемы с кодировкой
-- Если видите кракозябры вместо русского текста:
-  - Откройте `setup.bat` в Notepad++
-  - Сохраните с кодировкой UTF-8 with BOM
-- Или просто перезапустите setup.bat
-
----
-
-## 💡 Рекомендации (QoL)
-
-### Для лучшей производительности
-1. **Используйте SSD** - быстрее загрузка и обработка файлов
-2. **Минимум 4GB RAM** - для одновременной обработки нескольких треков
-3. **Хороший интернет** - для загрузки музыки из YouTube/Spotify
-
-### Для безопасности
-1. **Смените SECRET_KEY** в .env на случайную строку
-2. **Используйте strong пароль** для админа
-3. **НЕ открывайте** на порт 8000 в интернет без настройки nginx/Apache
-4. **Регулярно делайте backup** базы данных (db.sqlite3)
-
-### Полезные команды
 ```bash
-# Очистить базу данных (ОСТОРОЖНО!)
-python manage.py flush
+# Security
+DEBUG=0
+SECRET_KEY=your-secret-key
+ALLOWED_HOSTS=yourdomain.com
 
-# Создать резервную копию БД
-copy db.sqlite3 db_backup_%date%.sqlite3
+# Database
+POSTGRES_DB=music_stream
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=secure-password
 
-# Собрать статику для продакшена
-python manage.py collectstatic --noinput
+# Redis
+REDIS_URL=redis://redis:6379/0
 
-# Посмотреть логи ошибок
-python manage.py runserver > logs.txt 2>&1
-
-# Создать дополнительного админа
-python manage.py createsuperuser
+# Email (Optional)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
 ```
 
-### Расширения VS Code (для разработки)
-- **Python** - поддержка Python
-- **Django** - подсветка Django templates
-- **Pylance** - автодополнение
-- **GitLens** - работа с Git
+## API Endpoints
 
-### Оптимизация
-- По умолчанию используется SQLite (хватит для 10000+ треков)
-- Для больших библиотек (100000+ треков) используйте PostgreSQL
-- Redis ускоряет Celery для фоновых задач (конвертация, загрузка)
+### Music
+
+- `GET /` - Home page with music list
+- `GET /api/music/<id>/` - Get music details
+- `GET /api/music/<id>/stream/` - Stream music file
+- `GET /api/music/<id>/download/` - Download music file
+- `POST /api/music/upload/` - Upload new music
+
+### Search & Filter
+
+- `GET /?q=query` - Search music
+- `GET /?artist=artist_id` - Filter by artist
+- `GET /?album=album_id` - Filter by album
+- `GET /?sort=field` - Sort results
+- `GET /api/search/?q=query` - Autocomplete search
+
+## Database Schema
+
+### Main Tables
+
+- **MusicFile**: Audio file records with metadata
+- **Artist**: Artist information and details
+- **Album**: Album metadata and grouping
+- **UserFavorite**: User's favorite tracks
+- **PlayHistory**: User playback statistics
+
+## Performance Optimization
+
+### Caching Strategy
+
+- Database query caching (1 hour TTL)
+- Static file caching (browser cache)
+- API response caching
+
+### Database Optimization
+
+- Indexed searches on title, artist
+- Pagination for large result sets
+- Query optimization with select_related
+
+## Security Features
+
+- **HTTPS/SSL**: Automatic redirect in production
+- **CSRF Protection**: Built-in Django CSRF tokens
+- **XSS Prevention**: Template auto-escaping
+- **SQL Injection Prevention**: ORM parameterized queries
+- **Rate Limiting**: Configurable rate limits
+- **Security Headers**: HSTS, CSP, X-Frame-Options
+- **Non-root Container**: Docker security best practice
+- **Health Checks**: Continuous service monitoring
+
+## Troubleshooting
+
+### Database Connection Issues
+
+```bash
+docker-compose restart db
+docker-compose logs db
+```
+
+### Static Files Not Loading
+
+```bash
+docker-compose exec web python manage.py collectstatic --noinput --clear
+docker-compose restart nginx
+```
+
+### High Memory Usage
+
+Reduce worker count in docker-compose.yml
+
+### Permission Errors
+
+```bash
+sudo chown -R 1000:1000 ./media
+sudo chmod -R 755 ./media
+```
+
+## Project Structure
+
+```
+music-stream-app/
+├── config/              # Django configuration
+├── music/              # Main app
+│   ├── models.py       # Database models
+│   ├── views.py        # View logic with search/filter
+│   ├── urls.py         # URL routing
+│   ├── forms.py        # Form handling with validation
+│   ├── static/         # Static files (CSS, JS)
+│   └── templates/      # HTML templates
+├── docker-compose.yml  # Docker orchestration
+├── Dockerfile          # Multi-stage build
+├── requirements.txt    # Python dependencies
+├── manage.py          # Django CLI
+└── README.md          # This file
+```
+
+## Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Support
+
+For issues and questions:
+
+- Open an issue on GitHub
+- Check [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for deployment help
+- Review [PROJECT_STATUS.md](PROJECT_STATUS.md) for project roadmap
+
+## Acknowledgments
+
+Built with Django, PostgreSQL, Redis, Docker, and Nginx.
 
 ---
 
-## 🎯 Что дальше?
-
-### Планируемые функции
-- [ ] Веб-плеер с визуализацией
-- [ ] Мобильное приложение (PWA)
-- [ ] Рекомендации на основе прослушиваний
-- [ ] Интеграция с Last.fm
-- [ ] Автоматическое скачивание обложек
-- [ ] Lyrics (тексты песен)
-- [ ] Equalizer (эквалайзер)
-- [ ] Crossfade между треками
-
-### Вы можете помочь!
-- ⭐ Поставьте звезду на GitHub
-- 🐛 Сообщайте о багах в Issues
-- 💡 Предлагайте новые функции
-- 🔧 Отправляйте Pull Request
-
-
-
-**Приятного использования! 🎵**
+**Made with ❤️ by vitorpixel-6436**
