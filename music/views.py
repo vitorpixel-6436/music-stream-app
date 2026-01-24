@@ -99,3 +99,16 @@ def upload_music(request):
 def upload_page(request):
     """Display upload form"""
     return render(request, 'music/upload.html')
+
+# Error handlers
+def handler404(request, exception):
+    """Handle 404 errors gracefully"""
+    context = {'error_message': 'Page not found (404)'}
+    return render(request, 'music/404.html', context, status=404)
+
+def handler500(request):
+    """Handle 500 errors gracefully"""
+    logger = logging.getLogger(__name__)
+    logger.error('Internal Server Error (500)')
+    context = {'error_message': 'Internal server error (500)'}
+    return render(request, 'music/500.html', context, status=500)
