@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Genre, Artist, Album, Track, Playlist, Favorite, DownloadHistory, ConversionQueue
+from .models import Genre, Artist, Album, MusicFile, Playlist, Favorite, DownloadHistory, ConversionQueue
 from django.utils.html import format_html
 
 
@@ -29,19 +29,22 @@ class AlbumAdmin(admin.ModelAdmin):
     ordering = ('-year', 'title')
 
 
-# Track Admin
-@admin.register(Track)
-class TrackAdmin(admin.ModelAdmin):
-    list_display = ('title', 'artist', 'album', 'format', 'quality', 'duration', 'play_count', 'uploaded_at'), 'preview'
-    list_filter = ('artist', 'album', 'genre', 'format', 'quality', 'uploaded_at')
+# MusicFile Admin (было Track - ИСПРАВЛЕНО!)
+@admin.register(MusicFile)
+class MusicFileAdmin(admin.ModelAdmin):
+    list_display = ('title', 'artist', 'album', 'format', 'quality', 'duration', 'play_count', 'created_at', 'preview')
+    list_filter = ('artist', 'album', 'genre', 'format', 'quality', 'created_at')
     search_fields = ('title', 'artist__name', 'album__title')
-    readonly_fields = ('uploaded_at', 'file_size', 'duration')
-    ordering = ('-uploaded_at',)
-
+    readonly_fields = ('created_at', 'updated_at', 'file_size', 'duration', 'play_count', 'download_count')
+    ordering = ('-created_at',)
+    
     def preview(self, obj):
         if obj.file:
             return format_html(
-                '<audio controls style="width: 200px;"><source src="{}" type="audio/mpeg">Your browser does not support audio.</audio>',
+                '<audio controls style="width: 200px;">'
+                '<source src="{}" type="audio/mpeg">'
+                'Your browser does not support audio.'
+                '</audio>',
                 obj.file.url
             )
         return "-"
