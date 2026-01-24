@@ -466,3 +466,251 @@ section h2::after {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
+
+
+/* Advanced Animations and Effects */
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Music Card Hover Effects */
+.music-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideInUp 0.5s ease-out forwards;
+}
+
+.music-card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 216, 255, 0.3);
+}
+
+.music-card:active {
+  transform: scale(0.98);
+}
+
+/* Button Effects */
+button, a.btn, .btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+button::before, a.btn::before, .btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+button:hover::before, a.btn:hover::before, .btn:hover::before {
+  width: 400px;
+  height: 400px;
+}
+
+/* Form Input Focus Effects */
+input:focus, textarea:focus, select:focus {
+  box-shadow: 0 0 20px rgba(0, 216, 255, 0.5) !important;
+  transform: translateY(-2px);
+}
+
+input, textarea, select {
+  transition: all 0.3s ease;
+}
+
+/* Responsive Design Improvements */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 1rem 0.5rem;
+  }
+  
+  .navbar-brand {
+    font-size: 1.2rem;
+  }
+  
+  .container {
+    padding: 1rem 0.5rem;
+  }
+  
+  .music-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+  
+  .hero-section h1 {
+    font-size: 1.8rem;
+  }
+  
+  .hero-section p {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .music-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .hero-section h1 {
+    font-size: 1.4rem;
+  }
+  
+  .hero-section {
+    padding: 2rem 1rem;
+  }
+  
+  .navbar {
+    flex-direction: column;
+  }
+  
+  .search-bar {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Scroll Bar Styling */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--primary-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-color);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-hover);
+}
+
+/* Toast/Notification Styles */
+.toast {
+  animation: slideInRight 0.3s ease-out;
+  background: rgba(0, 216, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 216, 255, 0.3);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.toast.success {
+  border-color: rgba(83, 207, 102, 0.5);
+}
+
+.toast.error {
+  border-color: rgba(255, 77, 77, 0.5);
+}
+
+.toast.warning {
+  border-color: rgba(255, 193, 7, 0.5);
+}
+
+/* Loading Spinner */
+.spinner {
+  border: 3px solid rgba(0, 216, 255, 0.2);
+  border-top-color: var(--accent-color);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+  
+  a {
+    text-decoration: underline;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+}
