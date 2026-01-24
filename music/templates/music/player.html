@@ -1,27 +1,82 @@
 {% extends 'music/base.html' %}
+{% load static %}
 
-{% block title %}{{ music_file.title }} - Player{% endblock %}
+{% block title %}{{ music_file.title }} - Playing{% endblock %}
 
 {% block content %}
-<div class="player-container">
-    <div class="player-info">
-        <h2>{{ music_file.title }}</h2>
-        <p class="artist">{{ music_file.artist }}</p>
-        {% if music_file.album %}
-        <p class="album">Album: {{ music_file.album }}</p>
-        {% endif %}
-    </div>
-    
-    <div class="audio-player">
-        <audio id="music-player" controls>
-            <source src="{% url 'music:stream' music_file.pk %}" type="audio/mpeg">
-            Your browser does not support the audio element.
-        </audio>
-    </div>
-    
-    <div class="player-controls">
-        <a href="{% url 'music:download' music_file.pk %}" class="btn btn-download">Download</a>
-        <a href="{% url 'music:index' %}" class="btn btn-back">Back to Library</a>
+<div class="main-content-inner">
+    <div class="row">
+        <!-- Main Player Card -->
+        <div class="col-lg-8">
+            <div class="glass-card player-card p-5 text-center mb-4">
+                <div class="album-image mb-4" style="font-size: 120px;">🎶</div>
+                <h1 class="hero-title mb-2">{{ music_file.title }}</h1>
+                <p class="text-secondary fs-5 mb-4">
+                    {{ music_file.artist.name }} 
+                    {% if music_file.album %} • {{ music_file.album.title }}{% endif %}
+                </p>
+
+                <div class="audio-container my-5 p-4 rounded-4" style="background: rgba(0,0,0,0.2);">
+                    <audio id="music-player" class="w-100" controls autoplay>
+                        <source src="{% url 'music:stream' music_file.pk %}" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+
+                <div class="player-stats d-flex justify-content-center gap-4 text-secondary small mb-5">
+                    <span><i class="fas fa-play"></i> {{ music_file.play_count }} Plays</span>
+                    <span><i class="fas fa-download"></i> {{ music_file.download_count }} Downloads</span>
+                    <span><i class="fas fa-file-audio"></i> {{ music_file.format|upper }}</span>
+                </div>
+
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{% url 'music:download' music_file.pk %}" class="btn px-5 py-3">
+                        <span class="me-2">⬇</span> Download Track
+                    </a>
+                    <a href="{% url 'music:index' %}" class="btn px-5 py-3" style="background: var(--secondary-bg);">
+                        <span class="me-2">🔙</span> Back to Library
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations Sidebar -->
+        <div class="col-lg-4">
+            <div class="glass-card p-4">
+                <h3 class="mb-4">🎵 Up Next</h3>
+                <div class="recommendations-list">
+                    {% for rec in recommendations %}
+                        <a href="{% url 'music:player' rec.pk %}" class="d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none text-white mb-2" style="background: rgba(255,255,255,0.05); transition: background 0.3s;">
+                            <div class="rec-icon" style="font-size: 24px;">💿</div>
+                            <div class="rec-info overflow-hidden">
+                                <div class="text-truncate fw-bold">{{ rec.title }}</div>
+                                <div class="text-secondary small">{{ rec.artist.name }}</div>
+                            </div>
+                        </a>
+                    {% empty %}
+                        <p class="text-secondary small">No recommendations found.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+<style>
+    .recommendations-list a:hover {
+        background: rgba(0, 212, 255, 0.1) !important;
+        transform: translateX(5px);
+    }
+    audio::-webkit-media-controls-panel {
+        background-color: var(--secondary-bg);
+    }
+    audio::-webkit-media-controls-play-button,
+    audio::-webkit-media-controls-current-time-display,
+    audio::-webkit-media-controls-time-remaining-display,
+    audio::-webkit-media-controls-timeline,
+    audio::-webkit-media-controls-volume-control-container,
+    audio::-webkit-media-controls-mute-button {
+        filter: invert(1);
+    }
+</style>
 {% endblock %}
