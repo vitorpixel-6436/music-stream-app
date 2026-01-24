@@ -1,32 +1,32 @@
 {% extends 'music/base.html' %}
-
-{% block title %}Music Library - Home{% endblock %}
+{% load static %}
 
 {% block content %}
-<div class="music-list">
-    <h2>Music Library</h2>
-    
-    {% if music_files %}
-        <div class="tracks">
-            {% for music in music_files %}
-            <div class="track-item">
-                <div class="track-info">
-                    <h3>{{ music.title }}</h3>
-                    <p class="artist">{{ music.artist }}</p>
-                    {% if music.album %}
-                    <p class="album">{{ music.album }}</p>
-                    {% endif %}
-                </div>
-                <div class="track-actions">
-                    <a href="{% url 'music:player' music.pk %}" class="btn btn-play">Play</a>
-                    <a href="{% url 'music:stream' music.pk %}" class="btn btn-stream" target="_blank">Stream</a>
-                    <a href="{% url 'music:download' music.pk %}" class="btn btn-download">Download</a>
-                </div>
+<section class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">🎶 Welcome to Music Library</h1>
+        <p>Listen, discover, and download your favorite tracks</p>
+    </div>
+</section>
+
+<section>
+    <h2>🔥 Recently Added</h2>
+    <div class="album-grid">
+        {% for track in music_files %}
+        <div class="glass-card album-card">
+            <div class="album-image">🎵</div>
+            <div class="album-info">
+                <h3 class="album-title">{{ track.title }}</h3>
+                <p class="album-artist">{{ track.artist.name }}</p>
             </div>
-            {% endfor %}
+            <div class="card-actions">
+                <button class="btn-play" onclick="playTrack({{ track.id }})">▶</button>
+                <a href="{% url 'music:download' track.pk %}" class="btn">Download</a>
+            </div>
         </div>
-    {% else %}
-        <p class="no-music">No music files uploaded yet. <a href="{% url 'music:upload_page' %}">Upload your first track!</a></p>
-    {% endif %}
-</div>
+        {% empty %}
+        <p>No tracks yet. <a href="/admin/">Upload some</a>!</p>
+        {% endfor %}
+    </div>
+</section>
 {% endblock %}
