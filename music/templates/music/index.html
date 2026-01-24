@@ -1,0 +1,32 @@
+{% extends 'music/base.html' %}
+
+{% block title %}Music Library - Home{% endblock %}
+
+{% block content %}
+<div class="music-list">
+    <h2>Music Library</h2>
+    
+    {% if music_files %}
+        <div class="tracks">
+            {% for music in music_files %}
+            <div class="track-item">
+                <div class="track-info">
+                    <h3>{{ music.title }}</h3>
+                    <p class="artist">{{ music.artist }}</p>
+                    {% if music.album %}
+                    <p class="album">{{ music.album }}</p>
+                    {% endif %}
+                </div>
+                <div class="track-actions">
+                    <a href="{% url 'music:player' music.pk %}" class="btn btn-play">Play</a>
+                    <a href="{% url 'music:stream' music.pk %}" class="btn btn-stream" target="_blank">Stream</a>
+                    <a href="{% url 'music:download' music.pk %}" class="btn btn-download">Download</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="no-music">No music files uploaded yet. <a href="{% url 'music:upload_page' %}">Upload your first track!</a></p>
+    {% endif %}
+</div>
+{% endblock %}
