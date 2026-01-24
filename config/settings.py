@@ -84,10 +84,10 @@ CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', 'False') == 'True'
 SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', 0))
 SECURE_HSTS_INCLUDE_SUBDOMAINS = os.getenv('SECURE_HSTS_INCLUDE_SUBDOMAINS', 'False') == 'True'
 
-# Logging Configuration
-# Logging Configuration with auto-directory creation
+
+
 LOGGING_DIR = BASE_DIR / 'logs'
-LOGGING_DIR.mkdir(exist_ok=True)  # Create logs directory if it doesn't exist
+LOGGING_DIR.mkdir(exist_ok=True)
 
 LOGGING = {
     'version': 1,
@@ -114,27 +114,6 @@ LOGGING = {
     'root': {
         'handlers': ['file', 'console'],
         'level': 'INFO',
-    },
-}
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
-            'style': '{',
-        },
-    },
-    'handlers': {
-        'file': {
-            'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'error.log',
-            'formatter': 'verbose',
-        },
-    },
-    'root': {
-        'handlers': ['file'],
-        'level': 'ERROR',
     },
 }
 
