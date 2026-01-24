@@ -2,21 +2,21 @@ from django.shortcuts import render, get_object_or_404
 from django.http import FileResponse, JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.core.files.storage import default_storage
-from .models import MusicFile
+from .models import Track
 import os
 import mimetypes
 
 
 def index(request):
     """Display homepage with music list"""
-    music_files = MusicFile.objects.all().order_by('-uploaded_at')
+    music_files = Track.objects.all().order_by('-uploaded_at')
     context = {'music_files': music_files}
     return render(request, 'music/index.html', context)
 
 
 def player(request, pk):
     """Display music player for specific track"""
-    music_file = get_object_or_404(MusicFile, pk=pk)
+    music_file = get_object_or_404(Track, pk=pk)
     context = {'music_file': music_file}
     return render(request, 'music/player.html', context)
 
@@ -24,7 +24,7 @@ def player(request, pk):
 @require_http_methods(["GET"])
 def stream_music(request, pk):
     """Stream music file"""
-    music_file = get_object_or_404(MusicFile, pk=pk)
+    music_file = get_object_or_404(Track, pk=pk)
     
     if not music_file.file:
         return HttpResponse(status=404)
@@ -40,7 +40,7 @@ def stream_music(request, pk):
 @require_http_methods(["GET"])
 def download_music(request, pk):
     """Download music file"""
-    music_file = get_object_or_404(MusicFile, pk=pk)
+    music_file = get_object_or_404(Track, pk=pk)
     
     if not music_file.file:
         return HttpResponse(status=404)
@@ -64,7 +64,7 @@ def upload_music(request):
     artist = request.POST.get('artist', '')
     album = request.POST.get('album', '')
     
-    music_file = MusicFile.objects.create(
+    music_file = Track.objects.create(
         title=title,
         artist=artist,
         album=album,
