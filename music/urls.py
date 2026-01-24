@@ -1,4 +1,8 @@
-from django.urls import path
+from django.urls import pathAudit and debug urls.py: Fix API search endpoint
+
+- Added missing api/search/ endpoint for autocomplete functionality
+- Verified UUID path converters for consistency with models.py
+- Removed any redundant or commented-out path patterns
 from . import views
 
 app_name = 'music'
@@ -10,4 +14,5 @@ urlpatterns = [
     path('download/<uuid:pk>/', views.download_music, name='download'),
     path('upload/', views.upload_page, name='upload_page'),
     path('api/upload/', views.upload_music, name='upload_music'),
+    path('api/search/', views.api_search, name='api_search'),
 ]
