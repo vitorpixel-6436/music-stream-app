@@ -1,4 +1,6 @@
 from django import forms
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 from .models import Track, Album, Artist, Genre, Playlist
 
@@ -19,6 +21,21 @@ class TrackUploadForm(forms.ModelForm):
             'format': forms.Select(attrs={'class': 'form-control'}),
             'quality': forms.Select(attrs={'class': 'form-control'}),
         }
+            
+    def clean_file(self):
+        """Validate uploaded file"""
+        file = self.cleaned_data.get('file')
+        if file:
+            # Check file size (max 100MB)
+            if file.size > 100 * 1024 * 1024:
+                raise ValidationError(_('File size must not exceed 100MB'))
+            
+            # Check file extension
+            allowed_extensions = ['mp3', 'wav', 'flac', 'ogg', 'm4a']
+            file_ext = file.name.split('.')[-1].lower()
+            if file_ext not in allowed_extensions:
+                raise ValidationError(_('Only audio files are allowed'))
+        return file
 
 
 class PlaylistCreateForm(forms.ModelForm):
