@@ -1,0 +1,71 @@
+{% extends 'music/base.html' %}
+
+{% block title %}Upload Music{% endblock %}
+
+{% block content %}
+<div class="upload-container">
+    <h2>Upload Music</h2>
+    
+    <form id="upload-form" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="file">Music File:</label>
+            <input type="file" id="file" name="file" accept="audio/*" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="artist">Artist:</label>
+            <input type="text" id="artist" name="artist">
+        </div>
+        
+        <div class="form-group">
+            <label for="album">Album:</label>
+            <input type="text" id="album" name="album">
+        </div>
+        
+        <button type="submit" class="btn btn-upload">Upload</button>
+    </form>
+    
+    <div id="upload-status" style="display: none;"></div>
+</div>
+
+<script>
+document.getElementById('upload-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const statusDiv = document.getElementById('upload-status');
+    
+    statusDiv.style.display = 'block';
+    statusDiv.textContent = 'Uploading...';
+    
+    try {
+        const response = await fetch('{% url "music:upload_music" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            statusDiv.textContent = 'Upload successful!';
+            setTimeout(() => {
+                window.location.href = '{% url "music:index" %}';
+            }, 1500);
+        } else {
+            statusDiv.textContent = 'Error: ' + (data.error || 'Upload failed');
+        }
+    } catch (error) {
+        statusDiv.textContent = 'Error: ' + error.message;
+    }
+});
+</script>
+{% endblock %}
