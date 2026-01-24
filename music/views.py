@@ -163,3 +163,10 @@ def api_search(request):
     ).values('id', 'title', 'artist__name')[:10]
     
     return JsonResponse({'results': list(results)})
+
+
+def handler404(request, exception):
+    return render(request, 'music/404.html', status=404)
+
+def handler500(request):
+    return render(request, 'music/500.html', status=500)
