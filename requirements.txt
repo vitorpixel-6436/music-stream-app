@@ -1,16 +1,16 @@
-# Core Django
-Django>=4.2.0
-DjangoRestFramework>=3.14.0
+# Core Django - Python 3.14+ Compatible
+Django>=6.0.1
+DjangoRestFramework>=3.16.1
 
 # Database
-psycopg2-binary>=2.9.0
+psycopg2-binary>=2.9.9
 
 # Environment
 python-dotenv>=1.0.0
 
 # Audio processing and metadata
 mutagen>=1.47.0
-PyDub>=0.25.1
+pydub>=0.25.1
 
 # Audio conversion (ffmpeg wrapper)
 ffmpeg-python>=0.2.0
@@ -23,7 +23,7 @@ PySocks>=1.7.1
 tqdm>=4.66.0
 
 # Celery for async tasks
-celery>=5.3.0
+celery>=5.3.4
 redis>=5.0.0
 
 # Image processing
@@ -34,14 +34,14 @@ beautifulsoup4>=4.12.0
 lxml>=4.9.0
 
 # YouTube/streaming site downloaders
-yt-dlp>=2023.11.0
-spotdl>=3.9.6
+yt-dlp>=2024.1.0
+spotdl==3.9.6
 
 # CORS headers
-django-cors-headers>=4.3.0
+django-cors-headers>=4.3.1
 
 # Filters
-django-filter>=23.3
+django-filter>=24.1
 
 # Simple JWT authentication
 djangorestframework-simplejwt>=5.3.0
@@ -50,8 +50,11 @@ djangorestframework-simplejwt>=5.3.0
 django-cleanup>=8.0.0
 
 # Gunicorn for production
-gunicorn>=21.0.0
+gunicorn>=21.2.0
 
 # Additional utilities
-chardet>=5.1.0
+chardet>=5.2.0
 colorama>=0.4.6
+
+# Python 3.14 compatibility helpers
+backing>=1.0.0
