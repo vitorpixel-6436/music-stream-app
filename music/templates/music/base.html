@@ -1,38 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Music Streaming App{% endblock %}</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'music/css/style.css' %}">
+    <title>{% block title %}Music App{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'music/css/modern.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="container">
-                <h1><a href="{% url 'music:index' %}">Music Library</a></h1>
-                <ul>
-                    <li><a href="{% url 'music:index' %}">Home</a></li>
-                    <li><a href="{% url 'music:upload_page' %}">Upload</a></li>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-logo">🎵 Music Library</div>
+            <nav>
+                <ul class="sidebar-nav">
+                    <li><a href="{% url 'music:index' %}"><span>🏠</span> Home</a></li>
+                    <li><a href="#"><span>🔍</span> Search</a></li>
+                    <li><a href="#"><span>📚</span> Library</a></li>
+                    <li><a href="/admin/"><span>⚙️</span> Admin</a></li>
                 </ul>
-            </div>
-        </nav>
-    </header>
-
-    <main class="container">
-        {% block content %}
-        {% endblock %}
-    </main>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2024 Music Streaming App</p>
-        </div>
-    </footer>
-
-    <script src="{% static 'music/js/player.js' %}"></script>
+            </nav>
+        </aside>
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
