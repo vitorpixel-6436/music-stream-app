@@ -1,71 +1,112 @@
 {% extends 'music/base.html' %}
+{% load static %}
 
-{% block title %}Upload Music{% endblock %}
+{% block title %}Upload Music | Premium Streaming{% endblock %}
 
 {% block content %}
-<div class="upload-container">
-    <h2>Upload Music</h2>
-    
-    <form id="upload-form" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="file">Music File:</label>
-            <input type="file" id="file" name="file" accept="audio/*" required>
+<div class="main-content-inner">
+    <section class="hero-section mb-4">
+        <div class="hero-content">
+            <h1 class="hero-title">🚀 Contribute to Library</h1>
+            <p>Upload your favorite high-quality tracks (MP3, FLAC, OGG, WAV)</p>
         </div>
-        
-        <div class="form-group">
-            <label for="title">Title:</label>
-            <input type="text" id="title" name="title" required>
+    </section>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="glass-card p-5">
+                <form id="upload-form" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label for="file" class="form-label text-secondary">Audio File (Max 50MB)</label>
+                        <input type="file" id="file" name="file" class="search-input w-100" accept="audio/*" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="title" class="form-label text-secondary">Track Title</label>
+                        <input type="text" id="title" name="title" class="search-input w-100" placeholder="e.g. Moonlight Sonata" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="artist" class="form-label text-secondary">Artist Name</label>
+                        <input type="text" id="artist" name="artist" class="search-input w-100" placeholder="e.g. Beethoven">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="album" class="form-label text-secondary">Album (Optional)</label>
+                        <input type="text" id="album" name="album" class="search-input w-100" placeholder="e.g. Classics Vol. 1">
+                    </div>
+
+                    <div id="progress-container" class="mb-4 d-none">
+                        <div class="progress" style="height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden;">
+                            <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%; background: var(--accent-color); transition: width 0.3s ease;"></div>
+                        </div>
+                        <p id="status-text" class="text-center mt-2 small text-secondary">Uploading: 0%</p>
+                    </div>
+
+                    <button type="submit" id="submit-btn" class="btn w-100 py-3" style="font-size: 1.1rem;">
+                        <span id="btn-text">Start Upload</span>
+                        <div id="btn-spinner" class="spinner-border spinner-border-sm d-none" role="status"></div>
+                    </button>
+                </form>
+
+                <div id="message-container" class="mt-4"></div>
+            </div>
         </div>
-        
-        <div class="form-group">
-            <label for="artist">Artist:</label>
-            <input type="text" id="artist" name="artist">
-        </div>
-        
-        <div class="form-group">
-            <label for="album">Album:</label>
-            <input type="text" id="album" name="album">
-        </div>
-        
-        <button type="submit" class="btn btn-upload">Upload</button>
-    </form>
-    
-    <div id="upload-status" style="display: none;"></div>
+    </div>
 </div>
 
 <script>
-document.getElementById('upload-form').addEventListener('submit', async function(e) {
+document.getElementById('upload-form').addEventListener('submit', function(e) {
     e.preventDefault();
     
-    const formData = new FormData(this);
-    const statusDiv = document.getElementById('upload-status');
+    const form = e.target;
+    const formData = new FormData(form);
+    const submitBtn = document.getElementById('submit-btn');
+    const progressContainer = document.getElementById('progress-container');
+    const progressBar = document.getElementById('progress-bar');
+    const statusText = document.getElementById('status-text');
+    const messageContainer = document.getElementById('message-container');
+
+    // Reset UI
+    messageContainer.innerHTML = '';
+    progressContainer.classList.remove('d-none');
+    submitBtn.disabled = true;
     
-    statusDiv.style.display = 'block';
-    statusDiv.textContent = 'Uploading...';
-    
-    try {
-        const response = await fetch('{% url "music:upload_music" %}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            }
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            statusDiv.textContent = 'Upload successful!';
-            setTimeout(() => {
-                window.location.href = '{% url "music:index" %}';
-            }, 1500);
-        } else {
-            statusDiv.textContent = 'Error: ' + (data.error || 'Upload failed');
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', "{% url 'music:upload_music' %}", true);
+
+    xhr.upload.onprogress = function(e) {
+        if (e.lengthComputable) {
+            const percent = Math.round((e.loaded / e.total) * 100);
+            progressBar.style.width = percent + '%';
+            statusText.innerText = 'Uploading: ' + percent + '%';
         }
-    } catch (error) {
-        statusDiv.textContent = 'Error: ' + error.message;
-    }
+    };
+
+    xhr.onload = function() {
+        submitBtn.disabled = false;
+        const response = JSON.parse(xhr.responseText);
+        
+        if (xhr.status === 200) {
+            messageContainer.innerHTML = `<div class="toast success">✅ ${response.message}: ${response.title}</div>`;
+            form.reset();
+            setTimeout(() => {
+                progressContainer.classList.add('d-none');
+                progressBar.style.width = '0%';
+            }, 3000);
+        } else {
+            messageContainer.innerHTML = `<div class="toast error">❌ Error: ${response.error || 'Upload failed'}</div>`;
+        }
+    };
+
+    xhr.onerror = function() {
+        submitBtn.disabled = false;
+        messageContainer.innerHTML = '<div class="toast error">❌ Connection error. Please try again.</div>';
+    };
+
+    xhr.send(formData);
 });
 </script>
 {% endblock %}
