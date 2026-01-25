@@ -1,61 +1,86 @@
 // Music Player JavaScript
-
-// Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Music Streaming App initialized');
-    
-    // Get all audio players on the page
+    console.log('Music Streaming App v2.0 initialized');
+
     const audioPlayers = document.querySelectorAll('audio');
-    
+    let currentPlaying = null;
+
+    // --- Keyboard Shortcuts (Global UX) ---
+    document.addEventListener('keydown', (e) => {
+        // Space to toggle play/pause of the current/last player
+        if (e.code === 'Space' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+            if (currentPlaying) {
+                if (currentPlaying.paused) currentPlaying.play();
+                else currentPlaying.pause();
+                showNotification(currentPlaying.paused ? 'Paused' : 'Playing');
+            }
+        }
+        // M to mute/unmute
+        if (e.key.toLowerCase() === 'm') {
+            if (currentPlaying) {
+                currentPlaying.muted = !currentPlaying.muted;
+                showNotification(currentPlaying.muted ? 'Muted' : 'Unmuted');
+            }
+        }
+    });
+
     audioPlayers.forEach(player => {
-        // Add event listener for when audio starts playing
         player.addEventListener('play', function() {
-            console.log('Playing:', this.src);
+            // Stop other players if one starts (prevent overlapping audio)
+            if (currentPlaying && currentPlaying !== this) {
+                currentPlaying.pause();
+            }
+            currentPlaying = this;
+            
+            // Highlight active track
+            const trackItem = this.closest('.track-item');
+            if (trackItem) {
+                document.querySelectorAll('.track-item').forEach(i => i.classList.remove('active-track'));
+                trackItem.classList.add('active-track');
+            }
         });
-        
-        // Add event listener for when audio is paused
-        player.addEventListener('pause', function() {
-            console.log('Paused:', this.src);
-        });
-        
-        // Add event listener for when audio ends
-        player.addEventListener('ended', function() {
-            console.log('Finished playing:', this.src);
-        });
-        
-        // Add event listener for errors
+
         player.addEventListener('error', function() {
-            console.error('Error loading audio:', this.src);
+            showNotification('Error loading audio track', 'error');
         });
     });
-    
-    // Handle track item clicks for smooth scrolling
+
+    // --- Micro-interactions & Click feedback ---
     const trackItems = document.querySelectorAll('.track-item');
     trackItems.forEach(item => {
-        item.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-2px)';
-            this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
-        });
-        
-        item.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-            this.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
+        item.addEventListener('click', function(e) {
+            if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A' && e.target.tagName !== 'AUDIO') {
+                const player = this.querySelector('audio');
+                if (player) {
+                    if (player.paused) player.play();
+                    else player.pause();
+                }
+            }
         });
     });
+
+    // --- Toast Notification System ---
+    function showNotification(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast-popup ${type}`;
+        toast.innerHTML = `<span>${message}</span>`;
+        document.body.appendChild(toast);
+        
+        // Animate in
+        setTimeout(() => toast.classList.add('show'), 10);
+        
+        // Remove after 3s
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
 });
 
-// Helper function to format time duration
+// Helper for duration formatting
 function formatDuration(seconds) {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-}
-
-// Helper function to update player progress
-function updateProgress(player) {
-    if (player.duration) {
-        const progress = (player.currentTime / player.duration) * 100;
-        return progress;
-    }
-    return 0;
+    const min = Math.floor(seconds / 60);
+    const sec = Math.floor(seconds % 60);
+    return `${min}:${sec.toString().padStart(2, '0')}`;
 }
