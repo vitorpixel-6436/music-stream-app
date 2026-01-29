@@ -1,226 +1,351 @@
+/* ========================================
+   MUSIC STREAM APP - MODERN UI STYLES
+   Liquid Glass + Apple + Steam + Spotify + MSI
+   ======================================== */
+
+/* === LIQUID GLASS EFFECTS === */
+.glass {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 
+        inset 0 0 20px rgba(255, 255, 255, 0.05),
+        0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.glass-dark {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-red {
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, rgba(0, 0, 0, 0.2) 100%);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+/* Specular Highlight для объёма */
+.specular-highlight::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, transparent 40%);
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+.refractive-edge {
+    box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+/* === MSI GAMING GLOWS === */
+.glow-red {
+    box-shadow: 
+        0 0 20px rgba(220, 38, 38, 0.4),
+        0 0 40px rgba(220, 38, 38, 0.2),
+        inset 0 0 10px rgba(220, 38, 38, 0.1);
+}
+
+.glow-red-intense {
+    box-shadow: 
+        0 0 30px rgba(220, 38, 38, 0.6),
+        0 0 60px rgba(220, 38, 38, 0.3),
+        0 0 90px rgba(220, 38, 38, 0.1);
+}
+
+.glow-red-hover:hover {
+    box-shadow: 
+        0 0 35px rgba(220, 38, 38, 0.8),
+        0 0 70px rgba(220, 38, 38, 0.4);
+}
+
+/* === CUSTOM SCROLLBAR === */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, rgba(220, 38, 38, 0.5), rgba(153, 27, 27, 0.5));
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom, rgba(220, 38, 38, 0.7), rgba(153, 27, 27, 0.7));
+}
+
+/* Firefox scrollbar */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(220, 38, 38, 0.5) rgba(0, 0, 0, 0.2);
 }
 
-body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    background-color: #f4f4f4;
+/* === IOS-LIKE TRANSITIONS === */
+.transition-ios {
+    transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
+.transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-header {
-    background-color: #333;
-    color: white;
-    padding: 1rem 0;
+/* === ANIMATIONS === */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
-header nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+@keyframes slideUp {
+    from { 
+        transform: translateY(100%); 
+        opacity: 0; 
+    }
+    to { 
+        transform: translateY(0); 
+        opacity: 1; 
+    }
 }
 
-header h1 a {
-    color: white;
-    text-decoration: none;
+@keyframes slideDown {
+    from { 
+        transform: translateY(-100%); 
+        opacity: 0; 
+    }
+    to { 
+        transform: translateY(0); 
+        opacity: 1; 
+    }
 }
 
-header ul {
-    list-style: none;
-    display: flex;
-    gap: 20px;
+@keyframes scaleIn {
+    from { 
+        transform: scale(0.9); 
+        opacity: 0; 
+    }
+    to { 
+        transform: scale(1); 
+        opacity: 1; 
+    }
 }
 
-header ul li a {
-    color: white;
-    text-decoration: none;
-    padding: 5px 10px;
-    border-radius: 3px;
-    transition: background-color 0.3s;
+@keyframes pulse-glow {
+    0%, 100% { 
+        box-shadow: 0 0 20px rgba(220, 38, 38, 0.4);
+    }
+    50% { 
+        box-shadow: 0 0 40px rgba(220, 38, 38, 0.8);
+    }
 }
 
-header ul li a:hover {
-    background-color: #555;
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
 }
 
-main {
-    min-height: calc(100vh - 150px);
-    padding: 2rem 0;
+.slide-up {
+    animation: slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.music-list h2,
-.player-container h2,
-.upload-container h2 {
-    margin-bottom: 1.5rem;
-    color: #333;
+.slide-down {
+    animation: slideDown 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.tracks {
-    display: grid;
-    gap: 1rem;
+.scale-in {
+    animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.track-item {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
 }
 
-.track-info h3 {
-    color: #333;
-    margin-bottom: 0.5rem;
-}
-
-.track-info .artist {
-    color: #666;
-    font-size: 0.9rem;
-}
-
-.track-info .album {
-    color: #999;
-    font-size: 0.85rem;
-}
-
-.track-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.btn {
-    padding: 8px 16px;
-    border-radius: 4px;
-    text-decoration: none;
-    border: none;
+/* === RANGE SLIDER CUSTOM STYLE === */
+input[type="range"].slider-thumb-red {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
     cursor: pointer;
-    font-size: 0.9rem;
-    transition: background-color 0.3s;
 }
 
-.btn-play {
-    background-color: #4CAF50;
+input[type="range"].slider-thumb-red::-webkit-slider-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    height: 4px;
+}
+
+input[type="range"].slider-thumb-red::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: linear-gradient(to bottom, #dc2626, #991b1b);
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(220, 38, 38, 0.8);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.2s;
+}
+
+input[type="range"].slider-thumb-red::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 15px rgba(220, 38, 38, 1);
+}
+
+input[type="range"].slider-thumb-red::-moz-range-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    height: 4px;
+}
+
+input[type="range"].slider-thumb-red::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: linear-gradient(to bottom, #dc2626, #991b1b);
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 10px rgba(220, 38, 38, 0.8);
+    transition: all 0.2s;
+}
+
+input[type="range"].slider-thumb-red::-moz-range-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 15px rgba(220, 38, 38, 1);
+}
+
+/* === CARD HOVER EFFECTS (Steam-style) === */
+.track-card {
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.track-card:hover {
+    transform: translateY(-8px) scale(1.03);
+}
+
+.track-card:active {
+    transform: scale(0.95);
+}
+
+/* === WAVEFORM VISUALIZATION === */
+@keyframes waveform {
+    0%, 100% { height: 20%; }
+    50% { height: 100%; }
+}
+
+.waveform-bar {
+    animation: waveform 1.2s ease-in-out infinite;
+}
+
+/* === BUTTON STYLES === */
+.btn-primary {
+    @apply bg-gradient-to-br from-red-600 to-red-700 text-white font-semibold px-6 py-3 rounded-2xl;
+    @apply shadow-lg hover:shadow-xl transition-all duration-300;
+    @apply hover:scale-105 active:scale-95;
+    box-shadow: 0 4px 20px rgba(220, 38, 38, 0.4);
+}
+
+.btn-primary:hover {
+    box-shadow: 0 8px 30px rgba(220, 38, 38, 0.6);
+}
+
+.btn-glass {
+    @apply glass px-6 py-3 rounded-2xl font-medium;
+    @apply hover:bg-white/10 transition-all duration-300;
+    @apply active:scale-95;
+}
+
+/* === FLOATING ELEMENTS === */
+.floating {
+    animation: floating 3s ease-in-out infinite;
+}
+
+@keyframes floating {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+/* === GRADIENT TEXT === */
+.gradient-text-red {
+    background: linear-gradient(135deg, #ffffff 0%, #fecaca 50%, #dc2626 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* === NOISE TEXTURE === */
+.noise-texture {
+    position: relative;
+}
+
+.noise-texture::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.015;
+    pointer-events: none;
+    background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" /%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" /%3E%3C/svg%3E');
+}
+
+/* === SKELETON LOADING === */
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        rgba(255, 255, 255, 0.05) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s ease-in-out infinite;
+}
+
+/* === UTILITY CLASSES === */
+.blur-sm { backdrop-filter: blur(4px); }
+.blur-md { backdrop-filter: blur(12px); }
+.blur-lg { backdrop-filter: blur(20px); }
+.blur-xl { backdrop-filter: blur(32px); }
+
+.shadow-glow-sm { box-shadow: 0 0 10px rgba(220, 38, 38, 0.3); }
+.shadow-glow-md { box-shadow: 0 0 20px rgba(220, 38, 38, 0.5); }
+.shadow-glow-lg { box-shadow: 0 0 40px rgba(220, 38, 38, 0.7); }
+
+/* === RESPONSIVE ADJUSTMENTS === */
+@media (max-width: 768px) {
+    .glass {
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+    }
+    
+    ::-webkit-scrollbar {
+        width: 4px;
+    }
+}
+
+/* === SELECTION STYLE === */
+::selection {
+    background: rgba(220, 38, 38, 0.3);
     color: white;
 }
 
-.btn-play:hover {
-    background-color: #45a049;
-}
-
-.btn-stream {
-    background-color: #2196F3;
+::-moz-selection {
+    background: rgba(220, 38, 38, 0.3);
     color: white;
-}
-
-.btn-stream:hover {
-    background-color: #0b7dda;
-}
-
-.btn-download {
-    background-color: #ff9800;
-    color: white;
-}
-
-.btn-download:hover {
-    background-color: #e68900;
-}
-
-.btn-back,
-.btn-upload {
-    background-color: #555;
-    color: white;
-}
-
-.btn-back:hover,
-.btn-upload:hover {
-    background-color: #333;
-}
-
-.player-container {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.player-info {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.audio-player {
-    margin-bottom: 2rem;
-}
-
-.audio-player audio {
-    width: 100%;
-}
-
-.player-controls {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-}
-
-.upload-container {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: #333;
-    font-weight: bold;
-}
-
-.form-group input[type="text"],
-.form-group input[type="file"] {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 1rem;
-}
-
-#upload-status {
-    margin-top: 1rem;
-    padding: 10px;
-    border-radius: 4px;
-    background-color: #e7f3ff;
-    color: #004085;
-}
-
-.no-music {
-    text-align: center;
-    padding: 2rem;
-    color: #666;
-}
-
-footer {
-    background-color: #333;
-    color: white;
-    text-align: center;
-    padding: 1rem 0;
-    margin-top: 2rem;
 }
