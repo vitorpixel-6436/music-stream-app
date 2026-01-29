@@ -4,59 +4,187 @@
     {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Music App{% endblock %}</title>
+    <title>{% block title %}Music Stream{% endblock %}</title>
     
-    <!-- PWA -->
+    <!-- PWA Manifest -->
     <link rel="manifest" href="{% static 'music/manifest.json' %}">
-    <meta name="theme-color" content="#00d4ff">
+    <meta name="theme-color" content="#dc2626">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3844/3844724.png">
-
-    <!-- Font Awesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Bootstrap Grid & Utilities only -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap-grid.min.css">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'msi-red': '#dc2626',
+                        'msi-dark': '#991b1b',
+                        'deep-black': '#0a0a0a',
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
     
-    <link rel="stylesheet" href="{% static 'music/css/modern.css' %}">
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="{% static 'music/css/style.css' %}">
+    
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #0a0a0a;
+            color: white;
+            overflow-x: hidden;
+        }
+    </style>
+    
     {% block extra_css %}{% endblock %}
 </head>
-<body>
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-logo">🎵 Music Library</div>
-            <nav>
-                <ul class="sidebar-nav">
-                    <li><a href="{% url 'music:index' %}"><span>🏠</span> Home</a></li>
-                    <li><a href="{% url 'music:upload_page' %}"><span>🚀</span> Upload</a></li>
-                    <li><a href="/admin/"><span>⚙️</span> Admin</a></li>
-                </ul>
-            </nav>
-        </aside>
-
-        <main class="main-content">
-            {% if messages %}
-                <div class="messages-container no-print">
-                    {% for message in messages %}
-                        <div class="toast {{ message.tags }}">{{ message }}</div>
-                    {% endfor %}
+<body class="bg-deep-black text-white min-h-screen overflow-x-hidden selection:bg-red-500/30">
+    
+    <!-- Background Gradient Layer -->
+    <div class="fixed inset-0 bg-gradient-to-br from-black via-zinc-950 to-red-950/20 -z-20"></div>
+    
+    <!-- Noise Texture Overlay -->
+    <div class="fixed inset-0 opacity-[0.015] pointer-events-none -z-10 noise-texture"></div>
+    
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="fixed left-0 top-0 bottom-0 w-72 glass border-r border-white/10 z-40 transform transition-transform duration-500 lg:translate-x-0 -translate-x-full">
+        <div class="flex flex-col h-full p-6">
+            
+            <!-- Logo -->
+            <div class="mb-10">
+                <h1 class="text-2xl font-bold gradient-text-red flex items-center gap-3">
+                    <i class="fas fa-music"></i>
+                    Music Stream
+                </h1>
+                <p class="text-xs text-white/40 mt-1">Your personal library</p>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="flex-1 space-y-2">
+                <a href="{% url 'music:index' %}" class="flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-white/10 transition-all duration-300 group">
+                    <i class="fas fa-home w-5 text-white/60 group-hover:text-red-400 transition-colors"></i>
+                    <span class="font-medium group-hover:text-red-400 transition-colors">Home</span>
+                </a>
+                
+                <a href="{% url 'music:upload_page' %}" class="flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-white/10 transition-all duration-300 group">
+                    <i class="fas fa-upload w-5 text-white/60 group-hover:text-red-400 transition-colors"></i>
+                    <span class="font-medium group-hover:text-red-400 transition-colors">Upload</span>
+                </a>
+                
+                <a href="/admin/" class="flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-white/10 transition-all duration-300 group">
+                    <i class="fas fa-cog w-5 text-white/60 group-hover:text-red-400 transition-colors"></i>
+                    <span class="font-medium group-hover:text-red-400 transition-colors">Settings</span>
+                </a>
+                
+                <div class="border-t border-white/10 my-4"></div>
+                
+                <div class="px-4 py-3 space-y-1">
+                    <p class="text-xs font-bold uppercase tracking-wider text-white/40">Playlists</p>
                 </div>
-            {% endif %}
-
+                
+                <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-white/10 transition-all duration-300 group">
+                    <i class="fas fa-heart w-5 text-white/60 group-hover:text-red-400 transition-colors"></i>
+                    <span class="font-medium group-hover:text-red-400 transition-colors">Favorites</span>
+                </a>
+                
+                <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-white/10 transition-all duration-300 group">
+                    <i class="fas fa-clock w-5 text-white/60 group-hover:text-red-400 transition-colors"></i>
+                    <span class="font-medium group-hover:text-red-400 transition-colors">Recent</span>
+                </a>
+            </nav>
+            
+            <!-- User Profile (if needed) -->
+            <div class="mt-auto pt-6 border-t border-white/10">
+                <div class="glass-dark px-4 py-3 rounded-2xl flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center font-bold">
+                        U
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-sm truncate">User</p>
+                        <p class="text-xs text-white/40 truncate">Free Plan</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+    
+    <!-- Mobile Menu Toggle -->
+    <button id="menu-toggle" class="lg:hidden fixed top-6 left-6 z-50 glass w-12 h-12 rounded-full flex items-center justify-center">
+        <i class="fas fa-bars text-white"></i>
+    </button>
+    
+    <!-- Main Content Area -->
+    <main class="lg:ml-72 min-h-screen relative z-10">
+        
+        <!-- Messages/Notifications -->
+        {% if messages %}
+        <div class="fixed top-6 right-6 z-50 space-y-3 max-w-md">
+            {% for message in messages %}
+            <div class="glass slide-down px-6 py-4 rounded-2xl flex items-center gap-4 shadow-2xl">
+                <div class="w-2 h-2 rounded-full {% if message.tags == 'success' %}bg-green-500{% elif message.tags == 'error' %}bg-red-500{% else %}bg-blue-500{% endif %} pulse-glow"></div>
+                <p class="flex-1 text-sm font-medium">{{ message }}</p>
+                <button onclick="this.parentElement.remove()" class="text-white/40 hover:text-white transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- Page Content -->
+        <div class="p-6 lg:p-12 pb-48">
             {% block content %}{% endblock %}
-        </main>
-    </div>
-
+        </div>
+    </main>
+    
+    <!-- Scripts -->
     {% block extra_js %}{% endblock %}
     
-    <!-- PWA Service Worker Registration -->
+    <!-- Sidebar Toggle Script -->
+    <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        
+        if (menuToggle && sidebar) {
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+            });
+            
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth < 1024) {
+                    if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                        sidebar.classList.add('-translate-x-full');
+                    }
+                }
+            });
+        }
+    </script>
+    
+    <!-- PWA Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register("{% static 'music/js/sw.js' %}")
-                    .then(reg => console.log('SW registered', reg))
-                    .catch(err => console.log('SW registration failed', err));
+                    .then(reg => console.log('✅ Service Worker registered', reg))
+                    .catch(err => console.warn('⚠️ Service Worker registration failed', err));
             });
         }
     </script>
+    
 </body>
 </html>
