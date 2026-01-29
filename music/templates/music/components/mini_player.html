@@ -1,0 +1,109 @@
+{% load static %}
+
+<!-- Floating Mini Player (iOS/Apple Music Style) -->
+<div id="mini-player" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 max-w-4xl w-full px-6 hidden">
+    <div class="glass rounded-[40px] px-6 py-4 shadow-2xl border border-red-500/20 backdrop-blur-3xl slide-up">
+        <div class="flex items-center gap-6">
+            
+            <!-- Album Art -->
+            <div class="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 shadow-lg cursor-pointer hover:scale-105 transition-transform" 
+                 onclick="window.location.href='{% url 'music:player' current_track.pk %}'">
+                {% if current_track.cover_image %}
+                <img src="{{ current_track.cover_image.url }}" class="w-full h-full object-cover" alt="{{ current_track.title }}">
+                {% else %}
+                <div class="w-full h-full bg-gradient-to-br from-red-900/50 to-black flex items-center justify-center">
+                    <i class="fas fa-music text-white/30"></i>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Track Info -->
+            <div class="flex-1 min-w-0 cursor-pointer" onclick="window.location.href='{% url 'music:player' current_track.pk %}'">
+                <h4 class="font-bold text-sm truncate hover:text-red-400 transition-colors">{{ current_track.title }}</h4>
+                <p class="text-xs text-white/50 truncate">{{ current_track.artist.name }}</p>
+            </div>
+            
+            <!-- Playback Controls -->
+            <div class="flex items-center gap-3">
+                <!-- Previous -->
+                <button class="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all active:scale-90 hidden md:flex">
+                    <i class="fas fa-backward text-white/70 text-sm"></i>
+                </button>
+                
+                <!-- Play/Pause -->
+                <button id="mini-play-pause" class="w-14 h-14 rounded-full bg-gradient-to-br from-red-600 to-red-700 shadow-[0_0_25px_rgba(220,38,38,0.6)] hover:shadow-[0_0_35px_rgba(220,38,38,0.8)] flex items-center justify-center transition-all hover:scale-110 active:scale-95">
+                    <i class="fas fa-play text-white text-lg ml-0.5"></i>
+                </button>
+                
+                <!-- Next -->
+                <button class="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all active:scale-90 hidden md:flex">
+                    <i class="fas fa-forward text-white/70 text-sm"></i>
+                </button>
+            </div>
+            
+            <!-- Volume & Extra Controls -->
+            <div class="hidden lg:flex items-center gap-4 pl-4 border-l border-white/10">
+                <!-- Volume Icon -->
+                <i class="fas fa-volume-up text-white/40 text-sm"></i>
+                
+                <!-- Volume Slider -->
+                <input type="range" 
+                       id="mini-volume" 
+                       min="0" 
+                       max="100" 
+                       value="70" 
+                       class="slider-thumb-red w-24">
+                       
+                <!-- Close Button -->
+                <button onclick="document.getElementById('mini-player').classList.add('hidden')" 
+                        class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all active:scale-90">
+                    <i class="fas fa-times text-white/40 text-xs"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="mt-3 flex items-center gap-3">
+            <span class="text-[10px] font-mono text-white/40 hidden md:block">1:23</span>
+            <div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden cursor-pointer">
+                <div id="mini-progress" class="h-full bg-gradient-to-r from-red-600 via-red-500 to-red-400 shadow-[0_0_10px_rgba(220,38,38,0.7)] transition-all" style="width: 35%"></div>
+            </div>
+            <span class="text-[10px] font-mono text-white/40 hidden md:block">3:45</span>
+        </div>
+    </div>
+</div>
+
+<script>
+// Mini Player Controller
+const miniPlayer = document.getElementById('mini-player');
+const miniPlayPause = document.getElementById('mini-play-pause');
+const miniVolume = document.getElementById('mini-volume');
+const miniProgress = document.getElementById('mini-progress');
+
+// Show mini player when track is selected (you can trigger this from your main player)
+function showMiniPlayer(trackData) {
+    miniPlayer.classList.remove('hidden');
+}
+
+// Sync with main audio element if exists
+if (typeof audio !== 'undefined') {
+    miniPlayPause.addEventListener('click', () => {
+        if (audio.paused) {
+            audio.play();
+            miniPlayPause.querySelector('i').classList.replace('fa-play', 'fa-pause');
+        } else {
+            audio.pause();
+            miniPlayPause.querySelector('i').classList.replace('fa-pause', 'fa-play');
+        }
+    });
+    
+    miniVolume.addEventListener('input', (e) => {
+        audio.volume = e.target.value / 100;
+    });
+    
+    audio.addEventListener('timeupdate', () => {
+        const progress = (audio.currentTime / audio.duration) * 100;
+        miniProgress.style.width = progress + '%';
+    });
+}
+</script>
