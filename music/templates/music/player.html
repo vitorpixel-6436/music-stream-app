@@ -1,82 +1,318 @@
 {% extends 'music/base.html' %}
 {% load static %}
 
-{% block title %}{{ music_file.title }} - Playing{% endblock %}
+{% block title %}{{ music_file.title }} - Now Playing{% endblock %}
 
 {% block content %}
-<div class="main-content-inner">
-    <div class="row">
-        <!-- Main Player Card -->
-        <div class="col-lg-8">
-            <div class="glass-card player-card p-5 text-center mb-4">
-                <div class="album-image mb-4" style="font-size: 120px;">🎶</div>
-                <h1 class="hero-title mb-2">{{ music_file.title }}</h1>
-                <p class="text-secondary fs-5 mb-4">
-                    {{ music_file.artist.name }} 
-                    {% if music_file.album %} • {{ music_file.album.title }}{% endif %}
-                </p>
 
-                <div class="audio-container my-5 p-4 rounded-4" style="background: rgba(0,0,0,0.2);">
-                    <audio id="music-player" class="w-100" controls autoplay>
-                        <source src="{% url 'music:stream' music_file.pk %}" type="audio/mpeg">
-                        Your browser does not support the audio element.
-                    </audio>
-                </div>
-
-                <div class="player-stats d-flex justify-content-center gap-4 text-secondary small mb-5">
-                    <span><i class="fas fa-play"></i> {{ music_file.play_count }} Plays</span>
-                    <span><i class="fas fa-download"></i> {{ music_file.download_count }} Downloads</span>
-                    <span><i class="fas fa-file-audio"></i> {{ music_file.format|upper }}</span>
-                </div>
-
-                <div class="d-flex justify-content-center gap-3">
-                    <a href="{% url 'music:download' music_file.pk %}" class="btn px-5 py-3">
-                        <span class="me-2">⬇</span> Download Track
-                    </a>
-                    <a href="{% url 'music:index' %}" class="btn px-5 py-3" style="background: var(--secondary-bg);">
-                        <span class="me-2">🔙</span> Back to Library
-                    </a>
+<!-- Fullscreen Player Container -->
+<div class="fixed inset-0 z-50 bg-deep-black flex items-center justify-center slide-up overflow-hidden">
+    
+    <!-- Blurred Background -->
+    <div class="absolute inset-0 opacity-30 blur-3xl -z-10">
+        {% if music_file.cover_image %}
+        <img src="{{ music_file.cover_image.url }}" class="w-full h-full object-cover scale-150" alt="background">
+        {% else %}
+        <div class="w-full h-full bg-gradient-to-br from-red-900/50 to-black"></div>
+        {% endif %}
+    </div>
+    
+    <!-- Noise Texture -->
+    <div class="absolute inset-0 opacity-[0.02] pointer-events-none noise-texture"></div>
+    
+    <!-- Back Button -->
+    <a href="{% url 'music:index' %}" 
+       class="fixed top-8 left-8 glass w-14 h-14 rounded-full flex items-center justify-center hover:scale-110 active:scale-90 transition-all z-50">
+        <i class="fas fa-arrow-left text-xl"></i>
+    </a>
+    
+    <!-- Main Player Content -->
+    <div class="max-w-6xl w-full px-6 lg:px-12">
+        <div class="grid lg:grid-cols-5 gap-12 items-center">
+            
+            <!-- Album Art Section (Left) -->
+            <div class="lg:col-span-2">
+                <div class="relative aspect-square w-full max-w-md mx-auto rounded-[48px] overflow-hidden shadow-2xl group">
+                    {% if music_file.cover_image %}
+                    <img src="{{ music_file.cover_image.url }}" 
+                         class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
+                         alt="{{ music_file.title }}">
+                    {% else %}
+                    <div class="w-full h-full bg-gradient-to-br from-red-900 to-black flex items-center justify-center">
+                        <i class="fas fa-music text-9xl text-white/20"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Gradient Overlay -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                    
+                    <!-- Specular Highlight -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-50 pointer-events-none"></div>
                 </div>
             </div>
-        </div>
-
-        <!-- Recommendations Sidebar -->
-        <div class="col-lg-4">
-            <div class="glass-card p-4">
-                <h3 class="mb-4">🎵 Up Next</h3>
-                <div class="recommendations-list">
-                    {% for rec in recommendations %}
-                        <a href="{% url 'music:player' rec.pk %}" class="d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none text-white mb-2" style="background: rgba(255,255,255,0.05); transition: background 0.3s;">
-                            <div class="rec-icon" style="font-size: 24px;">💿</div>
-                            <div class="rec-info overflow-hidden">
-                                <div class="text-truncate fw-bold">{{ rec.title }}</div>
-                                <div class="text-secondary small">{{ rec.artist.name }}</div>
-                            </div>
-                        </a>
-                    {% empty %}
-                        <p class="text-secondary small">No recommendations found.</p>
+            
+            <!-- Player Controls Section (Right) -->
+            <div class="lg:col-span-3 space-y-8">
+                
+                <!-- Track Info -->
+                <div class="text-center lg:text-left">
+                    <h1 class="text-5xl lg:text-6xl font-black mb-4 gradient-text-red">
+                        {{ music_file.title }}
+                    </h1>
+                    <p class="text-2xl text-white/60 mb-2">
+                        {{ music_file.artist.name }}
+                    </p>
+                    {% if music_file.album %}
+                    <p class="text-lg text-white/40">
+                        {{ music_file.album.title }}
+                    </p>
+                    {% endif %}
+                </div>
+                
+                <!-- Audio Player (Hidden) -->
+                <audio id="audio-player" class="hidden" preload="auto">
+                    <source src="{% url 'music:stream' music_file.pk %}" type="audio/mpeg">
+                </audio>
+                
+                <!-- Waveform Visualization (Placeholder) -->
+                <div class="flex items-end justify-between gap-1 h-20 px-4">
+                    {% for i in "12345678901234567890123456789012345678901234567890" %}
+                    <div class="waveform-bar w-1 bg-gradient-to-t from-red-600 to-red-400 rounded-full" 
+                         style="height: {% cycle '20' '40' '60' '80' '100' '60' '40' '30' '50' '70' %}%; animation-delay: {{ forloop.counter0|divisibleby:10 }}s;"></div>
                     {% endfor %}
                 </div>
+                
+                <!-- Progress Bar -->
+                <div class="space-y-3">
+                    <div id="progress-container" class="w-full h-2 bg-white/10 rounded-full overflow-hidden cursor-pointer group">
+                        <div id="progress-bar" class="h-full bg-gradient-to-r from-red-600 via-red-500 to-red-400 shadow-glow-md transition-all duration-100" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between text-sm font-mono text-white/40">
+                        <span id="current-time">0:00</span>
+                        <span id="duration">0:00</span>
+                    </div>
+                </div>
+                
+                <!-- Main Controls -->
+                <div class="flex items-center justify-center gap-6">
+                    <!-- Previous -->
+                    <button class="w-14 h-14 rounded-full glass-dark hover:bg-white/10 flex items-center justify-center transition-all hover:scale-110 active:scale-90">
+                        <i class="fas fa-backward text-xl"></i>
+                    </button>
+                    
+                    <!-- Play/Pause -->
+                    <button id="play-pause-btn" 
+                            class="w-20 h-20 rounded-full bg-gradient-to-br from-red-600 to-red-700 shadow-glow-lg hover:shadow-glow-lg hover:scale-110 active:scale-95 flex items-center justify-center transition-all">
+                        <i id="play-icon" class="fas fa-play text-3xl ml-1"></i>
+                        <i id="pause-icon" class="fas fa-pause text-3xl hidden"></i>
+                    </button>
+                    
+                    <!-- Next -->
+                    <button class="w-14 h-14 rounded-full glass-dark hover:bg-white/10 flex items-center justify-center transition-all hover:scale-110 active:scale-90">
+                        <i class="fas fa-forward text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- Secondary Controls -->
+                <div class="flex items-center justify-between px-4">
+                    <!-- Volume Control -->
+                    <div class="flex items-center gap-4">
+                        <button id="mute-btn" class="text-white/60 hover:text-white transition-colors">
+                            <i id="volume-icon" class="fas fa-volume-up text-xl"></i>
+                            <i id="mute-icon" class="fas fa-volume-mute text-xl hidden"></i>
+                        </button>
+                        <input type="range" 
+                               id="volume-slider" 
+                               min="0" 
+                               max="100" 
+                               value="70" 
+                               class="slider-thumb-red w-32">
+                    </div>
+                    
+                    <!-- Stats & Actions -->
+                    <div class="flex items-center gap-4">
+                        <div class="glass px-4 py-2 rounded-full text-sm flex items-center gap-2">
+                            <i class="fas fa-play text-red-400"></i>
+                            <span class="font-mono">{{ music_file.play_count }}</span>
+                        </div>
+                        <div class="glass px-4 py-2 rounded-full text-sm flex items-center gap-2">
+                            <i class="fas fa-download text-red-400"></i>
+                            <span class="font-mono">{{ music_file.download_count }}</span>
+                        </div>
+                        <a href="{% url 'music:download' music_file.pk %}" 
+                           class="glass-red px-6 py-2 rounded-full text-sm font-semibold hover:scale-105 active:scale-95 transition-all shadow-glow-sm">
+                            <i class="fas fa-download mr-2"></i>Download
+                        </a>
+                    </div>
+                </div>
+                
             </div>
         </div>
     </div>
+    
+    <!-- Up Next Sidebar (Bottom Right) -->
+    <div class="fixed bottom-8 right-8 w-80 max-h-96 overflow-y-auto glass rounded-3xl p-6 hidden lg:block">
+        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+            <i class="fas fa-list"></i>
+            Up Next
+        </h3>
+        <div class="space-y-2">
+            {% for rec in recommendations %}
+            <a href="{% url 'music:player' rec.pk %}" 
+               class="flex items-center gap-3 p-3 rounded-2xl hover:bg-white/10 transition-all group">
+                <div class="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-red-900/30 to-black">
+                    {% if rec.cover_image %}
+                    <img src="{{ rec.cover_image.url }}" class="w-full h-full object-cover" alt="{{ rec.title }}">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center">
+                        <i class="fas fa-music text-white/20"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-sm truncate group-hover:text-red-400 transition-colors">{{ rec.title }}</p>
+                    <p class="text-xs text-white/40 truncate">{{ rec.artist.name }}</p>
+                </div>
+            </a>
+            {% empty %}
+            <p class="text-sm text-white/40 text-center py-4">No recommendations</p>
+            {% endfor %}
+        </div>
+    </div>
+    
 </div>
 
-<style>
-    .recommendations-list a:hover {
-        background: rgba(0, 212, 255, 0.1) !important;
-        transform: translateX(5px);
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Audio Player Controller
+const audio = document.getElementById('audio-player');
+const playPauseBtn = document.getElementById('play-pause-btn');
+const playIcon = document.getElementById('play-icon');
+const pauseIcon = document.getElementById('pause-icon');
+const progressBar = document.getElementById('progress-bar');
+const progressContainer = document.getElementById('progress-container');
+const currentTimeEl = document.getElementById('current-time');
+const durationEl = document.getElementById('duration');
+const volumeSlider = document.getElementById('volume-slider');
+const muteBtn = document.getElementById('mute-btn');
+const volumeIcon = document.getElementById('volume-icon');
+const muteIcon = document.getElementById('mute-icon');
+
+let isPlaying = false;
+
+// Auto-play on load
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        audio.play().then(() => {
+            isPlaying = true;
+            updatePlayPauseButton();
+        }).catch(err => console.log('Autoplay prevented:', err));
+    }, 500);
+});
+
+// Play/Pause Toggle
+playPauseBtn.addEventListener('click', () => {
+    if (isPlaying) {
+        audio.pause();
+    } else {
+        audio.play();
     }
-    audio::-webkit-media-controls-panel {
-        background-color: var(--secondary-bg);
+    isPlaying = !isPlaying;
+    updatePlayPauseButton();
+});
+
+function updatePlayPauseButton() {
+    if (isPlaying) {
+        playIcon.classList.add('hidden');
+        pauseIcon.classList.remove('hidden');
+    } else {
+        playIcon.classList.remove('hidden');
+        pauseIcon.classList.add('hidden');
     }
-    audio::-webkit-media-controls-play-button,
-    audio::-webkit-media-controls-current-time-display,
-    audio::-webkit-media-controls-time-remaining-display,
-    audio::-webkit-media-controls-timeline,
-    audio::-webkit-media-controls-volume-control-container,
-    audio::-webkit-media-controls-mute-button {
-        filter: invert(1);
+}
+
+// Update Progress Bar
+audio.addEventListener('timeupdate', () => {
+    const progress = (audio.currentTime / audio.duration) * 100;
+    progressBar.style.width = progress + '%';
+    currentTimeEl.textContent = formatTime(audio.currentTime);
+});
+
+// Set Duration
+audio.addEventListener('loadedmetadata', () => {
+    durationEl.textContent = formatTime(audio.duration);
+});
+
+// Seek Functionality
+progressContainer.addEventListener('click', (e) => {
+    const rect = progressContainer.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left;
+    const width = rect.width;
+    const percentage = offsetX / width;
+    audio.currentTime = percentage * audio.duration;
+});
+
+// Volume Control
+volumeSlider.addEventListener('input', (e) => {
+    audio.volume = e.target.value / 100;
+});
+
+// Set initial volume
+audio.volume = 0.7;
+
+// Mute Toggle
+muteBtn.addEventListener('click', () => {
+    audio.muted = !audio.muted;
+    if (audio.muted) {
+        volumeIcon.classList.add('hidden');
+        muteIcon.classList.remove('hidden');
+    } else {
+        volumeIcon.classList.remove('hidden');
+        muteIcon.classList.add('hidden');
     }
-</style>
+});
+
+// Format Time Helper
+function formatTime(seconds) {
+    if (isNaN(seconds)) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Keyboard Shortcuts
+document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') {
+        e.preventDefault();
+        playPauseBtn.click();
+    }
+    if (e.code === 'KeyM') {
+        e.preventDefault();
+        muteBtn.click();
+    }
+    if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        audio.currentTime = Math.max(0, audio.currentTime - 5);
+    }
+    if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        audio.currentTime = Math.min(audio.duration, audio.currentTime + 5);
+    }
+});
+
+// Animate Waveform on Play
+audio.addEventListener('play', () => {
+    document.querySelectorAll('.waveform-bar').forEach(bar => {
+        bar.style.animationPlayState = 'running';
+    });
+});
+
+audio.addEventListener('pause', () => {
+    document.querySelectorAll('.waveform-bar').forEach(bar => {
+        bar.style.animationPlayState = 'paused';
+    });
+});
+</script>
 {% endblock %}
