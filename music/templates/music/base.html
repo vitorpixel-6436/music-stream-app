@@ -39,6 +39,9 @@
     <!-- Custom Styles -->
     <link rel="stylesheet" href="{% static 'music/css/style.css' %}">
     
+    <!-- NEW: Liquid Glass Effects (Apple-style) -->
+    <link rel="stylesheet" href="{% static 'css/glass-liquid.css' %}">
+    
     <style>
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -60,8 +63,8 @@
     <!-- Noise Texture Overlay -->
     <div class="fixed inset-0 opacity-[0.015] pointer-events-none -z-10 noise-texture"></div>
     
-    <!-- Sidebar Navigation -->
-    <aside id="sidebar" class="fixed left-0 top-0 bottom-0 w-72 glass border-r border-white/10 z-40 transform transition-transform duration-500 lg:translate-x-0 -translate-x-full">
+    <!-- Sidebar Navigation with Liquid Glass -->
+    <aside id="sidebar" class="fixed left-0 top-0 bottom-0 w-72 glass-sidebar border-r border-white/10 z-40 transform transition-transform duration-500 lg:translate-x-0 -translate-x-full">
         <div class="flex flex-col h-full p-6">
             
             <!-- Logo -->
@@ -109,7 +112,7 @@
             
             <!-- User Profile (if needed) -->
             <div class="mt-auto pt-6 border-t border-white/10">
-                <div class="glass-dark px-4 py-3 rounded-2xl flex items-center gap-3">
+                <div class="glass-layer-2 glass-radius-lg px-4 py-3 flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center font-bold">
                         U
                     </div>
@@ -122,19 +125,19 @@
         </div>
     </aside>
     
-    <!-- Mobile Menu Toggle -->
-    <button id="menu-toggle" class="lg:hidden fixed top-6 left-6 z-50 glass w-12 h-12 rounded-full flex items-center justify-center">
+    <!-- Mobile Menu Toggle with Liquid Glass -->
+    <button id="menu-toggle" class="lg:hidden fixed top-6 left-6 z-50 glass-layer-3 glass-radius-xl glass-pressable w-12 h-12 flex items-center justify-center">
         <i class="fas fa-bars text-white"></i>
     </button>
     
     <!-- Main Content Area -->
     <main class="lg:ml-72 min-h-screen relative z-10">
         
-        <!-- Messages/Notifications -->
+        <!-- Messages/Notifications with Frosted Glass -->
         {% if messages %}
         <div class="fixed top-6 right-6 z-50 space-y-3 max-w-md">
             {% for message in messages %}
-            <div class="glass slide-down px-6 py-4 rounded-2xl flex items-center gap-4 shadow-2xl">
+            <div class="glass-frosted-light glass-radius-lg glass-fade-in px-6 py-4 flex items-center gap-4 shadow-2xl">
                 <div class="w-2 h-2 rounded-full {% if message.tags == 'success' %}bg-green-500{% elif message.tags == 'error' %}bg-red-500{% else %}bg-blue-500{% endif %} pulse-glow"></div>
                 <p class="flex-1 text-sm font-medium">{{ message }}</p>
                 <button onclick="this.parentElement.remove()" class="text-white/40 hover:text-white transition-colors">
@@ -186,9 +189,9 @@
         }
     </script>
 
-        <!-- Mini Player (Global) -->
+        <!-- Mini Player (Global) with Liquid Glass -->
     {% if request.session.current_track_id %}
-    <div id="mini-player" class="mini-player hidden">
+    <div id="mini-player" class="mini-player hidden glass-floating glass-radius-2xl glass-red-tint glass-edge-light">
         <div class="flex items-center gap-4">
             <!-- Album Art -->
             <div class="mini-player-album">
