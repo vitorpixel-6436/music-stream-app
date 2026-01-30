@@ -399,7 +399,7 @@ document.querySelectorAll('.steam-card, .steam-carousel-card').forEach(card => {
         }
         const trackId = card.dataset.trackId;
         if (trackId) {
-            window.location.href = `{% url 'music:index' %}player/${trackId}/`;
+            window.location.href = `/player/${trackId}/`;
         }
     });
 });
@@ -408,7 +408,7 @@ document.querySelectorAll('.steam-card, .steam-carousel-card').forEach(card => {
 window.addEventListener('trackPlay', (e) => {
     const trackId = e.detail.trackId;
     if (trackId) {
-        window.location.href = `{% url 'music:index' %}player/${trackId}/`;
+        window.location.href = `/player/${trackId}/`;
     }
 });
 
