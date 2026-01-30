@@ -75,13 +75,6 @@ class SearchForm(forms.Form):
         required=False,
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-- Renamed Track to MusicFile model reference
-- Simplified forms and removed redundant widgets
-- Improved SearchForm and AlbumCreateForm to match models.py fields
-- Removed "junk" fields that were not in models.py (cover_art -> cover)
-        required=False,
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
 
 class ArtistCreateForm(forms.ModelForm):
     """Form for creating artists"""
@@ -109,3 +102,9 @@ class AlbumCreateForm(forms.ModelForm):
             'genre': forms.Select(attrs={'class': 'form-control'}),
             'cover': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
         }
+
+# Changelog:
+# - Renamed Track to MusicFile model reference
+# - Simplified forms and removed redundant widgets
+# - Improved SearchForm and AlbumCreateForm to match models.py fields
+# - Removed "junk" fields that were not in models.py (cover_art -> cover)
