@@ -8,7 +8,7 @@ from django.utils.html import escape
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
-from .models import MusicFile, Artist, Album, DownloadTask
+from .models import MusicFile, Artist, Album, Genre, DownloadTask
 from .forms import URLImportForm
 import os
 import mimetypes
@@ -242,7 +242,7 @@ def upload_page(request):
             artist_name = escape(request.POST.get('artist', '').strip()) or metadata.get('artist') or 'Unknown Artist'
             album_name = escape(request.POST.get('album', '').strip()) or metadata.get('album', '')
             year = request.POST.get('year', '').strip() or (metadata.get('year', '')[:4] if metadata.get('year') else '')
-            genres = request.POST.getlist('genres') or ([metadata.get('genre')] if metadata.get('genre') else [])
+            genre_names = request.POST.getlist('genres') or ([metadata.get('genre')] if metadata.get('genre') else [])
             
             if not title:
                 messages.error(request, 'Название трека обязательно')
@@ -264,17 +264,22 @@ def upload_page(request):
                     defaults=album_data
                 )
             
+            # Get or create genre (first one from the list)
+            genre = None
+            if genre_names and genre_names[0]:
+                genre, _ = Genre.objects.get_or_create(name=genre_names[0])
+            
             # Reset file pointer
             file.seek(0)
             
-            # Create music file
+            # Create music file (WITHOUT genres parameter)
             music_file = MusicFile.objects.create(
                 title=title,
                 artist=artist,
                 album=album,
+                genre=genre,
                 file=file,
-                format=ext[1:],
-                genres=','.join(genres) if genres else ''
+                format=ext[1:]
             )
             
             # Handle embedded artwork from metadata
