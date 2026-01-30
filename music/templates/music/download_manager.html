@@ -1,0 +1,176 @@
+{% extends 'music/base.html' %}
+{% load static %}
+
+{% block title %}Download Manager - Music Stream{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="glass-layer-2 glass-radius-xl p-8 mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold mb-2">📥 Download Manager</h1>
+                    <p class="text-gray-400">Track your download tasks</p>
+                </div>
+                <a href="{% url 'music:url_import' %}" class="bg-blue-500 hover:bg-blue-600 px-6 py-3 rounded-lg font-medium transition">
+                    <i class="fas fa-plus mr-2"></i>
+                    New Download
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="glass-layer-1 p-4 rounded-lg">
+                <div class="text-sm text-gray-400 mb-1">Total Tasks</div>
+                <div class="text-2xl font-bold">{{ tasks.count }}</div>
+            </div>
+            <div class="glass-layer-1 p-4 rounded-lg">
+                <div class="text-sm text-gray-400 mb-1">Active</div>
+                <div class="text-2xl font-bold text-blue-400">{{ active_count }}</div>
+            </div>
+            <div class="glass-layer-1 p-4 rounded-lg">
+                <div class="text-sm text-gray-400 mb-1">Completed</div>
+                <div class="text-2xl font-bold text-green-400">{{ tasks|length }}</div>
+            </div>
+            <div class="glass-layer-1 p-4 rounded-lg">
+                <div class="text-sm text-gray-400 mb-1">Failed</div>
+                <div class="text-2xl font-bold text-red-400">0</div>
+            </div>
+        </div>
+
+        <!-- Tasks List -->
+        <div class="glass-layer-2 glass-radius-xl p-6">
+            {% if tasks %}
+                <div class="space-y-4">
+                    {% for task in tasks %}
+                    <div class="glass-layer-1 p-4 rounded-lg hover:bg-white/5 transition" data-task-id="{{ task.id }}">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <!-- Status Badge -->
+                                    {% if task.status == 'completed' %}
+                                        <span class="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-medium">
+                                            ✓ Completed
+                                        </span>
+                                    {% elif task.status == 'downloading' %}
+                                        <span class="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-medium">
+                                            <i class="fas fa-spinner fa-spin"></i> Downloading
+                                        </span>
+                                    {% elif task.status == 'processing' %}
+                                        <span class="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs font-medium">
+                                            <i class="fas fa-cog fa-spin"></i> Processing
+                                        </span>
+                                    {% elif task.status == 'failed' %}
+                                        <span class="px-3 py-1 bg-red-500/20 text-red-400 rounded-full text-xs font-medium">
+                                            ✗ Failed
+                                        </span>
+                                    {% elif task.status == 'pending' %}
+                                        <span class="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs font-medium">
+                                            ⏳ Pending
+                                        </span>
+                                    {% endif %}
+                                    
+                                    <!-- Source Badge -->
+                                    <span class="px-2 py-1 bg-white/5 rounded text-xs text-gray-400">
+                                        {{ task.source_type|upper }}
+                                    </span>
+                                </div>
+                                
+                                <div class="font-medium mb-1">
+                                    {% if task.original_title %}
+                                        {{ task.original_title }}
+                                    {% else %}
+                                        {{ task.url|truncatechars:60 }}
+                                    {% endif %}
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    {{ task.url|truncatechars:80 }}
+                                </div>
+                            </div>
+                            
+                            <!-- Actions -->
+                            <div class="flex items-center gap-2">
+                                {% if task.result_track %}
+                                    <a href="{% url 'music:player' task.result_track.id %}" class="px-3 py-1 bg-green-500 hover:bg-green-600 rounded text-sm transition">
+                                        <i class="fas fa-play"></i> Play
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Progress Bar -->
+                        {% if task.is_active %}
+                        <div class="mb-2">
+                            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                <span>{{ task.current_step|default:"Initializing..." }}</span>
+                                <span>{{ task.progress }}%</span>
+                            </div>
+                            <div class="w-full bg-white/5 rounded-full h-2 overflow-hidden">
+                                <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-full transition-all duration-300" style="width: {{ task.progress }}%"></div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Meta Info -->
+                        <div class="flex items-center gap-4 text-xs text-gray-500">
+                            <span>
+                                <i class="fas fa-clock mr-1"></i>
+                                {{ task.created_at|timesince }} ago
+                            </span>
+                            {% if task.duration %}
+                                <span>
+                                    <i class="fas fa-hourglass mr-1"></i>
+                                    {{ task.duration|floatformat:1 }}s
+                                </span>
+                            {% endif %}
+                            <span>
+                                <i class="fas fa-file-audio mr-1"></i>
+                                {{ task.output_format|upper }} @ {{ task.output_quality }}
+                            </span>
+                        </div>
+                        
+                        <!-- Error Message -->
+                        {% if task.error_message %}
+                        <div class="mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded text-xs text-red-400">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                            {{ task.error_message }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-12">
+                    <div class="text-6xl mb-4">📥</div>
+                    <div class="text-xl font-medium mb-2">No downloads yet</div>
+                    <p class="text-gray-400 mb-6">Start by importing music from a URL</p>
+                    <a href="{% url 'music:url_import' %}" class="inline-block bg-blue-500 hover:bg-blue-600 px-6 py-3 rounded-lg font-medium transition">
+                        <i class="fas fa-plus mr-2"></i>
+                        Import from URL
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Auto-refresh for active tasks -->
+<script>
+(function() {
+    const activeTasks = document.querySelectorAll('[data-task-id]');
+    const hasActiveTasks = Array.from(activeTasks).some(el => {
+        const badge = el.querySelector('.fa-spinner, .fa-cog');
+        return badge !== null;
+    });
+    
+    if (hasActiveTasks) {
+        // Reload page every 5 seconds if there are active tasks
+        setTimeout(() => {
+            window.location.reload();
+        }, 5000);
+    }
+})();
+</script>
+{% endblock %}
