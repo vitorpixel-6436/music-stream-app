@@ -2,6 +2,220 @@
 
 Все примечательные изменения этого проекта документируются в этом файле.
 
+## [2.1.0] - 2026-01-30
+
+### ✨ Admin & Management QoL Improvements
+
+**Маскировка: Backend infrastructure improvements**
+
+Этот релиз фокусируется на улучшении административного опыта и упрощении управления сервером.
+
+#### Added
+- ✅ **SystemSettings Model** - Singleton модель для системных настроек
+  - Управление сайтом (название, описание)
+  - Настройки загрузок (размер, форматы, лимиты)
+  - Настройки обработки аудио (метаданные, нормализация)
+  - UI настройки (темы, анимации)
+  - Кэшированная статистика (треки, прослушивания, скачивания)
+
+- ✅ **UploadSession Model** - Отслеживание пакетных загрузок
+  - Статус сессии (pending, processing, completed, failed)
+  - Счетчики успешных/неудачных загрузок
+  - Логирование ошибок
+  - Расчет прогресса и длительности
+
+- ✅ **Management Commands** - Команды для администрирования
+  - `addadmin` - Быстрое создание/назначение администраторов
+    ```bash
+    python manage.py addadmin admin@example.com --superuser
+    python manage.py addadmin user@example.com --username johndoe
+    ```
+  - `update_stats` - Обновление системной статистики
+    ```bash
+    python manage.py update_stats --verbose
+    ```
+
+- ✅ **Enhanced Admin Panel** - Богатый UI с виджетами
+  - **Custom Admin Site** с дашбордом статистики
+  - **Color-coded Badges** для форматов, статусов, счетчиков
+  - **Audio Preview** прямо в админке (inline player)
+  - **Progress Bars** для отслеживания загрузок
+  - **Photo/Cover Previews** с округлыми углами
+  - **Statistics Widgets** (total plays, downloads, track counts)
+  - **Autocomplete Fields** для Artist, Album, Genre
+  - **Batch Actions** (reset play count, re-extract metadata)
+  - **Improved Fieldsets** с collapsible секциями
+
+#### Admin Panel Features
+
+**Genre Admin:**
+- Track count badge (зеленый)
+- Search по названию и описанию
+
+**Artist Admin:**
+- Photo preview (100x100px, rounded)
+- Track count и total plays statistics
+- Collapsible statistics section
+
+**Album Admin:**
+- Cover preview (80x80px, rounded)
+- Track count
+- Autocomplete для artist
+
+**MusicFile Admin:**
+- Format badges (цветные: MP3=красный, FLAC=бирюзовый, и т.д.)
+- Duration display (MM:SS формат)
+- Play count badge (🔥 для >1000 прослушиваний)
+- Audio preview player (200px inline)
+- Full audio player в детальном виде
+- File size display (MB)
+- Batch actions:
+  - Reset play count для выбранных треков
+  - Re-extract metadata для выбранных треков
+
+**SystemSettings Admin:**
+- Singleton pattern (только одна запись)
+- Секции: General, User Management, Audio Processing, UI
+- Read-only statistics с автообновлением
+- Защита от удаления
+
+**UploadSession Admin:**
+- Status badges (pending=оранжевый, processing=бирюзовый, completed=зеленый, failed=красный)
+- Visual progress bars с процентами
+- Duration calculation
+- Error log viewing
+
+#### Technical Details
+
+**New Models:**
+```python
+# SystemSettings - Singleton для настроек
+settings = SystemSettings.load()
+settings.site_name = "My Music Server"
+settings.max_upload_size = 200  # MB
+settings.update_statistics()  # Обновить кэш
+
+# UploadSession - Трекинг загрузок
+session = UploadSession.objects.create(
+    user=request.user,
+    total_files=10,
+    status='processing'
+)
+session.successful_uploads += 1
+session.save()
+```
+
+**Management Commands:**
+```bash
+# Создать суперпользователя
+python manage.py addadmin admin@example.com --superuser --password SecurePass123
+
+# Назначить права админа существующему пользователю
+python manage.py addadmin user@example.com
+
+# Обновить статистику с детальным выводом
+python manage.py update_stats --verbose
+```
+
+#### Database Migration
+
+```bash
+# Применить новые миграции
+python manage.py migrate
+
+# Создать начальные настройки
+python manage.py shell
+>>> from music.models import SystemSettings
+>>> SystemSettings.load()  # Создаст запись если не существует
+```
+
+### Improved
+- 🎨 Admin UI теперь с цветными бейджами и превью
+- 🎨 Упрощенное управление пользователями через CLI
+- 🎨 Централизованные настройки через админку
+- 🎨 Визуальный прогресс для пакетных операций
+
+### Changed
+- 📝 Admin site переименован в MusicStreamAdminSite
+- 📝 Добавлены readonly fields для метаданных
+- 📝 Улучшена структура fieldsets во всех админках
+
+### Developer Notes
+
+**Custom Admin Actions:**
+Добавляйте свои batch actions в MusicFileAdmin:
+```python
+def custom_action(self, request, queryset):
+    # Your logic here
+    self.message_user(request, "Action completed")
+custom_action.short_description = "Custom action description"
+```
+
+**Extending SystemSettings:**
+Добавляйте новые поля в модель и создавайте миграцию:
+```python
+class SystemSettings(models.Model):
+    # ... existing fields ...
+    new_setting = models.BooleanField(default=False)
+```
+
+### Performance
+- ⚡ Кэширование статистики в SystemSettings (обновляется по команде)
+- ⚡ Оптимизированные запросы с `aggregate()` и `annotate()`
+- ⚡ Lazy loading для превью аудио (preload="none")
+
+### Security
+- 🔒 Защита SystemSettings от удаления
+- 🔒 Singleton pattern предотвращает дублирование настроек
+- 🔒 Валидация паролей в addadmin (минимум 8 символов)
+
+### Future Enhancements (v2.1.1+)
+- [ ] WebUI для SystemSettings (без админки)
+- [ ] Bulk upload форма с drag-and-drop
+- [ ] Real-time прогресс через WebSocket
+- [ ] Email notifications для админов
+- [ ] Backup/restore функции
+
+---
+
+## [2.0.0] - 2026-01-29
+
+### 🎨 UI Redesign - Four Design Systems
+
+**Premium music streaming application** с четырьмя UI дизайн-системами:
+
+#### Added
+- ✅ **Apple Glass Effects** (37.1 KB)
+  - Liquid glass morphism с backdrop-filter blur
+  - Dynamic glass layers (layer-1, layer-2, layer-3)
+  - Context-aware blur adjustments
+  - Floating particle animations
+
+- ✅ **Steam Gaming Cards** (35.2 KB)
+  - Grid cards с 3:4 aspect ratio
+  - Interactive carousels с drag-to-scroll
+  - Featured hero banners (21:9 format)
+  - Quick action buttons
+
+- ✅ **Spotify Minimalism** (23.0 KB)
+  - Sticky navigation с scroll reveal
+  - Browser history integration
+  - Compact sidebar (72px → 280px)
+  - Green play button (#1db954)
+
+- ✅ **MSI Gaming Vibes** (13.0 KB)
+  - RGB glow animations
+  - Angular clip-path designs
+  - Neon red accents
+  - Hexagon background patterns
+
+#### Stats
+- 📊 Total UI Components: **108.3 KB** (4 systems, 12 files)
+- 📊 Minified: **~35 KB**
+- 📊 Gzipped: **~12 KB**
+
+---
+
 ## [1.0.0] - 2026-01-24
 
 ### Added
@@ -46,21 +260,20 @@
 - 📝 Добавлена информация о требуемых версиях Python (3.10-3.13)
 
 ### Dependencies
-- Django >= 4.2.0
+- Django >= 5.1.0
 - DjangoRestFramework >= 3.14.0
 - mutagen >= 1.47.0 (работа с метаданными)
 - PyDub >= 0.25.1 (аудио-обработка)
 - ffmpeg-python >= 0.2.0 (конвертация)
-- yt-dlp >= 2023.11.0 (загрузка с YouTube)
-- spotdl >= 3.9.6 (загрузка из Spotify) - **исправлено с 4.2.0**
+- yt-dlp >= 2024.1.0 (загрузка с YouTube)
 - Pillow >= 10.0.0 (обработка изображений)
-- celery >= 5.3.0 (фоновые задачи)
+- celery >= 5.3.4 (фоновые задачи)
 - redis >= 5.0.0 (кэширование)
 
 ### Tech Stack
-- Backend: Django 5.1+, Python 3.10-3.13
+- Backend: Django 5.1+, Python 3.10+
 - Database: SQLite (по умолчанию), поддержка PostgreSQL
-- Frontend: HTML5, CSS3, JavaScript
+- Frontend: HTML5, CSS3, JavaScript, Tailwind CSS
 - Audio: FFmpeg, mutagen, PyDub
 - Async: Celery + Redis
 
@@ -71,9 +284,12 @@
 - ⚠️ Максимальный рекомендуемый размер загружаемого файла: 500MB
 
 ### Future Roadmap
+- [x] Улучшенная админ-панель (v2.1.0)
 - [ ] Веб-плеер с визуализацией
+- [ ] YouTube/URL download интеграция (v2.1.1)
+- [ ] Рекомендательная система (v2.1.2)
+- [ ] Track mixing и editor (v2.2.0)
 - [ ] Мобильное приложение (PWA)
-- [ ] Рекомендации на основе ML
 - [ ] Интеграция с Last.fm
 - [ ] Загрузка текстов песен (Lyrics)
 - [ ] Встроенный эквалайзер
