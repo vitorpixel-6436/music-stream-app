@@ -1,10 +1,13 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import FileResponse, JsonResponse, HttpResponse, Http404
 from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 from django.utils.html import escape
-from .models import MusicFile, Artist, Album
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from .models import MusicFile, Artist, Album, DownloadTask
+from .forms import URLImportForm
 import os
 import mimetypes
 import logging
@@ -152,6 +155,52 @@ def upload_music(request):
 
 def upload_page(request):
     return render(request, 'music/upload.html')
+
+
+@login_required
+def url_import(request):
+    """Handle URL import with enhanced validation"""
+    if request.method == 'POST':
+        form = URLImportForm(request.POST)
+        if form.is_valid():
+            try:
+                # Create download task
+                task = DownloadTask.objects.create(
+                    user=request.user,
+                    url=form.cleaned_data['url'],
+                    source_type=form.cleaned_data.get('source_type', 'url'),
+                    output_format=form.cleaned_data.get('output_format', 'mp3'),
+                    output_quality=form.cleaned_data.get('output_quality', '320k')
+                )
+                
+                # Queue background download
+                from .tasks import process_download_task
+                process_download_task.delay(str(task.id))
+                
+                messages.success(request, f'Download task created: {task.id}')
+                return redirect('download_manager')
+            except Exception as e:
+                logger.error(f"URL import error: {e}")
+                messages.error(request, 'Failed to create download task')
+        else:
+            messages.error(request, 'Invalid URL format')
+    else:
+        form = URLImportForm()
+    
+    return render(request, 'music/url_import.html', {'form': form})
+
+
+@login_required
+def download_manager(request):
+    """Display user's download tasks"""
+    tasks = DownloadTask.objects.filter(user=request.user).order_by('-created_at')
+    
+    context = {
+        'tasks': tasks,
+        'active_count': tasks.filter(status__in=['pending', 'downloading', 'processing']).count(),
+    }
+    return render(request, 'music/download_manager.html', context)
+
 
 def api_search(request):
     query = escape(request.GET.get('q', '').strip())
