@@ -188,9 +188,11 @@ python manage.py migrate
 - 📝 Added helper utilities in `music/utils/`
 
 ### Fixed
+- 🐛 **[Hotfix]** Template syntax error in upload.html (invalid `split` filter)
 - 🐛 Database indexes added for DownloadTask queries
 - 🐛 Proper cleanup of temporary download files
 - 🐛 Error handling for invalid URLs
+- 🐛 Genre selection now uses hardcoded list instead of custom filter
 
 ### Developer Notes
 
