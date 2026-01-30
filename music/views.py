@@ -154,6 +154,78 @@ def upload_music(request):
         return JsonResponse({'error': 'Internal server error during upload'}, status=500)
 
 def upload_page(request):
+    """Handle music upload page with form processing"""
+    if request.method == 'POST':
+        try:
+            # Validate file presence
+            if 'file' not in request.FILES:
+                messages.error(request, 'No audio file provided')
+                return render(request, 'music/upload.html')
+            
+            file = request.FILES['file']
+            
+            # File size validation (50MB max)
+            if file.size > 50 * 1024 * 1024:
+                messages.error(request, 'File too large (maximum 50MB)')
+                return render(request, 'music/upload.html')
+            
+            # Get form data with sanitization
+            title = escape(request.POST.get('title', '').strip())
+            artist_name = escape(request.POST.get('artist', 'Unknown Artist').strip())
+            album_name = escape(request.POST.get('album', '').strip())
+            year = request.POST.get('year', '').strip()
+            genres = request.POST.getlist('genres')
+            
+            if not title:
+                messages.error(request, 'Track title is required')
+                return render(request, 'music/upload.html')
+            
+            # File format validation
+            ext = os.path.splitext(file.name)[1].lower()
+            if ext not in ['.mp3', '.flac', '.ogg', '.wav', '.m4a']:
+                messages.error(request, f'Unsupported file format: {ext}')
+                return render(request, 'music/upload.html')
+            
+            # Create or get artist
+            artist, _ = Artist.objects.get_or_create(name=artist_name)
+            
+            # Create or get album if provided
+            album = None
+            if album_name:
+                album_data = {'title': album_name}
+                if year and year.isdigit():
+                    album_data['year'] = int(year)
+                album, _ = Album.objects.get_or_create(
+                    title=album_name,
+                    artist=artist,
+                    defaults=album_data
+                )
+            
+            # Create music file
+            music_file = MusicFile.objects.create(
+                title=title,
+                artist=artist,
+                album=album,
+                file=file,
+                format=ext[1:],
+                genres=','.join(genres) if genres else ''
+            )
+            
+            # Handle cover image if provided
+            if 'cover' in request.FILES:
+                cover_file = request.FILES['cover']
+                if cover_file.size <= 5 * 1024 * 1024:  # 5MB max for images
+                    music_file.cover_image = cover_file
+                    music_file.save()
+            
+            messages.success(request, f'✅ Track "{title}" uploaded successfully!')
+            return redirect('music:index')
+            
+        except Exception as e:
+            logger.error(f"Upload error in upload_page: {e}")
+            messages.error(request, f'Upload failed: {str(e)}')
+            return render(request, 'music/upload.html')
+    
     return render(request, 'music/upload.html')
 
 
