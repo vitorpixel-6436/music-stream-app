@@ -189,6 +189,7 @@ python manage.py migrate
 
 ### Fixed
 - 🐛 **[Hotfix]** Template syntax error in upload.html (invalid `split` filter)
+- 🐛 **[Hotfix]** SyntaxError in forms.py (markdown comments causing installation failure)
 - 🐛 Database indexes added for DownloadTask queries
 - 🐛 Proper cleanup of temporary download files
 - 🐛 Error handling for invalid URLs
