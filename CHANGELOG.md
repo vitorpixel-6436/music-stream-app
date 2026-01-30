@@ -2,6 +2,94 @@
 
 Все примечательные изменения этого проекта документируются в этом файле.
 
+## [2.1.0] - 2026-01-30
+
+### 🚀 Added - Admin & Management QoL
+
+#### System Settings
+- ✅ **SystemSettings Model** - Синглтон-модель для глобальных настроек
+  - Общие настройки: site_name, site_description, max_upload_size, allowed_formats
+  - Управление пользователями: allow_registration, require_email_verification, max_uploads_per_user
+  - Обработка аудио: auto_extract_metadata, auto_generate_waveforms, normalize_audio
+  - UI настройки: default_theme (🍎 glass/🎮 steam/🎵 spotify/🔴 msi), enable_animations
+  - Кэшированная статистика: total_tracks, total_plays, total_downloads
+
+- ✅ **UploadSession Model** - Трекинг массовых загрузок
+  - Мониторинг прогресса (pending/processing/completed/failed)
+  - Подсчёт успешных/неуспешных загрузок
+  - Error logging для отладки
+
+#### Enhanced Admin Interface
+- ✨ **Custom MusicStreamAdminSite** - Продвинутая админ-панель
+  - 📊 Dashboard со статистикой (треки, артисты, альбомы, пользователи)
+  - 🎵 Site header: "🎵 Music Stream Admin"
+
+- 🎨 **Rich UI Components**
+  - 🟢 Colored format badges (MP3/FLAC/WAV/M4A/OGG)
+  - 🔥 Hot track indicators (>1000 plays)
+  - 🟩 Progress bars для upload sessions
+  - 🖼️ Photo/cover previews с rounded corners
+  - 🎶 Inline audio players в админке
+  - 📊 Track count badges для genres/albums
+
+- 🛠️ **Enhanced Model Admins**
+  - `GenreAdmin`: track count badges
+  - `ArtistAdmin`: photo preview, track count, total plays statistics
+  - `AlbumAdmin`: cover preview, track count
+  - `MusicFileAdmin`: format badges, audio player, duration display, play count badges
+  - `SystemSettingsAdmin`: единственный экземпляр (нельзя удалить)
+  - `UploadSessionAdmin`: status badges, progress bars, duration tracking
+
+- ⚙️ **Admin Actions**
+  - Reset play count for selected tracks
+  - Re-extract metadata from audio files
+  - Bulk operations support
+
+#### Management Commands
+- 👤 **`python manage.py addadmin <email>`** - Быстрое создание администратора
+  - Аргументы: `--username`, `--password`, `--superuser`
+  - Автоматическое назначение прав is_staff/is_superuser
+  - Interactive password prompt
+  - Повышение существующих пользователей
+
+- 📊 **`python manage.py update_stats`** - Обновление системной статистики
+  - Пересчёт total_tracks, total_plays, total_downloads
+  - Автоматический вывод diff (старое → новое значение)
+
+### 🐛 Fixed
+- 🔧 Исправлены search_fields в admin.py (используется artist__name вместо artist.name)
+- 🔧 Улучшена производительность autocomplete_fields
+
+### 🎨 Improved
+- 🚀 Значительное улучшение UX админ-панели
+- 📊 Визуализация статистики с badges и progress bars
+- 🎶 Inline audio preview без перехода на другую страницу
+- 🛠️ Улучшенные fieldsets с collapse sections
+
+### 📝 Changed
+- 🔄 models.py: Добавлены SystemSettings и UploadSession
+- 🔄 admin.py: Полностью переработан с rich UI components
+- 🔄 requirements.txt: Без изменений (используются только Django builtin features)
+
+### 📦 Database Migrations
+- ➕ Migration `0002_system_settings`
+  - CREATE TABLE `music_systemsettings`
+  - CREATE TABLE `music_uploadsession`
+
+### 📚 Documentation
+- 📝 Обновлён CHANGELOG.md
+- 📝 Добавлена документация management команд
+
+### ⚠️ Breaking Changes
+- ❌ Нет breaking changes - полностью backward compatible
+
+### 🛣️ Roadmap Next
+- 🔜 **v2.1.1**: Server-Side Download Integration (YouTube-DL, URL import)
+- 🔜 **v2.1.2**: Smart Recommendations Engine (ML-based)
+- 🔜 **v2.2.0**: Audio Workshop (Track Mixing & Basic Editor)
+
+---
+
 ## [1.0.0] - 2026-01-24
 
 ### Added
