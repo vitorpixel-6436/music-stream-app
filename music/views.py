@@ -2,18 +2,66 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import FileResponse, JsonResponse, HttpResponse, Http404
 from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.files.base import ContentFile
 from django.db.models import Q
 from django.utils.html import escape
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 from .models import MusicFile, Artist, Album, DownloadTask
 from .forms import URLImportForm
 import os
 import mimetypes
 import logging
 
+try:
+    from mutagen import File as MutagenFile
+    from mutagen.id3 import ID3, APIC
+    from mutagen.mp3 import MP3
+    from mutagen.flac import FLAC
+    MUTAGEN_AVAILABLE = True
+except ImportError:
+    MUTAGEN_AVAILABLE = False
+    logging.warning('Mutagen not installed. Metadata extraction disabled.')
+
 logger = logging.getLogger(__name__)
 PAGES_PER_PAGE = 12
+
+def extract_metadata(file_path):
+    """Extract metadata from audio file using mutagen"""
+    if not MUTAGEN_AVAILABLE:
+        return {}
+    
+    try:
+        audio = MutagenFile(file_path, easy=True)
+        if audio is None:
+            return {}
+        
+        metadata = {
+            'title': audio.get('title', [None])[0],
+            'artist': audio.get('artist', [None])[0] or audio.get('albumartist', [None])[0],
+            'album': audio.get('album', [None])[0],
+            'year': audio.get('date', [None])[0],
+            'genre': audio.get('genre', [None])[0],
+        }
+        
+        # Extract album art
+        try:
+            audio_full = MutagenFile(file_path)
+            if hasattr(audio_full, 'tags'):
+                for key in audio_full.tags.keys():
+                    if key.startswith('APIC'):
+                        artwork = audio_full.tags[key]
+                        metadata['artwork'] = artwork.data
+                        metadata['artwork_mime'] = artwork.mime
+                        break
+        except Exception as e:
+            logger.debug(f"Could not extract artwork: {e}")
+        
+        return {k: v for k, v in metadata.items() if v}
+    except Exception as e:
+        logger.error(f"Metadata extraction error: {e}")
+        return {}
 
 def index(request):
     """Display homepage with music list, search, and filters"""
@@ -123,8 +171,9 @@ def upload_music(request):
         return JsonResponse({'error': 'No file provided'}, status=400)
     
     file = request.FILES['file']
-    if file.size > 50 * 1024 * 1024:
-        return JsonResponse({'error': 'File too large (max 50MB)'}, status=400)
+    max_size = getattr(settings, 'MAX_UPLOAD_SIZE', 100 * 1024 * 1024)
+    if file.size > max_size:
+        return JsonResponse({'error': f'File too large (max {max_size // (1024*1024)}MB)'}, status=400)
         
     title = escape(request.POST.get('title', file.name))
     artist_name = escape(request.POST.get('artist', 'Unknown Artist'))
@@ -154,36 +203,50 @@ def upload_music(request):
         return JsonResponse({'error': 'Internal server error during upload'}, status=500)
 
 def upload_page(request):
-    """Handle music upload page with form processing"""
+    """Handle music upload page with form processing and metadata extraction"""
     if request.method == 'POST':
         try:
             # Validate file presence
             if 'file' not in request.FILES:
-                messages.error(request, 'No audio file provided')
+                messages.error(request, 'Файл не выбран')
                 return render(request, 'music/upload.html')
             
             file = request.FILES['file']
             
-            # File size validation (50MB max)
-            if file.size > 50 * 1024 * 1024:
-                messages.error(request, 'File too large (maximum 50MB)')
-                return render(request, 'music/upload.html')
-            
-            # Get form data with sanitization
-            title = escape(request.POST.get('title', '').strip())
-            artist_name = escape(request.POST.get('artist', 'Unknown Artist').strip())
-            album_name = escape(request.POST.get('album', '').strip())
-            year = request.POST.get('year', '').strip()
-            genres = request.POST.getlist('genres')
-            
-            if not title:
-                messages.error(request, 'Track title is required')
+            # File size validation using settings
+            max_size = getattr(settings, 'MAX_UPLOAD_SIZE', 100 * 1024 * 1024)
+            if file.size > max_size:
+                max_size_mb = max_size // (1024 * 1024)
+                messages.error(request, f'Файл слишком большой (максимум {max_size_mb}MB). Размер файла: {file.size // (1024*1024)}MB')
                 return render(request, 'music/upload.html')
             
             # File format validation
             ext = os.path.splitext(file.name)[1].lower()
             if ext not in ['.mp3', '.flac', '.ogg', '.wav', '.m4a']:
-                messages.error(request, f'Unsupported file format: {ext}')
+                messages.error(request, f'Неподдерживаемый формат: {ext}')
+                return render(request, 'music/upload.html')
+            
+            # Save file temporarily to extract metadata
+            temp_path = os.path.join(settings.MEDIA_ROOT, 'temp', file.name)
+            os.makedirs(os.path.dirname(temp_path), exist_ok=True)
+            
+            with open(temp_path, 'wb+') as temp_file:
+                for chunk in file.chunks():
+                    temp_file.write(chunk)
+            
+            # Extract metadata from file
+            metadata = extract_metadata(temp_path)
+            
+            # Get form data with fallback to extracted metadata
+            title = escape(request.POST.get('title', '').strip()) or metadata.get('title') or os.path.splitext(file.name)[0]
+            artist_name = escape(request.POST.get('artist', '').strip()) or metadata.get('artist') or 'Unknown Artist'
+            album_name = escape(request.POST.get('album', '').strip()) or metadata.get('album', '')
+            year = request.POST.get('year', '').strip() or (metadata.get('year', '')[:4] if metadata.get('year') else '')
+            genres = request.POST.getlist('genres') or ([metadata.get('genre')] if metadata.get('genre') else [])
+            
+            if not title:
+                messages.error(request, 'Название трека обязательно')
+                os.remove(temp_path)
                 return render(request, 'music/upload.html')
             
             # Create or get artist
@@ -201,6 +264,9 @@ def upload_page(request):
                     defaults=album_data
                 )
             
+            # Reset file pointer
+            file.seek(0)
+            
             # Create music file
             music_file = MusicFile.objects.create(
                 title=title,
@@ -211,19 +277,41 @@ def upload_page(request):
                 genres=','.join(genres) if genres else ''
             )
             
-            # Handle cover image if provided
+            # Handle embedded artwork from metadata
+            if 'artwork' in metadata and 'artwork_mime' in metadata:
+                try:
+                    artwork_ext = metadata['artwork_mime'].split('/')[-1]
+                    if artwork_ext == 'jpeg':
+                        artwork_ext = 'jpg'
+                    filename = f"{music_file.id}_cover.{artwork_ext}"
+                    music_file.cover_image.save(filename, ContentFile(metadata['artwork']), save=True)
+                except Exception as e:
+                    logger.error(f"Failed to save embedded artwork: {e}")
+            
+            # Handle manually uploaded cover image (overrides embedded)
             if 'cover' in request.FILES:
                 cover_file = request.FILES['cover']
                 if cover_file.size <= 5 * 1024 * 1024:  # 5MB max for images
                     music_file.cover_image = cover_file
                     music_file.save()
             
-            messages.success(request, f'✅ Track "{title}" uploaded successfully!')
+            # Clean up temp file
+            try:
+                os.remove(temp_path)
+            except:
+                pass
+            
+            messages.success(request, f'✅ Трек "{title}" успешно загружен!')
             return redirect('music:index')
             
         except Exception as e:
             logger.error(f"Upload error in upload_page: {e}")
-            messages.error(request, f'Upload failed: {str(e)}')
+            messages.error(request, f'Ошибка загрузки: {str(e)}')
+            try:
+                if 'temp_path' in locals():
+                    os.remove(temp_path)
+            except:
+                pass
             return render(request, 'music/upload.html')
     
     return render(request, 'music/upload.html')
