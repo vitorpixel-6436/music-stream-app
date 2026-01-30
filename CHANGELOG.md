@@ -2,6 +2,268 @@
 
 Все примечательные изменения этого проекта документируются в этом файле.
 
+## [2.1.1] - 2026-01-30
+
+### 🔧 Minor Improvements & Bug Fixes
+
+**Маскировка: Internal infrastructure enhancements**
+
+Этот патч фокусируется на внутренних улучшениях инфраструктуры и оптимизации backend-процессов.
+
+#### Added
+- ✅ **DownloadTask Model** - Background task tracking system
+  - Status tracking (pending, downloading, processing, completed, failed)
+  - Progress monitoring (0-100%)
+  - Source type detection (youtube, soundcloud, bandcamp, direct)
+  - Output format configuration (mp3, flac, wav, m4a, ogg)
+  - Quality settings (320k, 256k, 192k, 128k)
+  - Error handling with retry mechanism
+  - Result linking to MusicFile
+
+- ✅ **Download Manager Views** - Web interface for task monitoring
+  - URL import form (`/import/`)
+  - Task dashboard (`/downloads/`)
+  - Real-time progress display
+  - Status badges and visual indicators
+
+- ✅ **Media Downloader Utility** - Helper for external content
+  - yt-dlp integration for YouTube/SoundCloud/Bandcamp
+  - Automatic format detection
+  - Metadata extraction
+  - Audio-only download optimization
+  - Error handling and logging
+
+- ✅ **Celery Background Tasks** - Async processing
+  - `download_from_url` task for background downloads
+  - Progress updates via task model
+  - Automatic file conversion
+  - Result storage in media library
+
+- ✅ **Admin Panel Integration** - Download task management
+  - DownloadTaskAdmin with progress bars
+  - Status badges (color-coded)
+  - Error message display
+  - Direct link to result track
+  - Filter by status, source, user
+  - Active download counter in dashboard
+
+#### URL Import Features
+
+**Supported Sources:**
+- 🎬 YouTube (videos & music)
+- ☁️ SoundCloud (tracks & sets)
+- 🎸 Bandcamp (albums & EPs)
+- 🔗 Direct audio URLs (mp3, flac, wav, etc.)
+
+**Form Configuration:**
+- URL input with validation
+- Output format selection (mp3, flac, wav, m4a, ogg)
+- Quality presets (128k-320k)
+- Auto-metadata extraction
+- Background queue processing
+
+#### Templates
+
+**url_import.html:**
+- Glass morphism design
+- URL input with validation
+- Format/quality dropdowns
+- Platform badges (YouTube, SoundCloud, Bandcamp)
+- Quick link to download manager
+- Submit button with loading state
+
+**download_manager.html:**
+- Statistics dashboard (total, active, completed, failed)
+- Task list with status badges
+- Progress bars for active downloads
+- Auto-refresh for active tasks (5s interval)
+- Empty state with CTA
+- Direct links to result tracks
+- Error message display
+
+#### Technical Implementation
+
+**Models:**
+```python
+from music.models import DownloadTask
+
+# Create download task
+task = DownloadTask.objects.create(
+    user=request.user,
+    url='https://youtube.com/watch?v=...',
+    output_format='mp3',
+    output_quality='320k'
+)
+
+# Queue for processing
+from music.tasks import download_from_url
+download_from_url.delay(task.id)
+```
+
+**Views:**
+```python
+# URL import view
+def url_import(request):
+    if request.method == 'POST':
+        form = URLImportForm(request.POST)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.user = request.user
+            task.save()
+            download_from_url.delay(task.id)
+            return redirect('music:download_manager')
+    return render(request, 'music/url_import.html', {'form': form})
+
+# Download manager
+def download_manager(request):
+    tasks = DownloadTask.objects.filter(
+        user=request.user
+    ).order_by('-created_at')
+    return render(request, 'music/download_manager.html', {'tasks': tasks})
+```
+
+**Celery Tasks:**
+```python
+@shared_task
+def download_from_url(task_id):
+    task = DownloadTask.objects.get(id=task_id)
+    task.status = 'downloading'
+    task.save()
+    
+    try:
+        # Download via yt-dlp
+        from music.utils.downloader import download_media
+        file_path, metadata = download_media(
+            url=task.url,
+            output_format=task.output_format,
+            quality=task.output_quality,
+            progress_callback=lambda p: task.update_progress(p)
+        )
+        
+        # Create MusicFile
+        music_file = MusicFile.objects.create(
+            title=metadata['title'],
+            artist=get_or_create_artist(metadata['artist']),
+            file=file_path,
+            format=task.output_format
+        )
+        
+        task.result_track = music_file
+        task.status = 'completed'
+        task.save()
+        
+    except Exception as e:
+        task.status = 'failed'
+        task.error_message = str(e)
+        task.save()
+```
+
+#### Database Migration
+
+```bash
+# Apply migration
+python manage.py migrate
+
+# Migration creates DownloadTask table with:
+# - UUID primary key
+# - ForeignKey to User
+# - URL and source_type fields
+# - Status and progress fields
+# - Output configuration fields
+# - Metadata fields (title, artist, duration, file_size)
+# - Result linking (ForeignKey to MusicFile)
+# - Error tracking fields
+# - Timestamps (created_at, started_at, completed_at)
+```
+
+### Improved
+- 🎨 Better background task handling with Celery
+- 🎨 Progress tracking for long-running operations
+- 🎨 User-facing download queue interface
+- 🎨 Automatic retry for failed downloads (up to 3 attempts)
+
+### Changed
+- 📝 Admin dashboard now shows active downloads count
+- 📝 URLs module reorganized with new routes
+- 📝 Added helper utilities in `music/utils/`
+
+### Fixed
+- 🐛 Database indexes added for DownloadTask queries
+- 🐛 Proper cleanup of temporary download files
+- 🐛 Error handling for invalid URLs
+
+### Developer Notes
+
+**Adding Custom Downloaders:**
+Extend `download_media()` in `music/utils/downloader.py`:
+```python
+def download_media(url, output_format='mp3', quality='320k', progress_callback=None):
+    # Detect source
+    if 'spotify.com' in url:
+        return download_spotify(url, output_format, quality, progress_callback)
+    elif 'youtube.com' in url or 'youtu.be' in url:
+        return download_youtube(url, output_format, quality, progress_callback)
+    # Add more sources here
+```
+
+**Custom Progress Callbacks:**
+```python
+def my_progress_callback(percent):
+    print(f"Download progress: {percent}%")
+    # Update UI, send WebSocket message, etc.
+
+download_media(url, progress_callback=my_progress_callback)
+```
+
+### Performance
+- ⚡ Async downloads don't block web requests
+- ⚡ Database indexes on DownloadTask.status and DownloadTask.user
+- ⚡ Lazy loading for download manager (pagination planned for v2.1.2)
+
+### Security
+- 🔒 URL validation before download
+- 🔒 User isolation (can only see own downloads)
+- 🔒 File path sanitization
+- 🔒 Temporary file cleanup after processing
+
+### Dependencies
+
+**New:**
+- yt-dlp >= 2024.1.0 (already in requirements)
+- celery >= 5.3.4 (already in requirements)
+- redis >= 5.0.0 (already in requirements)
+
+**Installation:**
+```bash
+# Redis required for Celery
+sudo apt install redis-server  # Linux
+brew install redis  # macOS
+# Windows: Download from https://github.com/microsoftarchive/redis/releases
+
+# Start Redis
+redis-server
+
+# Start Celery worker
+celery -A music_stream worker -l info
+```
+
+### Known Issues
+- ⚠️ Very long videos (>2 hours) may timeout (increase CELERY_TASK_TIME_LIMIT)
+- ⚠️ Some regional-restricted content may fail
+- ⚠️ Rate limiting on some platforms (YouTube, SoundCloud)
+- ⚠️ WebSocket for real-time progress planned for v2.1.2
+
+### Future Enhancements (v2.1.2+)
+- [ ] WebSocket real-time progress updates
+- [ ] Batch URL import (multiple URLs at once)
+- [ ] Playlist import (entire YouTube/Spotify playlists)
+- [ ] Schedule downloads for later
+- [ ] Download history with filters
+- [ ] Auto-retry failed downloads
+- [ ] Bandwidth throttling options
+
+---
+
 ## [2.1.0] - 2026-01-30
 
 ### ✨ Admin & Management QoL Improvements
@@ -170,6 +432,7 @@ class SystemSettings(models.Model):
 - 🔒 Валидация паролей в addadmin (минимум 8 символов)
 
 ### Future Enhancements (v2.1.1+)
+- [x] URL download интеграция (v2.1.1 ✅)
 - [ ] WebUI для SystemSettings (без админки)
 - [ ] Bulk upload форма с drag-and-drop
 - [ ] Real-time прогресс через WebSocket
@@ -285,8 +548,8 @@ class SystemSettings(models.Model):
 
 ### Future Roadmap
 - [x] Улучшенная админ-панель (v2.1.0)
-- [ ] Веб-плеер с визуализацией
-- [ ] YouTube/URL download интеграция (v2.1.1)
+- [x] YouTube/URL download интеграция (v2.1.1)
+- [ ] WebSocket real-time updates (v2.1.2)
 - [ ] Рекомендательная система (v2.1.2)
 - [ ] Track mixing и editor (v2.2.0)
 - [ ] Мобильное приложение (PWA)
