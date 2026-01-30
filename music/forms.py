@@ -8,7 +8,7 @@ class TrackUploadForm(forms.ModelForm):
     
     class Meta:
         model = MusicFile
-        fields = ['title', 'artist', 'album', 'genre', 'file', 'format', 'quality']
+        fields = ['title', 'artist', 'album', 'genre', 'file', 'format']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Track title'}),
             'artist': forms.Select(attrs={'class': 'form-control'}),
@@ -16,7 +16,6 @@ class TrackUploadForm(forms.ModelForm):
             'genre': forms.Select(attrs={'class': 'form-control'}),
             'file': forms.FileInput(attrs={'class': 'form-control', 'accept': 'audio/*'}),
             'format': forms.Select(attrs={'class': 'form-control'}),
-            'quality': forms.Select(attrs={'class': 'form-control'}),
         }
     
     def clean_file(self):
@@ -105,6 +104,7 @@ class AlbumCreateForm(forms.ModelForm):
 
 # Changelog:
 # - Renamed Track to MusicFile model reference
+# - Removed 'quality' field (not in MusicFile model)
 # - Simplified forms and removed redundant widgets
 # - Improved SearchForm and AlbumCreateForm to match models.py fields
 # - Removed "junk" fields that were not in models.py (cover_art -> cover)
