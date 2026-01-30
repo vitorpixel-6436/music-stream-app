@@ -5,6 +5,7 @@ Features:
 - Rich UI components with color-coded badges
 - Audio preview functionality
 - Progress tracking for upload sessions
+- Download task monitoring
 - Singleton settings management
 
 Part of v2.1.0: Admin & Management QoL improvements
@@ -17,7 +18,7 @@ from django.urls import reverse
 from django.db.models import Sum, Count
 from .models import (
     Genre, Artist, Album, MusicFile, Playlist, 
-    Favorite, SystemSettings, UploadSession
+    Favorite, SystemSettings, UploadSession, DownloadTask
 )
 
 
@@ -52,6 +53,9 @@ class MusicStreamAdminSite(admin.AdminSite):
             'recent_sessions': UploadSession.objects.filter(
                 status='completed'
             ).order_by('-created_at')[:5],
+            'active_downloads': DownloadTask.objects.filter(
+                status__in=['pending', 'downloading', 'processing']
+            ).count(),
         }
         
         return super().index(request, extra_context)
@@ -233,7 +237,7 @@ class MusicFileAdmin(admin.ModelAdmin):
         if obj.play_count > 1000:
             return format_html(
                 '<span style="background: #1db954; color: white; '
-                'padding: 4px 10px; border-radius: 12px; font-weight: bold;'
+                'padding: 4px 10px; border-radius: 12px; font-weight: bold;">'
                 '🔥 {:,}</span>',
                 obj.play_count
             )
@@ -245,7 +249,7 @@ class MusicFileAdmin(admin.ModelAdmin):
             return format_html(
                 '<audio controls preload="none" '
                 'style="width: 200px; height: 32px;">'
-                '<source src="{}" type="audio/{}">'</audio>',
+                '<source src="{}" type="audio/{}">''</audio>',
                 obj.file.url, obj.format
             )
         return "—"
@@ -257,7 +261,7 @@ class MusicFileAdmin(admin.ModelAdmin):
                 '<div style="background: #f8f9fa; padding: 20px; '
                 'border-radius: 12px;">'
                 '<audio controls style="width: 100%;">'
-                '<source src="{}" type="audio/{}">'</audio>'
+                '<source src="{}" type="audio/{}">''</audio>'
                 '<div style="margin-top: 12px; color: #666; font-size: 13px;">'
                 'File: <strong>{}</strong> | Size: <strong>{}</strong> | '
                 'Bitrate: <strong>{} kbps</strong>'
@@ -398,6 +402,98 @@ class UploadSessionAdmin(admin.ModelAdmin):
             return f"{delta.total_seconds():.1f}s"
         return "—"
     duration.short_description = "Duration"
+
+
+# ============================================================================
+# Download Task Admin (v2.1.1)
+# ============================================================================
+
+@admin.register(DownloadTask, site=admin_site)
+class DownloadTaskAdmin(admin.ModelAdmin):
+    list_display = (
+        'id_short', 'user', 'source_type', 'status_badge',
+        'progress_bar', 'result_link', 'created_at'
+    )
+    list_filter = ('status', 'source_type', 'user', 'created_at')
+    search_fields = ('user__username', 'url', 'original_title', 'id')
+    readonly_fields = (
+        'id', 'user', 'url', 'source_type', 'status', 'progress',
+        'current_step', 'original_title', 'original_artist', 'duration',
+        'file_size', 'result_track', 'error_message', 'retry_count',
+        'created_at', 'started_at', 'completed_at'
+    )
+    ordering = ('-created_at',)
+    
+    fieldsets = (
+        ('Task Info', {
+            'fields': ('id', 'user', 'status', 'created_at')
+        }),
+        ('Source', {
+            'fields': ('url', 'source_type', 'original_title', 'original_artist')
+        }),
+        ('Progress', {
+            'fields': ('progress', 'current_step', 'started_at')
+        }),
+        ('Output Settings', {
+            'fields': ('output_format', 'output_quality')
+        }),
+        ('Result', {
+            'fields': ('result_track', 'completed_at'),
+            'classes': ('collapse',)
+        }),
+        ('Error Info', {
+            'fields': ('error_message', 'retry_count'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def id_short(self, obj):
+        return str(obj.id)[:8]
+    id_short.short_description = "Task ID"
+    
+    def status_badge(self, obj):
+        colors = {
+            'pending': '#FFA500',
+            'downloading': '#4ECDC4',
+            'processing': '#9B59B6',
+            'completed': '#1db954',
+            'failed': '#FF6B6B',
+            'cancelled': '#95A5A6',
+        }
+        color = colors.get(obj.status, '#999')
+        return format_html(
+            '<span style="background: {}; color: white; padding: 4px 10px; '
+            'border-radius: 12px; font-weight: bold;">{}</span>',
+            color, obj.status.upper()
+        )
+    status_badge.short_description = "Status"
+    
+    def progress_bar(self, obj):
+        return format_html(
+            '<div style="background: #e0e0e0; border-radius: 10px; '
+            'width: 150px; height: 20px; position: relative;">'
+            '<div style="background: #4ECDC4; width: {}%; height: 100%; '
+            'border-radius: 10px; transition: width 0.3s;"></div>'
+            '<span style="position: absolute; left: 50%; top: 50%; '
+            'transform: translate(-50%, -50%); font-size: 11px; '
+            'font-weight: bold; color: #333;">{}%</span>'
+            '</div>',
+            obj.progress, obj.progress
+        )
+    progress_bar.short_description = "Progress"
+    
+    def result_link(self, obj):
+        if obj.result_track:
+            return format_html(
+                '<a href="{}" style="color: #1db954; font-weight: bold;">✓ View Track</a>',
+                reverse('admin:music_musicfile_change', args=[obj.result_track.id])
+            )
+        return "—"
+    result_link.short_description = "Result"
+    
+    def has_add_permission(self, request):
+        # Tasks are created via views, not admin
+        return False
 
 
 # ============================================================================
