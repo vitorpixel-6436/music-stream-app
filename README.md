@@ -1,125 +1,98 @@
-# Music Streaming Application 🎵
+# 🎵 Music Stream App
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.11+-green.svg)](https://www.python.org/)
-[![Django](https://img.shields.io/badge/django-4.0+-darkgreen.svg)](https://www.djangoproject.com/)
-[![Docker](https://img.shields.io/badge/docker-latest-blue.svg)](https://www.docker.com/)
+**Premium music streaming application** с четырьмя UI дизайн-системами: Apple Glass Effects, Steam Gaming Cards, Spotify Minimalism, и MSI Gaming Vibes.
 
-A professional-grade web application for streaming and downloading music with full metadata support, advanced search capabilities, and responsive design.
+![Version](https://img.shields.io/badge/version-2.0.0-red.svg)
+![Django](https://img.shields.io/badge/django-5.1-green.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![UI Components](https://img.shields.io/badge/UI_components-108KB-orange.svg)
 
-## Table of Contents
+---
 
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Quick Start](#quick-start)
-- [Installation](#installation)
-- [Docker Deployment](#docker-deployment)
-- [Configuration](#configuration)
-- [API Endpoints](#api-endpoints)
-- [Database Schema](#database-schema)
-- [Performance Optimization](#performance-optimization)
-- [Security Features](#security-features)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [License](#license)
+## ✨ Features
 
-## Features
+### 🎵 Core Functionality
+- ✅ Music upload (MP3, FLAC, WAV, M4A, OGG)
+- ✅ High-quality audio streaming
+- ✅ Cover image support
+- ✅ Metadata management (title, artist, album, year, genre)
+- ✅ Search & filtering
+- ✅ Download tracks
+- ✅ Responsive player interface
+- ✅ Progressive Web App (PWA)
 
-### 🎵 Core Music Features
+### 🎨 Design Systems
 
-- **Stream Music** - Listen to music directly in your browser with high-quality audio
-- **Download Tracks** - Save music files to your device for offline playback
-- **Multiple Format Support** - MP3, FLAC, WAV, AAC, OGG
-- **High Quality Streaming** - Up to 128 kbps audio quality
-- **Format Conversion** - Automatic conversion between supported formats
-- **Metadata Management** - Complete ID3 tag support and metadata extraction
+#### 1. **Apple Glass Effects** (37.1 KB)
+- Liquid glass morphism with backdrop-filter blur
+- Dynamic glass layers (layer-1, layer-2, layer-3)
+- Context-aware blur adjustments
+- Scroll-reactive elevations
+- Hover depth effects
+- Floating particle animations
+- Specular highlights & edge lighting
 
-### 🔍 Discovery & Organization
+#### 2. **Steam Gaming Cards** (35.2 KB)
+- Grid cards with 3:4 aspect ratio
+- Interactive carousels with drag-to-scroll
+- Featured hero banners (21:9 format)
+- Quick action buttons (like, playlist, download)
+- Play overlays with 80px circular buttons
+- Category pills with horizontal scrolling
+- Progress tracking & keyboard navigation
 
-- **Advanced Search** - Search by track title, artist, or album name
-- **Smart Filtering** - Filter music by artist, album, or genre
-- **Genre Classification** - Organize music by musical styles
-- **Album Grouping** - Browse music organized by albums
-- **Artist Information** - Full artist details with biography
-- **Smart Playlists** - Create and manage custom playlists
-- **Favorites System** - Mark your favorite tracks for quick access
-- **Play Count Tracking** - Automatic tracking of listening statistics
+#### 3. **Spotify Minimalism** (23.0 KB)
+- Sticky navigation with scroll reveal
+- Browser history integration (back/forward)
+- Breadcrumb navigation
+- Compact sidebar with hover expand (72px → 280px)
+- Minimal cards with green play button (#1db954)
+- Pill filters & icon buttons
+- Smooth page transitions
+- Ctrl+K search shortcut
 
-### 🎨 User Experience
+#### 4. **MSI Gaming Vibes** (13.0 KB)
+- RGB glow animations
+- Angular clip-path designs
+- Performance stats widgets
+- Neon red accents with pulse effects
+- Hexagon background patterns
+- Dragon-themed accents
+- Scanline CRT effects
+- Gaming-style buttons & inputs
 
-- **Responsive Design** - Works seamlessly on desktop, tablet, and mobile
-- **Modern UI** - Beautiful glassmorphism design with smooth animations
-- **Pagination** - Efficient content loading with 12 items per page
-- **Autocomplete Search** - Real-time search suggestions
-- **Sort Options** - Multiple sorting methods (date, title, popularity)
-- **Health Checks** - Automated service health monitoring
-- **Dark Theme** - Easy on the eyes design
+---
 
-### 📊 Advanced Features
+## 📊 Stats
 
-- **Usage Statistics** - Track play counts and download history
-- **Download Tracking** - Monitor download activity and usage patterns
-- **Error Handling** - Comprehensive error pages and recovery
-- **Logging System** - Detailed application logging for debugging
-- **Caching Layer** - Redis-based caching for performance
-- **Database Optimization** - Indexed queries for fast retrieval
+| Component | Files | Size | Minified |
+|-----------|-------|------|----------|
+| Glass Effects | 3 files | 37.1 KB | ~12 KB |
+| Steam Gaming | 4 files | 35.2 KB | ~11 KB |
+| Spotify Minimal | 4 files | 23.0 KB | ~7.5 KB |
+| MSI Gaming | 1 file | 13.0 KB | ~4.2 KB |
+| **Total** | **12 files** | **108.3 KB** | **~35 KB** |
 
-## Tech Stack
+---
 
-### Backend
-
-- **Framework**: Django 4.0+
-- **Database**: PostgreSQL 15
-- **Cache**: Redis 7
-- **ASGI Server**: Gunicorn 4 workers
-- **Language**: Python 3.11+
-
-### Frontend
-
-- **HTML5**: Modern semantic HTML
-- **CSS3**: Glassmorphism design with animations
-- **JavaScript**: Modern vanilla JS with no frameworks
-- **Responsive**: Mobile-first approach
-
-### Infrastructure
-
-- **Containerization**: Docker & Docker Compose
-- **Web Server**: Nginx reverse proxy
-- **Version Control**: Git
-- **CI/CD Ready**: GitHub Actions compatible
-
-## Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
+- Python 3.10+
+- Django 5.1+
+- Modern browser with backdrop-filter support
 
-- Docker & Docker Compose 3.8+
-- Git
-- 4GB+ RAM
-- 20GB+ disk space
-
-### Start Application
+### Installation
 
 ```bash
-# Clone the repository
+# Clone repository
 git clone https://github.com/vitorpixel-6436/music-stream-app.git
 cd music-stream-app
 
-# Create environment file
-cp .env.example .env
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Start with Docker
-docker-compose up -d
-
-# Access the application
-# Web: http://localhost:80
-# Admin: http://localhost/admin
-```
-
-## Installation
-
-### Local Development
-
-```bash
 # Install dependencies
 pip install -r requirements.txt
 
@@ -129,181 +102,340 @@ python manage.py migrate
 # Create superuser
 python manage.py createsuperuser
 
-# Collect static files
-python manage.py collectstatic --noinput
-
-# Start development server
-python manage.py runserver 0.0.0.0:8000
+# Run development server
+python manage.py runserver
 ```
 
-### Production Deployment
-
-See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed production setup instructions.
-
-## Docker Deployment
-
-### Development
-
-```bash
-docker-compose up -d
-```
-
-### Production
-
-```bash
-docker-compose -f docker-compose.prod.yml up -d
-```
-
-## Configuration
-
-### Environment Variables
-
-Create `.env` file with the following variables:
-
-```bash
-# Security
-DEBUG=0
-SECRET_KEY=your-secret-key
-ALLOWED_HOSTS=yourdomain.com
-
-# Database
-POSTGRES_DB=music_stream
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=secure-password
-
-# Redis
-REDIS_URL=redis://redis:6379/0
-
-# Email (Optional)
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-```
-
-## API Endpoints
-
-### Music
-
-- `GET /` - Home page with music list
-- `GET /api/music/<id>/` - Get music details
-- `GET /api/music/<id>/stream/` - Stream music file
-- `GET /api/music/<id>/download/` - Download music file
-- `POST /api/music/upload/` - Upload new music
-
-### Search & Filter
-
-- `GET /?q=query` - Search music
-- `GET /?artist=artist_id` - Filter by artist
-- `GET /?album=album_id` - Filter by album
-- `GET /?sort=field` - Sort results
-- `GET /api/search/?q=query` - Autocomplete search
-
-## Database Schema
-
-### Main Tables
-
-- **MusicFile**: Audio file records with metadata
-- **Artist**: Artist information and details
-- **Album**: Album metadata and grouping
-- **UserFavorite**: User's favorite tracks
-- **PlayHistory**: User playback statistics
-
-## Performance Optimization
-
-### Caching Strategy
-
-- Database query caching (1 hour TTL)
-- Static file caching (browser cache)
-- API response caching
-
-### Database Optimization
-
-- Indexed searches on title, artist
-- Pagination for large result sets
-- Query optimization with select_related
-
-## Security Features
-
-- **HTTPS/SSL**: Automatic redirect in production
-- **CSRF Protection**: Built-in Django CSRF tokens
-- **XSS Prevention**: Template auto-escaping
-- **SQL Injection Prevention**: ORM parameterized queries
-- **Rate Limiting**: Configurable rate limits
-- **Security Headers**: HSTS, CSP, X-Frame-Options
-- **Non-root Container**: Docker security best practice
-- **Health Checks**: Continuous service monitoring
-
-## Troubleshooting
-
-### Database Connection Issues
-
-```bash
-docker-compose restart db
-docker-compose logs db
-```
-
-### Static Files Not Loading
-
-```bash
-docker-compose exec web python manage.py collectstatic --noinput --clear
-docker-compose restart nginx
-```
-
-### High Memory Usage
-
-Reduce worker count in docker-compose.yml
-
-### Permission Errors
-
-```bash
-sudo chown -R 1000:1000 ./media
-sudo chmod -R 755 ./media
-```
-
-## Project Structure
-
-```
-music-stream-app/
-├── config/              # Django configuration
-├── music/              # Main app
-│   ├── models.py       # Database models
-│   ├── views.py        # View logic with search/filter
-│   ├── urls.py         # URL routing
-│   ├── forms.py        # Form handling with validation
-│   ├── static/         # Static files (CSS, JS)
-│   └── templates/      # HTML templates
-├── docker-compose.yml  # Docker orchestration
-├── Dockerfile          # Multi-stage build
-├── requirements.txt    # Python dependencies
-├── manage.py          # Django CLI
-└── README.md          # This file
-```
-
-## Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Support
-
-For issues and questions:
-
-- Open an issue on GitHub
-- Check [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for deployment help
-- Review [PROJECT_STATUS.md](PROJECT_STATUS.md) for project roadmap
-
-## Acknowledgments
-
-Built with Django, PostgreSQL, Redis, Docker, and Nginx.
+### Access
+- **App**: http://localhost:8000/
+- **Admin**: http://localhost:8000/admin/
+- **Upload**: http://localhost:8000/upload/
 
 ---
 
-**Made with ❤️ by vitorpixel-6436**
+## 📚 UI Components Guide
+
+Подробная документация по всем компонентам: **[COMPONENTS.md](COMPONENTS.md)**
+
+### Quick Examples
+
+#### Glass Card
+```html
+<div class="glass-layer-2 glass-radius-xl glass-edge-light p-6" data-glass-hover="depth">
+  <h3>Glass Card</h3>
+  <p>With dynamic effects</p>
+</div>
+```
+
+#### Steam Card
+```html
+<div class="steam-card" data-track-id="123">
+  <div class="steam-card-cover">
+    <img src="cover.jpg" class="steam-card-image">
+  </div>
+  <div class="steam-card-info">
+    <h3 class="steam-card-title">Track Name</h3>
+    <p class="steam-card-artist">Artist</p>
+  </div>
+</div>
+```
+
+#### Spotify Card
+```html
+<div class="spotify-card" data-track-id="123">
+  <div class="spotify-card-image">
+    <img src="cover.jpg">
+    <div class="spotify-card-play">
+      <i class="fas fa-play"></i>
+    </div>
+  </div>
+  <h3 class="spotify-card-title">Track</h3>
+</div>
+```
+
+#### MSI Button
+```html
+<button class="msi-btn rgb-glow">
+  <i class="fas fa-play"></i>
+  Play Now
+</button>
+```
+
+---
+
+## 🎯 Project Structure
+
+```
+music-stream-app/
+├── music/
+│   ├── static/
+│   │   ├── css/
+│   │   │   ├── glass-liquid.css        # Apple glass base (13.0 KB)
+│   │   │   ├── glass-dynamics.css      # Dynamic effects (10.7 KB)
+│   │   │   ├── steam-cards.css         # Gaming cards (12.9 KB)
+│   │   │   ├── steam-carousel.css      # Carousels (9.9 KB)
+│   │   │   ├── spotify-minimal.css     # Minimalism (10.6 KB)
+│   │   │   └── msi-gaming.css          # Gaming vibes (13.0 KB)
+│   │   │
+│   │   └── js/
+│   │       ├── glass-dynamics.js       # Glass system (13.4 KB)
+│   │       ├── steam-carousel.js       # Carousel logic (12.4 KB)
+│   │       └── spotify-minimal.js      # Spotify UI (12.4 KB)
+│   │
+│   ├── templates/music/
+│   │   ├── base.html               # Base template with all systems
+│   │   ├── index.html              # Home with Steam + Glass
+│   │   └── upload.html             # Upload with Spotify minimal
+│   │
+│   ├── models.py
+│   ├── views.py
+│   └── urls.py
+│
+├── COMPONENTS.md              # Full UI documentation (16.9 KB)
+├── README.md                  # This file
+├── requirements.txt
+└── manage.py
+```
+
+---
+
+## 💻 Tech Stack
+
+### Backend
+- **Django 5.1** - Web framework
+- **Pillow** - Image processing
+- **Python 3.10+** - Programming language
+
+### Frontend
+- **Tailwind CSS** - Utility-first CSS framework
+- **Font Awesome 6.5** - Icon library
+- **Inter & Orbitron** - Google Fonts
+- **Vanilla JavaScript** - No dependencies
+
+### UI Systems
+- **Glass Morphism** - backdrop-filter, blur effects
+- **Clip-path** - Angular gaming designs
+- **CSS Grid** - Responsive layouts
+- **CSS Animations** - RGB glows, neon pulses
+- **Intersection Observer** - Fade-in animations
+- **History API** - Browser navigation
+
+---
+
+## ⚙️ Configuration
+
+### CSS Load Order (Important!)
+
+```html
+<!-- 1. Base glass effects -->
+<link rel="stylesheet" href="css/glass-liquid.css">
+<link rel="stylesheet" href="css/glass-dynamics.css">
+
+<!-- 2. Component libraries -->
+<link rel="stylesheet" href="css/steam-cards.css">
+<link rel="stylesheet" href="css/steam-carousel.css">
+<link rel="stylesheet" href="css/spotify-minimal.css">
+<link rel="stylesheet" href="css/msi-gaming.css">
+
+<!-- 3. Custom overrides -->
+<link rel="stylesheet" href="css/custom.css">
+```
+
+### JavaScript Load Order
+
+```html
+<!-- 1. Glass dynamics (first) -->
+<script src="js/glass-dynamics.js" defer></script>
+
+<!-- 2. Component controllers -->
+<script src="js/steam-carousel.js" defer></script>
+<script src="js/spotify-minimal.js" defer></script>
+
+<!-- 3. Page-specific scripts -->
+<script src="js/page.js" defer></script>
+```
+
+---
+
+## 🎮 Features Showcase
+
+### 1. Glass Effects
+- **Layers**: 3 уровня глубины (layer-1/2/3)
+- **Tints**: Red, blue, purple colored glass
+- **Radius**: 5 размеров (sm → 2xl)
+- **Interactive**: Pressable, hover-lift
+- **Dynamic**: Scroll-reactive, context-aware
+- **Particles**: Floating background animation
+
+### 2. Steam Gaming
+- **Cards**: 3:4 aspect, hover lift, quick actions
+- **Carousel**: Drag scroll, keyboard nav, progress bar
+- **Featured**: 21:9 hero banner, gradient overlays
+- **Pills**: Category filters, horizontal scroll
+- **Grid**: Responsive auto-fill layout
+
+### 3. Spotify Minimal
+- **Navigation**: Sticky reveal, blur on scroll
+- **Breadcrumbs**: Home › Current Page
+- **Search**: Ctrl+K shortcut, auto-clear
+- **Sidebar**: Compact mode (72px → 280px)
+- **Cards**: Green play button, minimal design
+- **Transitions**: Smooth page navigation
+
+### 4. MSI Gaming
+- **RGB Glow**: Animated box-shadow effects
+- **Angular**: Clip-path polygon designs
+- **Neon**: Pulsing text shadows
+- **Hexagons**: Background pattern overlay
+- **Stats**: Performance widget cards
+- **Scanlines**: CRT monitor effect
+
+---
+
+## 📱 Responsive Design
+
+| Breakpoint | Width | Layout Changes |
+|------------|-------|----------------|
+| **Mobile** | <640px | 2-col grid, hidden breadcrumbs, full-width search |
+| **Tablet** | 640-1023px | 3-col grid, compact navigation |
+| **Laptop** | 1024-1919px | 4-col grid, full features |
+| **Desktop** | ≥1920px | 5-col grid, max 1920px container |
+
+---
+
+## ♿ Accessibility
+
+- ✅ ARIA labels on interactive elements
+- ✅ Keyboard navigation support
+- ✅ Focus-visible styles (2px outline)
+- ✅ Semantic HTML
+- ✅ Alt text on images
+- ✅ `prefers-reduced-motion` support
+- ✅ Color contrast ratios (WCAG AA)
+
+---
+
+## 🚀 Performance
+
+### Optimizations
+- **CSS**: 108 KB → 35 KB (minified + gzip)
+- **JavaScript**: Defer loading, no blocking
+- **Images**: Lazy loading support
+- **Fonts**: Preconnect to Google Fonts
+- **CSS Containment**: `contain: layout style paint`
+- **Intersection Observer**: Only animate visible elements
+
+### Lighthouse Score Target
+- Performance: 90+
+- Accessibility: 95+
+- Best Practices: 90+
+- SEO: 100
+
+---
+
+## 🔧 Development
+
+### Adding New Pages
+
+1. Create template extending `base.html`:
+```django
+{% extends 'music/base.html' %}
+
+{% block breadcrumbs %}
+<span class="spotify-breadcrumb-separator">›</span>
+<div class="spotify-breadcrumb-item active">Your Page</div>
+{% endblock %}
+
+{% block content %}
+<!-- Your content -->
+{% endblock %}
+```
+
+2. Choose UI style:
+- Glass: `glass-layer-2 glass-radius-xl`
+- Steam: `steam-card` or `steam-grid`
+- Spotify: `spotify-card` or `spotify-row-item`
+- MSI: `msi-card` or `msi-btn`
+
+3. Add animations:
+- Glass: `data-glass-hover="depth"`
+- Spotify: `data-fade-in`
+- MSI: `class="rgb-glow"`
+
+---
+
+## 📝 Release Notes
+
+### Version 2.0.0 (2026-01-30)
+
+#### ✨ New Features
+- ✅ Complete UI system with 4 design languages
+- ✅ 108 KB of premium CSS components
+- ✅ 38 KB of JavaScript controllers
+- ✅ Comprehensive documentation (COMPONENTS.md)
+- ✅ MSI Gaming Vibes theme
+- ✅ Spotify Minimalism components
+- ✅ Steam Gaming Cards & Carousels
+- ✅ Apple Glass Effects system
+
+#### 🔧 Improvements
+- Responsive design for all breakpoints
+- Accessibility enhancements
+- Performance optimizations
+- Browser compatibility improvements
+
+#### 📚 Documentation
+- Full component showcase
+- Integration examples
+- Best practices guide
+- Accessibility guidelines
+
+---
+
+## 🔗 Links
+
+- **Repository**: https://github.com/vitorpixel-6436/music-stream-app
+- **Components Guide**: [COMPONENTS.md](COMPONENTS.md)
+- **Issues**: https://github.com/vitorpixel-6436/music-stream-app/issues
+- **Releases**: https://github.com/vitorpixel-6436/music-stream-app/releases
+
+---
+
+## 👥 Author
+
+**vitorpixel-6436**  
+Email: vitorleitye6436@gmail.com
+
+---
+
+## 📜 License
+
+MIT License - see LICENSE file for details
+
+---
+
+## 🚀 Roadmap
+
+### v2.1.0 (Planned)
+- [ ] Плейлисты и коллекции
+- [ ] Социальные функции
+- [ ] Lyrics интеграция
+- [ ] Тёмная/светлая тема переключатель
+- [ ] Продвинутый аудиоплеер с эквалайзером
+
+### v2.2.0 (Future)
+- [ ] Real-time collaboration
+- [ ] Live streaming support
+- [ ] Mobile apps (iOS/Android)
+- [ ] Desktop apps (Electron)
+
+---
+
+## 🔥 Support
+
+Понравился проект? Поставь ⭐ на GitHub!
+
+---
+
+**Made with ❤️ using Django, Tailwind CSS & Vanilla JavaScript**  
+**© 2026 Music Stream App. All rights reserved.**
