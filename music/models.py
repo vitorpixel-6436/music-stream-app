@@ -64,10 +64,13 @@ class MusicFile(models.Model):
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='tracks')
     album = models.ForeignKey(Album, on_delete=models.SET_NULL, null=True, blank=True, related_name='tracks')
     genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    # Files
     file = models.FileField(
         upload_to='tracks/',
         validators=[FileExtensionValidator(['mp3', 'flac', 'ogg', 'm4a', 'wav'])]
     )
+    cover_image = models.ImageField(upload_to='covers/', blank=True, null=True)
     format = models.CharField(max_length=10, choices=FORMAT_CHOICES, default='mp3')
     
     # Metadata (Auto-extracted)
