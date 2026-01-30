@@ -80,8 +80,17 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Custom settings
-MAX_UPLOAD_SIZE = int(os.getenv('MAX_UPLOAD_SIZE', 50)) * 1024 * 1024
+# File Upload Settings
+MAX_UPLOAD_SIZE = int(os.getenv('MAX_UPLOAD_SIZE', 100)) * 1024 * 1024  # 100MB default
+DATA_UPLOAD_MAX_MEMORY_SIZE = MAX_UPLOAD_SIZE  # Max size for in-memory uploads
+FILE_UPLOAD_MAX_MEMORY_SIZE = MAX_UPLOAD_SIZE  # Max size before writing to disk
+
+# File upload handlers
+FILE_UPLOAD_HANDLERS = [
+    'django.core.files.uploadhandler.MemoryFileUploadHandler',
+    'django.core.files.uploadhandler.TemporaryFileUploadHandler',
+]
+
 SUPPORTED_FORMATS = os.getenv('SUPPORTED_FORMATS', 'mp3,flac,ogg,m4a,wav').split(',')
 
 # Security Settings for Production
