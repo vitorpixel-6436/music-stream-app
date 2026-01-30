@@ -3,7 +3,7 @@ import os
 import logging
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.validators import FileExtensionValidator
+from django.core.validators import FileExtensionValidator, URLValidator
 from mutagen import File as MutagenFile
 
 logger = logging.getLogger(__name__)
@@ -275,3 +275,136 @@ class UploadSession(models.Model):
         if self.completed_at:
             return (self.completed_at - self.created_at).total_seconds()
         return None
+
+
+class DownloadTask(models.Model):
+    """Track background media download tasks with optimized indexing"""
+    
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('downloading', 'Downloading'),
+        ('processing', 'Processing'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+        ('cancelled', 'Cancelled'),
+    ]
+    
+    SOURCE_CHOICES = [
+        ('youtube', 'YouTube'),
+        ('soundcloud', 'SoundCloud'),
+        ('bandcamp', 'Bandcamp'),
+        ('url', 'Direct URL'),
+    ]
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='download_tasks'
+    )
+    
+    # Source information
+    url = models.URLField(max_length=2048, validators=[URLValidator()])
+    source_type = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='url')
+    
+    # Task status with index for fast filtering
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='pending',
+        db_index=True
+    )
+    
+    # Progress tracking
+    progress = models.IntegerField(default=0, help_text="Progress percentage 0-100")
+    current_step = models.CharField(max_length=100, blank=True)
+    
+    # Download metadata
+    original_title = models.CharField(max_length=500, blank=True)
+    original_artist = models.CharField(max_length=255, blank=True)
+    duration = models.IntegerField(null=True, blank=True, help_text="Duration in seconds")
+    file_size = models.BigIntegerField(null=True, blank=True)
+    
+    # Output settings
+    output_format = models.CharField(
+        max_length=10,
+        choices=MusicFile.FORMAT_CHOICES,
+        default='mp3'
+    )
+    output_quality = models.CharField(
+        max_length=20,
+        default='320k',
+        help_text="Bitrate for output file"
+    )
+    
+    # Result
+    result_track = models.ForeignKey(
+        MusicFile,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='download_source'
+    )
+    
+    # Error handling
+    error_message = models.TextField(blank=True)
+    retry_count = models.IntegerField(default=0)
+    
+    # Timestamps with index for date-based queries
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    started_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', 'status']),
+            models.Index(fields=['status', 'created_at']),
+        ]
+    
+    def __str__(self):
+        return f"Download {str(self.id)[:8]} - {self.url[:50]}"
+    
+    @property
+    def is_active(self):
+        """Check if task is currently being processed"""
+        return self.status in ['pending', 'downloading', 'processing']
+    
+    @property
+    def elapsed_time(self):
+        """Calculate elapsed time since task start"""
+        if self.started_at:
+            end_time = self.completed_at or timezone.now()
+            return (end_time - self.started_at).total_seconds()
+        return None
+    
+    def update_progress(self, progress, step=None):
+        """Efficiently update progress without triggering full save"""
+        self.progress = min(100, max(0, progress))
+        if step:
+            self.current_step = step
+        self.save(update_fields=['progress', 'current_step'])
+    
+    def mark_started(self):
+        """Mark task as started"""
+        from django.utils import timezone
+        self.status = 'downloading'
+        self.started_at = timezone.now()
+        self.save(update_fields=['status', 'started_at'])
+    
+    def mark_completed(self, track):
+        """Mark task as completed with result"""
+        from django.utils import timezone
+        self.status = 'completed'
+        self.progress = 100
+        self.result_track = track
+        self.completed_at = timezone.now()
+        self.save(update_fields=['status', 'progress', 'result_track', 'completed_at'])
+    
+    def mark_failed(self, error_msg):
+        """Mark task as failed with error message"""
+        from django.utils import timezone
+        self.status = 'failed'
+        self.error_message = error_msg
+        self.completed_at = timezone.now()
+        self.save(update_fields=['status', 'error_message', 'completed_at'])
