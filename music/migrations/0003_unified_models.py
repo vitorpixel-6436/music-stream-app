@@ -1,0 +1,60 @@
+# Generated migration - unified
+from django.db import migrations, models
+import django.db.models.deletion
+import django.core.validators
+import uuid
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('music', '0002_system_settings_v2_1_0'),
+    ]
+
+    operations = [
+        # Add cover_image to MusicFile
+        migrations.AddField(
+            model_name='musicfile',
+            name='cover_image',
+            field=models.ImageField(blank=True, null=True, upload_to='covers/'),
+        ),
+        
+        # Create DownloadTask model
+        migrations.CreateModel(
+            name='DownloadTask',
+            fields=[
+                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ('url', models.URLField(max_length=2048, validators=[django.core.validators.URLValidator()])),
+                ('source_type', models.CharField(choices=[('youtube', 'YouTube'), ('soundcloud', 'SoundCloud'), ('bandcamp', 'Bandcamp'), ('url', 'Direct URL')], default='url', max_length=20)),
+                ('status', models.CharField(choices=[('pending', 'Pending'), ('downloading', 'Downloading'), ('processing', 'Processing'), ('completed', 'Completed'), ('failed', 'Failed'), ('cancelled', 'Cancelled')], db_index=True, default='pending', max_length=20)),
+                ('progress', models.IntegerField(default=0, help_text='Progress percentage 0-100')),
+                ('current_step', models.CharField(blank=True, max_length=100)),
+                ('original_title', models.CharField(blank=True, max_length=500)),
+                ('original_artist', models.CharField(blank=True, max_length=255)),
+                ('duration', models.IntegerField(blank=True, help_text='Duration in seconds', null=True)),
+                ('file_size', models.BigIntegerField(blank=True, null=True)),
+                ('output_format', models.CharField(choices=[('mp3', 'MP3'), ('flac', 'FLAC'), ('ogg', 'OGG'), ('m4a', 'M4A'), ('wav', 'WAV')], default='mp3', max_length=10)),
+                ('output_quality', models.CharField(default='320k', help_text='Bitrate for output file', max_length=20)),
+                ('error_message', models.TextField(blank=True)),
+                ('retry_count', models.IntegerField(default=0)),
+                ('created_at', models.DateTimeField(auto_now_add=True, db_index=True)),
+                ('started_at', models.DateTimeField(blank=True, null=True)),
+                ('completed_at', models.DateTimeField(blank=True, null=True)),
+                ('result_track', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='download_source', to='music.musicfile')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='download_tasks', to='auth.user')),
+            ],
+            options={
+                'ordering': ['-created_at'],
+            },
+        ),
+        
+        # Add indexes for DownloadTask
+        migrations.AddIndex(
+            model_name='downloadtask',
+            index=models.Index(fields=['user', 'status'], name='music_downl_user_id_f8a5e1_idx'),
+        ),
+        migrations.AddIndex(
+            model_name='downloadtask',
+            index=models.Index(fields=['status', 'created_at'], name='music_downl_status_c9d4a2_idx'),
+        ),
+    ]

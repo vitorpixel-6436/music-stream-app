@@ -1,0 +1,3 @@
+# Old conflicting migrations removed:
+# - 0002_add_cover_image.py (moved to 0003_unified_models.py)
+# - 0003_download_task.py (moved to 0003_unified_models.py)
