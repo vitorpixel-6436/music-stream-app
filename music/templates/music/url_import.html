@@ -1,0 +1,121 @@
+{% extends 'music/base.html' %}
+{% load static %}
+
+{% block title %}Import from URL - Music Stream{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <!-- Header -->
+        <div class="glass-layer-2 glass-radius-xl p-8 mb-6">
+            <h1 class="text-3xl font-bold mb-2">🌐 Import from URL</h1>
+            <p class="text-gray-400">Download music from YouTube, SoundCloud, Bandcamp, or direct URLs</p>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+            <div class="glass-layer-2 p-4 mb-4 rounded-xl {% if message.tags == 'success' %}border-l-4 border-green-500{% else %}border-l-4 border-red-500{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Import Form -->
+        <div class="glass-layer-2 glass-radius-xl p-8">
+            <form method="post" id="urlImportForm">
+                {% csrf_token %}
+                
+                <!-- URL Input -->
+                <div class="mb-6">
+                    <label for="id_url" class="block text-sm font-medium mb-2">Media URL</label>
+                    <input 
+                        type="url" 
+                        name="url" 
+                        id="id_url" 
+                        required
+                        placeholder="https://youtube.com/watch?v=..."
+                        class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                    >
+                    <p class="text-xs text-gray-500 mt-1">Supported: YouTube, SoundCloud, Bandcamp, direct audio links</p>
+                </div>
+
+                <!-- Format Selection -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label for="id_output_format" class="block text-sm font-medium mb-2">Output Format</label>
+                        <select 
+                            name="output_format" 
+                            id="id_output_format"
+                            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                        >
+                            <option value="mp3">MP3</option>
+                            <option value="flac">FLAC</option>
+                            <option value="wav">WAV</option>
+                            <option value="m4a">M4A</option>
+                            <option value="ogg">OGG</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="id_output_quality" class="block text-sm font-medium mb-2">Quality</label>
+                        <select 
+                            name="output_quality" 
+                            id="id_output_quality"
+                            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                        >
+                            <option value="320k">320 kbps</option>
+                            <option value="256k">256 kbps</option>
+                            <option value="192k">192 kbps</option>
+                            <option value="128k">128 kbps</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button 
+                    type="submit" 
+                    class="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-6 py-3 rounded-lg font-medium transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                >
+                    <i class="fas fa-download mr-2"></i>
+                    Start Download
+                </button>
+            </form>
+        </div>
+
+        <!-- Info Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+            <div class="glass-layer-1 p-4 rounded-lg text-center">
+                <div class="text-2xl mb-2">🎬</div>
+                <div class="text-sm font-medium">YouTube</div>
+                <div class="text-xs text-gray-500">Videos & Music</div>
+            </div>
+            <div class="glass-layer-1 p-4 rounded-lg text-center">
+                <div class="text-2xl mb-2">☁️</div>
+                <div class="text-sm font-medium">SoundCloud</div>
+                <div class="text-xs text-gray-500">Tracks & Sets</div>
+            </div>
+            <div class="glass-layer-1 p-4 rounded-lg text-center">
+                <div class="text-2xl mb-2">🎸</div>
+                <div class="text-sm font-medium">Bandcamp</div>
+                <div class="text-xs text-gray-500">Albums & EPs</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="mt-6 text-center">
+            <a href="{% url 'music:download_manager' %}" class="text-blue-400 hover:text-blue-300 transition">
+                <i class="fas fa-tasks mr-1"></i>
+                View Download Queue
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('urlImportForm').addEventListener('submit', function(e) {
+    const btn = this.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+});
+</script>
+{% endblock %}
