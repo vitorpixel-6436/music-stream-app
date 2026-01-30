@@ -6,30 +6,6 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/steam-cards.css' %}">
 <link rel="stylesheet" href="{% static 'css/steam-carousel.css' %}">
-<style>
-/* Fix card title overflow */
-.steam-card-title,
-.steam-featured-title,
-.steam-carousel-card-title {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: block;
-}
-
-.steam-card-info {
-    overflow: hidden;
-}
-
-/* Allow wrapping for very long titles in featured section */
-.steam-featured-title {
-    white-space: normal;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    line-height: 1.2;
-}
-</style>
 {% endblock %}
 
 {% block content %}
