@@ -227,8 +227,9 @@ def upload_page(request):
                 return render(request, 'music/upload.html')
             
             # Save file temporarily to extract metadata
-            temp_path = os.path.join(settings.MEDIA_ROOT, 'temp', file.name)
-            os.makedirs(os.path.dirname(temp_path), exist_ok=True)
+            temp_dir = os.path.join(settings.MEDIA_ROOT, 'temp')
+            os.makedirs(temp_dir, exist_ok=True)
+            temp_path = os.path.join(temp_dir, file.name)
             
             with open(temp_path, 'wb+') as temp_file:
                 for chunk in file.chunks():
@@ -236,6 +237,7 @@ def upload_page(request):
             
             # Extract metadata from file
             metadata = extract_metadata(temp_path)
+            logger.info(f"Extracted metadata: {metadata.keys()}")
             
             # Get form data with fallback to extracted metadata
             title = escape(request.POST.get('title', '').strip()) or metadata.get('title') or os.path.splitext(file.name)[0]
@@ -272,7 +274,7 @@ def upload_page(request):
             # Reset file pointer
             file.seek(0)
             
-            # Create music file (WITHOUT genres parameter)
+            # Create music file
             music_file = MusicFile.objects.create(
                 title=title,
                 artist=artist,
@@ -282,23 +284,25 @@ def upload_page(request):
                 format=ext[1:]
             )
             
-            # Handle embedded artwork from metadata
-            if 'artwork' in metadata and 'artwork_mime' in metadata:
+            # Handle manually uploaded cover image FIRST (priority)
+            if 'cover' in request.FILES:
+                cover_file = request.FILES['cover']
+                if cover_file.size <= 5 * 1024 * 1024:  # 5MB max for images
+                    music_file.cover_image = cover_file
+                    music_file.save(update_fields=['cover_image'])
+                    logger.info(f"Saved manual cover image for {music_file.id}")
+            
+            # Handle embedded artwork from metadata (fallback)
+            elif 'artwork' in metadata and 'artwork_mime' in metadata:
                 try:
                     artwork_ext = metadata['artwork_mime'].split('/')[-1]
                     if artwork_ext == 'jpeg':
                         artwork_ext = 'jpg'
                     filename = f"{music_file.id}_cover.{artwork_ext}"
                     music_file.cover_image.save(filename, ContentFile(metadata['artwork']), save=True)
+                    logger.info(f"Saved embedded artwork for {music_file.id}")
                 except Exception as e:
                     logger.error(f"Failed to save embedded artwork: {e}")
-            
-            # Handle manually uploaded cover image (overrides embedded)
-            if 'cover' in request.FILES:
-                cover_file = request.FILES['cover']
-                if cover_file.size <= 5 * 1024 * 1024:  # 5MB max for images
-                    music_file.cover_image = cover_file
-                    music_file.save()
             
             # Clean up temp file
             try:
@@ -310,10 +314,10 @@ def upload_page(request):
             return redirect('music:index')
             
         except Exception as e:
-            logger.error(f"Upload error in upload_page: {e}")
+            logger.error(f"Upload error in upload_page: {e}", exc_info=True)
             messages.error(request, f'Ошибка загрузки: {str(e)}')
             try:
-                if 'temp_path' in locals():
+                if 'temp_path' in locals() and os.path.exists(temp_path):
                     os.remove(temp_path)
             except:
                 pass
