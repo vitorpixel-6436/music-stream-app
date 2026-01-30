@@ -34,6 +34,7 @@
 - 🐛 **[Critical Hotfix]** SyntaxError in forms.py (markdown comments causing installation failure)
 - 🐛 **[Critical Hotfix]** FieldError in TrackUploadForm (non-existent `quality` field removed)
 - 🐛 **[Critical Hotfix]** FieldError in PlaylistCreateForm (non-existent `description` field removed)
+- 🐛 **[Critical Hotfix]** NodeNotFoundError in migrations (0003_download_task dependency fixed)
 - 🐛 Database indexes added for DownloadTask queries
 - 🐛 Proper cleanup of temporary download files
 - 🐛 Error handling for invalid URLs
