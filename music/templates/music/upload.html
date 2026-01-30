@@ -180,20 +180,52 @@
             
             <div class="spotify-divider"></div>
             
-            <!-- Genre Tags -->
+            <!-- Genre Tags (Fixed: removed split filter) -->
             <div class="space-y-3">
                 <label class="block text-sm font-medium text-white/70">
                     Genres
                 </label>
                 <div class="flex flex-wrap gap-2">
-                    {% for genre in "Rock,Pop,Jazz,Electronic,Hip-Hop,Classical,R&B,Country,Blues,Metal"|split:"," %}
                     <label class="genre-tag cursor-pointer">
-                        <input type="checkbox" name="genres" value="{{ genre }}" class="hidden peer">
-                        <span class="spotify-pill peer-checked:active text-sm">
-                            {{ genre }}
-                        </span>
+                        <input type="checkbox" name="genres" value="Rock" class="hidden peer">
+                        <span class="spotify-pill peer-checked:active text-sm">Rock</span>
                     </label>
-                    {% endfor %}
+                    <label class="genre-tag cursor-pointer">
+                        <input type="checkbox" name="genres" value="Pop" class="hidden peer">
+                        <span class="spotify-pill peer-checked:active text-sm">Pop</span>
+                    </label>
+                    <label class="genre-tag cursor-pointer">
+                        <input type="checkbox" name="genres" value="Jazz" class="hidden peer">
+                        <span class="spotify-pill peer-checked:active text-sm">Jazz</span>
+                    </label>
+                    <label class="genre-tag cursor-pointer">
+                        <input type="checkbox" name="genres" value="Electronic" class="hidden peer">
+                        <span class="spotify-pill peer-checked:active text-sm">Electronic</span>
+                    </label>
+                    <label class="genre-tag cursor-pointer">
+                        <input type="checkbox" name="genres" value="Hip-Hop" class="hidden peer">
+                        <span class="spotify-pill peer-checked:active text-sm">Hip-Hop</span>
+                    </label>
+                    <label class="genre-tag cursor-pointer">
+                        <input type="checkbox" name="genres" value="Classical" class="hidden peer">
+                        <span class="spotify-pill peer-checked:active text-sm">Classical</span>
+                    </label>
+                    <label class="genre-tag cursor-pointer">
+                        <input type="checkbox" name="genres" value="R&B" class="hidden peer">
+                        <span class="spotify-pill peer-checked:active text-sm">R&B</span>
+                    </label>
+                    <label class="genre-tag cursor-pointer">
+                        <input type="checkbox" name="genres" value="Country" class="hidden peer">
+                        <span class="spotify-pill peer-checked:active text-sm">Country</span>
+                    </label>
+                    <label class="genre-tag cursor-pointer">
+                        <input type="checkbox" name="genres" value="Blues" class="hidden peer">
+                        <span class="spotify-pill peer-checked:active text-sm">Blues</span>
+                    </label>
+                    <label class="genre-tag cursor-pointer">
+                        <input type="checkbox" name="genres" value="Metal" class="hidden peer">
+                        <span class="spotify-pill peer-checked:active text-sm">Metal</span>
+                    </label>
                 </div>
             </div>
         </div>
