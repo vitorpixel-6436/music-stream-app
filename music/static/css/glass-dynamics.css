@@ -1,0 +1,359 @@
+/*
+ * GLASS DYNAMICS CSS
+ * Supporting styles for dynamic JavaScript effects
+ * Stage 1.2
+ */
+
+/* ============================================
+   DATA ATTRIBUTES STYLING
+   ============================================ */
+
+/* Scroll-based elements */
+[data-glass-scroll] {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: background, backdrop-filter, box-shadow;
+}
+
+/* Context-aware elements */
+[data-glass-context] {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-glass-context].glass-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Hover depth elements */
+[data-glass-hover="depth"] {
+  transform-style: preserve-3d;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+/* ============================================
+   PARTICLE CONTAINER
+   ============================================ */
+
+[data-glass-particles] {
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-particles-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.4;
+}
+
+/* ============================================
+   PERFORMANCE MODES
+   ============================================ */
+
+/* Low performance mode */
+.glass-low-performance [data-glass-scroll],
+.glass-low-performance [data-glass-context],
+.glass-low-performance [data-glass-hover] {
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+}
+
+.glass-low-performance .glass-particles-canvas {
+  display: none;
+}
+
+.glass-low-performance [data-glass-hover="depth"]:hover {
+  transform: translateY(-4px) scale(1.02) !important;
+}
+
+/* ============================================
+   SCROLL STATES
+   ============================================ */
+
+/* Fade effect */
+[data-glass-scroll="fade"] {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+}
+
+/* Blur effect */
+[data-glass-scroll="blur"] {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* Elevate effect */
+[data-glass-scroll="elevate"] {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   DEPTH HOVER STATES
+   ============================================ */
+
+[data-glass-hover="depth"]:hover {
+  z-index: 10;
+}
+
+[data-glass-hover="depth"]::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(
+    135deg,
+    rgba(227, 24, 55, 0.3) 0%,
+    rgba(59, 130, 246, 0.2) 100%
+  );
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(10px);
+}
+
+[data-glass-hover="depth"]:hover::before {
+  opacity: 1;
+}
+
+/* ============================================
+   INTERSECTION ANIMATIONS
+   ============================================ */
+
+/* Slide in from bottom */
+@keyframes glassSlideInBottom {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    backdrop-filter: blur(24px);
+  }
+}
+
+/* Slide in from left */
+@keyframes glassSlideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+    backdrop-filter: blur(24px);
+  }
+}
+
+/* Slide in from right */
+@keyframes glassSlideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+    backdrop-filter: blur(24px);
+  }
+}
+
+/* Scale in */
+@keyframes glassScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    backdrop-filter: blur(24px);
+  }
+}
+
+/* ============================================
+   ANIMATION UTILITIES
+   ============================================ */
+
+.glass-animate-slide-bottom {
+  animation: glassSlideInBottom 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.glass-animate-slide-left {
+  animation: glassSlideInLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.glass-animate-slide-right {
+  animation: glassSlideInRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.glass-animate-scale {
+  animation: glassScaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Staggered animation delays */
+[data-glass-context]:nth-child(1) { animation-delay: 0s; }
+[data-glass-context]:nth-child(2) { animation-delay: 0.05s; }
+[data-glass-context]:nth-child(3) { animation-delay: 0.1s; }
+[data-glass-context]:nth-child(4) { animation-delay: 0.15s; }
+[data-glass-context]:nth-child(5) { animation-delay: 0.2s; }
+[data-glass-context]:nth-child(6) { animation-delay: 0.25s; }
+[data-glass-context]:nth-child(7) { animation-delay: 0.3s; }
+[data-glass-context]:nth-child(8) { animation-delay: 0.35s; }
+[data-glass-context]:nth-child(9) { animation-delay: 0.4s; }
+[data-glass-context]:nth-child(10) { animation-delay: 0.45s; }
+[data-glass-context]:nth-child(11) { animation-delay: 0.5s; }
+[data-glass-context]:nth-child(12) { animation-delay: 0.55s; }
+
+/* ============================================
+   PARTICLE EFFECTS
+   ============================================ */
+
+/* Glow overlay for particles */
+.glass-particle-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 30% 40%,
+    rgba(227, 24, 55, 0.1) 0%,
+    transparent 60%
+  ),
+  radial-gradient(
+    circle at 70% 60%,
+    rgba(59, 130, 246, 0.08) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+  z-index: -2;
+  animation: particleGlowPulse 4s ease-in-out infinite;
+}
+
+@keyframes particleGlowPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+/* Tablet */
+@media (max-width: 1023px) {
+  .glass-particles-canvas {
+    opacity: 0.2;
+  }
+  
+  [data-glass-hover="depth"]:hover {
+    transform: translateY(-4px) scale(1.01) !important;
+  }
+}
+
+/* Mobile */
+@media (max-width: 639px) {
+  /* Disable particles on mobile */
+  .glass-particles-canvas {
+    display: none;
+  }
+  
+  /* Simplify hover effects */
+  [data-glass-hover="depth"]:hover {
+    transform: scale(0.98) !important;
+  }
+  
+  /* Reduce blur for performance */
+  [data-glass-scroll] {
+    backdrop-filter: blur(16px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  [data-glass-scroll],
+  [data-glass-context],
+  [data-glass-hover] {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .glass-particles-canvas {
+    display: none;
+  }
+  
+  [data-glass-context] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ============================================
+   DEBUG MODE
+   ============================================ */
+
+/* Show FPS counter when ?debug=glass is in URL */
+.glass-debug-fps {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #0f0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.glass-debug-fps::before {
+  content: 'FPS: ';
+  color: #fff;
+}
+
+/* Highlight elements with data attributes in debug mode */
+body.glass-debug [data-glass-scroll],
+body.glass-debug [data-glass-context],
+body.glass-debug [data-glass-hover] {
+  outline: 2px dashed rgba(227, 24, 55, 0.5);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   BROWSER-SPECIFIC FIXES
+   ============================================ */
+
+/* Safari-specific fixes */
+@supports (-webkit-backdrop-filter: blur(20px)) {
+  [data-glass-scroll],
+  [data-glass-context] {
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+  }
+}
+
+/* Firefox fallback */
+@supports not (backdrop-filter: blur(20px)) {
+  [data-glass-scroll],
+  [data-glass-context] {
+    background: rgba(18, 18, 24, 0.95) !important;
+  }
+}
