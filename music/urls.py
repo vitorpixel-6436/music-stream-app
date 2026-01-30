@@ -11,4 +11,8 @@ urlpatterns = [
     path('upload/', views.upload_page, name='upload_page'),
     path('api/upload/', views.upload_music, name='upload_music'),
     path('api/search/', views.api_search, name='api_search'),
+    
+    # Download manager
+    path('import/', views.url_import, name='url_import'),
+    path('downloads/', views.download_manager, name='download_manager'),
 ]
