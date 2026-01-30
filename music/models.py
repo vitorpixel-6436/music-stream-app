@@ -135,3 +135,112 @@ class Favorite(models.Model):
 
     class Meta:
         unique_together = ['user', 'track']
+
+
+# ============================================================================
+# v2.1.0: Admin & Management QoL Features
+# ============================================================================
+
+class SystemSettings(models.Model):
+    """Singleton модель для системных настроек"""
+    
+    # General Settings
+    site_name = models.CharField(max_length=100, default="Music Stream App")
+    site_description = models.TextField(blank=True, default="Premium music streaming application")
+    max_upload_size = models.IntegerField(default=100, help_text="Max upload size in MB")
+    allowed_formats = models.CharField(
+        max_length=255, 
+        default="mp3,flac,wav,m4a,ogg",
+        help_text="Comma-separated list of allowed audio formats"
+    )
+    
+    # User Management
+    allow_registration = models.BooleanField(default=True)
+    require_email_verification = models.BooleanField(default=False)
+    max_uploads_per_user = models.IntegerField(default=100, help_text="0 = unlimited")
+    
+    # Audio Processing
+    auto_extract_metadata = models.BooleanField(default=True)
+    auto_generate_waveforms = models.BooleanField(default=False)
+    normalize_audio = models.BooleanField(default=False)
+    
+    # UI Settings
+    default_theme = models.CharField(
+        max_length=20,
+        choices=[
+            ('glass', 'Apple Glass'),
+            ('steam', 'Steam Gaming'),
+            ('spotify', 'Spotify Minimal'),
+            ('msi', 'MSI Gaming'),
+        ],
+        default='glass'
+    )
+    enable_animations = models.BooleanField(default=True)
+    
+    # Statistics
+    total_tracks = models.PositiveIntegerField(default=0, editable=False)
+    total_plays = models.PositiveIntegerField(default=0, editable=False)
+    total_downloads = models.PositiveIntegerField(default=0, editable=False)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "System Settings"
+        verbose_name_plural = "System Settings"
+    
+    def save(self, *args, **kwargs):
+        # Singleton pattern - only one instance allowed
+        self.pk = 1
+        super().save(*args, **kwargs)
+    
+    def delete(self, *args, **kwargs):
+        # Prevent deletion
+        pass
+    
+    @classmethod
+    def load(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+    
+    def __str__(self):
+        return f"Settings - {self.site_name}"
+    
+    def update_statistics(self):
+        """Update cached statistics"""
+        self.total_tracks = MusicFile.objects.count()
+        self.total_plays = MusicFile.objects.aggregate(
+            total=models.Sum('play_count')
+        )['total'] or 0
+        self.total_downloads = MusicFile.objects.aggregate(
+            total=models.Sum('download_count')
+        )['total'] or 0
+        self.save(update_fields=['total_tracks', 'total_plays', 'total_downloads'])
+
+
+class UploadSession(models.Model):
+    """Track bulk upload sessions"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='upload_sessions')
+    total_files = models.PositiveIntegerField(default=0)
+    successful_uploads = models.PositiveIntegerField(default=0)
+    failed_uploads = models.PositiveIntegerField(default=0)
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pending', 'Pending'),
+            ('processing', 'Processing'),
+            ('completed', 'Completed'),
+            ('failed', 'Failed'),
+        ],
+        default='pending'
+    )
+    error_log = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"Upload Session {self.id} - {self.user.username}"
