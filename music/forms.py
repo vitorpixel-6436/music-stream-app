@@ -38,10 +38,9 @@ class PlaylistCreateForm(forms.ModelForm):
     
     class Meta:
         model = Playlist
-        fields = ['name', 'description', 'is_public']
+        fields = ['name', 'is_public']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Playlist name'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Description'}),
             'is_public': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
@@ -102,9 +101,59 @@ class AlbumCreateForm(forms.ModelForm):
             'cover': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
         }
 
-# Changelog:
-# - Renamed Track to MusicFile model reference
-# - Removed 'quality' field (not in MusicFile model)
-# - Simplified forms and removed redundant widgets
-# - Improved SearchForm and AlbumCreateForm to match models.py fields
-# - Removed "junk" fields that were not in models.py (cover_art -> cover)
+class URLImportForm(forms.Form):
+    """Form for importing music from URLs (YouTube, SoundCloud, etc.)"""
+    
+    url = forms.URLField(
+        max_length=2048,
+        required=True,
+        widget=forms.URLInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'https://youtube.com/watch?v=... or https://soundcloud.com/...',
+            'autocomplete': 'off'
+        }),
+        help_text='Supported: YouTube, SoundCloud, Bandcamp, direct audio URLs'
+    )
+    
+    output_format = forms.ChoiceField(
+        choices=MusicFile.FORMAT_CHOICES,
+        initial='mp3',
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        help_text='Output audio format'
+    )
+    
+    output_quality = forms.ChoiceField(
+        choices=[
+            ('320k', '320 kbps (Best)'),
+            ('256k', '256 kbps (High)'),
+            ('192k', '192 kbps (Medium)'),
+            ('128k', '128 kbps (Low)'),
+        ],
+        initial='320k',
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        help_text='Audio quality/bitrate'
+    )
+    
+    def clean_url(self):
+        """Validate and normalize URL"""
+        url = self.cleaned_data.get('url')
+        if url:
+            # Basic validation for supported platforms
+            supported_domains = [
+                'youtube.com', 'youtu.be',
+                'soundcloud.com',
+                'bandcamp.com',
+            ]
+            
+            # Allow direct audio file URLs
+            audio_extensions = ['.mp3', '.flac', '.wav', '.m4a', '.ogg']
+            
+            is_supported = any(domain in url.lower() for domain in supported_domains)
+            is_direct_audio = any(url.lower().endswith(ext) for ext in audio_extensions)
+            
+            if not (is_supported or is_direct_audio):
+                raise ValidationError(
+                    _('URL must be from YouTube, SoundCloud, Bandcamp, or a direct audio file link')
+                )
+        
+        return url
