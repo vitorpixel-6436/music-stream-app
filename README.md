@@ -2,7 +2,7 @@
 
 **Premium music streaming application** с четырьмя UI дизайн-системами: Apple Glass Effects, Steam Gaming Cards, Spotify Minimalism, и MSI Gaming Vibes.
 
-![Version](https://img.shields.io/badge/version-2.1.0-red.svg)
+![Version](https://img.shields.io/badge/version-2.1.1-red.svg)
 ![Django](https://img.shields.io/badge/django-6.0-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![UI Components](https://img.shields.io/badge/UI_components-108KB-orange.svg)
@@ -14,6 +14,8 @@
 ### 🎵 Core Functionality
 - ✅ Music upload (MP3, FLAC, WAV, M4A, OGG)
 - ✅ Bulk upload with drag-and-drop
+- ✅ **URL import from YouTube/SoundCloud**
+- ✅ **Background download queue**
 - ✅ High-quality audio streaming
 - ✅ Cover image support
 - ✅ Automatic metadata extraction
@@ -22,11 +24,12 @@
 - ✅ Responsive player interface
 - ✅ Progressive Web App (PWA)
 
-### 🛠️ Admin & Management (v2.1.0)
+### 🛠️ Admin & Management
 - ✅ Enhanced admin panel with rich UI
 - ✅ System settings web interface
 - ✅ Management commands (`addadmin`, `update_stats`)
 - ✅ Upload session tracking
+- ✅ **Download task monitoring**
 - ✅ Real-time statistics dashboard
 - ✅ Bulk metadata extraction
 - ✅ Audio preview in admin
@@ -79,6 +82,8 @@
 ### Prerequisites
 - Python 3.10+
 - Django 6.0+
+- Redis (for background tasks)
+- ffmpeg (for audio conversion)
 - Modern browser with backdrop-filter support
 
 ### Installation
@@ -98,11 +103,17 @@ pip install -r requirements.txt
 # Run migrations
 python manage.py migrate
 
-# Create admin user (v2.1.0 command)
+# Create admin user
 python manage.py addadmin admin@example.com --superuser
 
 # Update statistics
 python manage.py update_stats
+
+# Start Redis (in separate terminal)
+redis-server
+
+# Start Celery worker (in separate terminal)
+celery -A music_stream worker -l info
 
 # Run development server
 python manage.py runserver
@@ -112,10 +123,12 @@ python manage.py runserver
 - **App**: http://localhost:8000/
 - **Admin**: http://localhost:8000/admin/
 - **Upload**: http://localhost:8000/upload/
+- **URL Import**: http://localhost:8000/import/
+- **Downloads**: http://localhost:8000/downloads/
 
 ---
 
-## 🎯 Management Commands (v2.1.0)
+## 🎯 Management Commands
 
 ### Quick Admin Creation
 ```bash
@@ -148,7 +161,11 @@ music-stream-app/
 │   │       └── update_stats.py      # Statistics updater
 │   │
 │   ├── migrations/
-│   │   └── 0002_system_settings.py  # v2.1.0 models
+│   │   ├── 0002_system_settings.py  # v2.1.0 models
+│   │   └── 0003_download_task.py    # v2.1.1 download tasks
+│   │
+│   ├── utils/
+│   │   └── downloader.py        # Media download helper
 │   │
 │   ├── static/
 │   │   ├── css/
@@ -167,11 +184,16 @@ music-stream-app/
 │   ├── templates/music/
 │   │   ├── base.html
 │   │   ├── index.html
-│   │   └── upload.html
+│   │   ├── upload.html
+│   │   ├── url_import.html          # URL import page
+│   │   └── download_manager.html    # Download queue
 │   │
-│   ├── models.py              # Includes SystemSettings, UploadSession
+│   ├── models.py              # Includes DownloadTask
 │   ├── admin.py               # Enhanced admin interface
-│   ├── views.py
+│   ├── views.py               # Includes URL import views
+│   ├── tasks.py               # Celery background tasks
+│   ├── forms.py               # Includes URLImportForm
+│   ├── consumers.py           # WebSocket consumers
 │   └── urls.py
 │
 ├── CHANGELOG.md               # Version history
@@ -187,10 +209,12 @@ music-stream-app/
 
 ### Backend
 - **Django 6.0** - Web framework
-- **Pillow** - Image processing
-- **Mutagen** - Audio metadata extraction
 - **Celery** - Asynchronous task queue
 - **Redis** - Cache and message broker
+- **yt-dlp** - YouTube/media downloader
+- **ffmpeg-python** - Audio conversion
+- **Pillow** - Image processing
+- **Mutagen** - Audio metadata extraction
 - **Python 3.10+** - Programming language
 
 ### Frontend
@@ -211,52 +235,42 @@ music-stream-app/
 
 ## 📝 Release Notes
 
+### Version 2.1.1 (2026-01-30) - Server-Side Downloads
+
+#### ✨ New Features
+- ✅ **URL Import System** - Download from YouTube, SoundCloud, Bandcamp
+- ✅ **DownloadTask Model** - Track download progress and status
+- ✅ **Background Queue** - Celery-based async download processing
+- ✅ **Download Manager** - Web interface for task monitoring
+- ✅ **Format Conversion** - Auto-convert to MP3/FLAC with quality settings
+- ✅ **Error Handling** - Retry mechanisms and detailed error logs
+
+#### 🔧 Improvements
+- Enhanced form validation for URLs
+- Optimized database queries with indexes
+- Background task optimization
+- Better error reporting
+
 ### Version 2.1.0 (2026-01-30) - Admin & Management QoL
 
 #### ✨ New Features
 - ✅ **SystemSettings Model** - Centralized configuration management
 - ✅ **UploadSession Tracking** - Monitor bulk upload progress
 - ✅ **Enhanced Admin Panel** - Rich UI with statistics dashboard
-- ✅ **Management Commands**:
-  - `addadmin` - Quick admin user creation/promotion
-  - `update_stats` - System statistics updater
+- ✅ **Management Commands** - `addadmin`, `update_stats`
 - ✅ **Audio Preview** - Inline player in admin interface
 - ✅ **Color-coded Badges** - Format, status, and metrics indicators
-- ✅ **Progress Tracking** - Visual progress bars for uploads
-
-#### 🔧 Improvements
-- Automatic metadata extraction on upload
-- Singleton pattern for system settings
-- Enhanced admin fieldsets and readonly fields
-- Bulk actions for metadata re-extraction
-- Improved statistics aggregation
-
-#### 📚 Documentation
-- Management commands guide
-- Enhanced README with v2.1.0 features
-- Updated installation instructions
 
 ### Version 2.0.0 (2026-01-30)
 
 #### ✨ New Features
 - ✅ Complete UI system with 4 design languages
 - ✅ 108 KB of premium CSS components
-- ✅ 38 KB of JavaScript controllers
-- ✅ Comprehensive documentation (COMPONENTS.md)
-- ✅ MSI Gaming Vibes theme
-- ✅ Spotify Minimalism components
-- ✅ Steam Gaming Cards & Carousels
-- ✅ Apple Glass Effects system
+- ✅ MSI Gaming, Spotify, Steam, Apple Glass themes
 
 ---
 
 ## 🚀 Roadmap
-
-### v2.1.1 (In Progress) - Server-Side Downloads
-- [ ] YouTube/SoundCloud download integration
-- [ ] URL import with format conversion
-- [ ] Background download queue
-- [ ] WebSocket progress notifications
 
 ### v2.1.2 (Planned) - Smart Recommendations
 - [ ] Listen history tracking
@@ -307,5 +321,5 @@ MIT License - see LICENSE file for details
 
 ---
 
-**Made with ❤️ using Django, Tailwind CSS & Vanilla JavaScript**  
+**Made with ❤️ using Django, Celery, yt-dlp & Vanilla JavaScript**  
 **© 2026 Music Stream App. All rights reserved.**
