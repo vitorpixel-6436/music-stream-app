@@ -2,8 +2,8 @@
 
 **Premium music streaming application** с четырьмя UI дизайн-системами: Apple Glass Effects, Steam Gaming Cards, Spotify Minimalism, и MSI Gaming Vibes.
 
-![Version](https://img.shields.io/badge/version-2.0.0-red.svg)
-![Django](https://img.shields.io/badge/django-5.1-green.svg)
+![Version](https://img.shields.io/badge/version-2.1.0-red.svg)
+![Django](https://img.shields.io/badge/django-6.0-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![UI Components](https://img.shields.io/badge/UI_components-108KB-orange.svg)
 
@@ -13,13 +13,24 @@
 
 ### 🎵 Core Functionality
 - ✅ Music upload (MP3, FLAC, WAV, M4A, OGG)
+- ✅ Bulk upload with drag-and-drop
 - ✅ High-quality audio streaming
 - ✅ Cover image support
-- ✅ Metadata management (title, artist, album, year, genre)
+- ✅ Automatic metadata extraction
 - ✅ Search & filtering
 - ✅ Download tracks
 - ✅ Responsive player interface
 - ✅ Progressive Web App (PWA)
+
+### 🛠️ Admin & Management (v2.1.0)
+- ✅ Enhanced admin panel with rich UI
+- ✅ System settings web interface
+- ✅ Management commands (`addadmin`, `update_stats`)
+- ✅ Upload session tracking
+- ✅ Real-time statistics dashboard
+- ✅ Bulk metadata extraction
+- ✅ Audio preview in admin
+- ✅ Color-coded badges and progress bars
 
 ### 🎨 Design Systems
 
@@ -63,23 +74,11 @@
 
 ---
 
-## 📊 Stats
-
-| Component | Files | Size | Minified |
-|-----------|-------|------|----------|
-| Glass Effects | 3 files | 37.1 KB | ~12 KB |
-| Steam Gaming | 4 files | 35.2 KB | ~11 KB |
-| Spotify Minimal | 4 files | 23.0 KB | ~7.5 KB |
-| MSI Gaming | 1 file | 13.0 KB | ~4.2 KB |
-| **Total** | **12 files** | **108.3 KB** | **~35 KB** |
-
----
-
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Python 3.10+
-- Django 5.1+
+- Django 6.0+
 - Modern browser with backdrop-filter support
 
 ### Installation
@@ -99,8 +98,11 @@ pip install -r requirements.txt
 # Run migrations
 python manage.py migrate
 
-# Create superuser
-python manage.py createsuperuser
+# Create admin user (v2.1.0 command)
+python manage.py addadmin admin@example.com --superuser
+
+# Update statistics
+python manage.py update_stats
 
 # Run development server
 python manage.py runserver
@@ -113,52 +115,24 @@ python manage.py runserver
 
 ---
 
-## 📚 UI Components Guide
+## 🎯 Management Commands (v2.1.0)
 
-Подробная документация по всем компонентам: **[COMPONENTS.md](COMPONENTS.md)**
+### Quick Admin Creation
+```bash
+# Create superuser
+python manage.py addadmin admin@example.com --superuser
 
-### Quick Examples
+# Create staff user
+python manage.py addadmin user@example.com --username myuser
 
-#### Glass Card
-```html
-<div class="glass-layer-2 glass-radius-xl glass-edge-light p-6" data-glass-hover="depth">
-  <h3>Glass Card</h3>
-  <p>With dynamic effects</p>
-</div>
+# Promote existing user
+python manage.py addadmin existing@example.com --superuser
 ```
 
-#### Steam Card
-```html
-<div class="steam-card" data-track-id="123">
-  <div class="steam-card-cover">
-    <img src="cover.jpg" class="steam-card-image">
-  </div>
-  <div class="steam-card-info">
-    <h3 class="steam-card-title">Track Name</h3>
-    <p class="steam-card-artist">Artist</p>
-  </div>
-</div>
-```
-
-#### Spotify Card
-```html
-<div class="spotify-card" data-track-id="123">
-  <div class="spotify-card-image">
-    <img src="cover.jpg">
-    <div class="spotify-card-play">
-      <i class="fas fa-play"></i>
-    </div>
-  </div>
-  <h3 class="spotify-card-title">Track</h3>
-</div>
-```
-
-#### MSI Button
-```html
-<button class="msi-btn rgb-glow">
-  <i class="fas fa-play"></i>
-  Play Now
-</button>
+### Update Statistics
+```bash
+# Refresh system statistics
+python manage.py update_stats
 ```
 
 ---
@@ -168,9 +142,17 @@ python manage.py runserver
 ```
 music-stream-app/
 ├── music/
+│   ├── management/
+│   │   └── commands/
+│   │       ├── addadmin.py          # Quick admin creation
+│   │       └── update_stats.py      # Statistics updater
+│   │
+│   ├── migrations/
+│   │   └── 0002_system_settings.py  # v2.1.0 models
+│   │
 │   ├── static/
 │   │   ├── css/
-│   │   │   ├── glass-liquid.css        # Apple glass base (13.0 KB)
+│   │   │   ├── glass-liquid.css        # Apple glass (13.0 KB)
 │   │   │   ├── glass-dynamics.css      # Dynamic effects (10.7 KB)
 │   │   │   ├── steam-cards.css         # Gaming cards (12.9 KB)
 │   │   │   ├── steam-carousel.css      # Carousels (9.9 KB)
@@ -183,15 +165,17 @@ music-stream-app/
 │   │       └── spotify-minimal.js      # Spotify UI (12.4 KB)
 │   │
 │   ├── templates/music/
-│   │   ├── base.html               # Base template with all systems
-│   │   ├── index.html              # Home with Steam + Glass
-│   │   └── upload.html             # Upload with Spotify minimal
+│   │   ├── base.html
+│   │   ├── index.html
+│   │   └── upload.html
 │   │
-│   ├── models.py
+│   ├── models.py              # Includes SystemSettings, UploadSession
+│   ├── admin.py               # Enhanced admin interface
 │   ├── views.py
 │   └── urls.py
 │
-├── COMPONENTS.md              # Full UI documentation (16.9 KB)
+├── CHANGELOG.md               # Version history
+├── COMPONENTS.md              # UI documentation (16.9 KB)
 ├── README.md                  # This file
 ├── requirements.txt
 └── manage.py
@@ -202,8 +186,11 @@ music-stream-app/
 ## 💻 Tech Stack
 
 ### Backend
-- **Django 5.1** - Web framework
+- **Django 6.0** - Web framework
 - **Pillow** - Image processing
+- **Mutagen** - Audio metadata extraction
+- **Celery** - Asynchronous task queue
+- **Redis** - Cache and message broker
 - **Python 3.10+** - Programming language
 
 ### Frontend
@@ -222,149 +209,32 @@ music-stream-app/
 
 ---
 
-## ⚙️ Configuration
-
-### CSS Load Order (Important!)
-
-```html
-<!-- 1. Base glass effects -->
-<link rel="stylesheet" href="css/glass-liquid.css">
-<link rel="stylesheet" href="css/glass-dynamics.css">
-
-<!-- 2. Component libraries -->
-<link rel="stylesheet" href="css/steam-cards.css">
-<link rel="stylesheet" href="css/steam-carousel.css">
-<link rel="stylesheet" href="css/spotify-minimal.css">
-<link rel="stylesheet" href="css/msi-gaming.css">
-
-<!-- 3. Custom overrides -->
-<link rel="stylesheet" href="css/custom.css">
-```
-
-### JavaScript Load Order
-
-```html
-<!-- 1. Glass dynamics (first) -->
-<script src="js/glass-dynamics.js" defer></script>
-
-<!-- 2. Component controllers -->
-<script src="js/steam-carousel.js" defer></script>
-<script src="js/spotify-minimal.js" defer></script>
-
-<!-- 3. Page-specific scripts -->
-<script src="js/page.js" defer></script>
-```
-
----
-
-## 🎮 Features Showcase
-
-### 1. Glass Effects
-- **Layers**: 3 уровня глубины (layer-1/2/3)
-- **Tints**: Red, blue, purple colored glass
-- **Radius**: 5 размеров (sm → 2xl)
-- **Interactive**: Pressable, hover-lift
-- **Dynamic**: Scroll-reactive, context-aware
-- **Particles**: Floating background animation
-
-### 2. Steam Gaming
-- **Cards**: 3:4 aspect, hover lift, quick actions
-- **Carousel**: Drag scroll, keyboard nav, progress bar
-- **Featured**: 21:9 hero banner, gradient overlays
-- **Pills**: Category filters, horizontal scroll
-- **Grid**: Responsive auto-fill layout
-
-### 3. Spotify Minimal
-- **Navigation**: Sticky reveal, blur on scroll
-- **Breadcrumbs**: Home › Current Page
-- **Search**: Ctrl+K shortcut, auto-clear
-- **Sidebar**: Compact mode (72px → 280px)
-- **Cards**: Green play button, minimal design
-- **Transitions**: Smooth page navigation
-
-### 4. MSI Gaming
-- **RGB Glow**: Animated box-shadow effects
-- **Angular**: Clip-path polygon designs
-- **Neon**: Pulsing text shadows
-- **Hexagons**: Background pattern overlay
-- **Stats**: Performance widget cards
-- **Scanlines**: CRT monitor effect
-
----
-
-## 📱 Responsive Design
-
-| Breakpoint | Width | Layout Changes |
-|------------|-------|----------------|
-| **Mobile** | <640px | 2-col grid, hidden breadcrumbs, full-width search |
-| **Tablet** | 640-1023px | 3-col grid, compact navigation |
-| **Laptop** | 1024-1919px | 4-col grid, full features |
-| **Desktop** | ≥1920px | 5-col grid, max 1920px container |
-
----
-
-## ♿ Accessibility
-
-- ✅ ARIA labels on interactive elements
-- ✅ Keyboard navigation support
-- ✅ Focus-visible styles (2px outline)
-- ✅ Semantic HTML
-- ✅ Alt text on images
-- ✅ `prefers-reduced-motion` support
-- ✅ Color contrast ratios (WCAG AA)
-
----
-
-## 🚀 Performance
-
-### Optimizations
-- **CSS**: 108 KB → 35 KB (minified + gzip)
-- **JavaScript**: Defer loading, no blocking
-- **Images**: Lazy loading support
-- **Fonts**: Preconnect to Google Fonts
-- **CSS Containment**: `contain: layout style paint`
-- **Intersection Observer**: Only animate visible elements
-
-### Lighthouse Score Target
-- Performance: 90+
-- Accessibility: 95+
-- Best Practices: 90+
-- SEO: 100
-
----
-
-## 🔧 Development
-
-### Adding New Pages
-
-1. Create template extending `base.html`:
-```django
-{% extends 'music/base.html' %}
-
-{% block breadcrumbs %}
-<span class="spotify-breadcrumb-separator">›</span>
-<div class="spotify-breadcrumb-item active">Your Page</div>
-{% endblock %}
-
-{% block content %}
-<!-- Your content -->
-{% endblock %}
-```
-
-2. Choose UI style:
-- Glass: `glass-layer-2 glass-radius-xl`
-- Steam: `steam-card` or `steam-grid`
-- Spotify: `spotify-card` or `spotify-row-item`
-- MSI: `msi-card` or `msi-btn`
-
-3. Add animations:
-- Glass: `data-glass-hover="depth"`
-- Spotify: `data-fade-in`
-- MSI: `class="rgb-glow"`
-
----
-
 ## 📝 Release Notes
+
+### Version 2.1.0 (2026-01-30) - Admin & Management QoL
+
+#### ✨ New Features
+- ✅ **SystemSettings Model** - Centralized configuration management
+- ✅ **UploadSession Tracking** - Monitor bulk upload progress
+- ✅ **Enhanced Admin Panel** - Rich UI with statistics dashboard
+- ✅ **Management Commands**:
+  - `addadmin` - Quick admin user creation/promotion
+  - `update_stats` - System statistics updater
+- ✅ **Audio Preview** - Inline player in admin interface
+- ✅ **Color-coded Badges** - Format, status, and metrics indicators
+- ✅ **Progress Tracking** - Visual progress bars for uploads
+
+#### 🔧 Improvements
+- Automatic metadata extraction on upload
+- Singleton pattern for system settings
+- Enhanced admin fieldsets and readonly fields
+- Bulk actions for metadata re-extraction
+- Improved statistics aggregation
+
+#### 📚 Documentation
+- Management commands guide
+- Enhanced README with v2.1.0 features
+- Updated installation instructions
 
 ### Version 2.0.0 (2026-01-30)
 
@@ -378,24 +248,41 @@ music-stream-app/
 - ✅ Steam Gaming Cards & Carousels
 - ✅ Apple Glass Effects system
 
-#### 🔧 Improvements
-- Responsive design for all breakpoints
-- Accessibility enhancements
-- Performance optimizations
-- Browser compatibility improvements
+---
 
-#### 📚 Documentation
-- Full component showcase
-- Integration examples
-- Best practices guide
-- Accessibility guidelines
+## 🚀 Roadmap
+
+### v2.1.1 (In Progress) - Server-Side Downloads
+- [ ] YouTube/SoundCloud download integration
+- [ ] URL import with format conversion
+- [ ] Background download queue
+- [ ] WebSocket progress notifications
+
+### v2.1.2 (Planned) - Smart Recommendations
+- [ ] Listen history tracking
+- [ ] Collaborative filtering
+- [ ] Content-based recommendations
+- [ ] Auto-generated playlists
+
+### v2.2.0 (Future) - Audio Workshop
+- [ ] Track mixing (dual player + crossfade)
+- [ ] Basic waveform editor
+- [ ] Trim, fade, normalize tools
+- [ ] Mix export functionality
+
+---
+
+## 📚 Documentation
+
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history
+- **[COMPONENTS.md](COMPONENTS.md)** - UI components guide
+- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Deployment instructions
 
 ---
 
 ## 🔗 Links
 
 - **Repository**: https://github.com/vitorpixel-6436/music-stream-app
-- **Components Guide**: [COMPONENTS.md](COMPONENTS.md)
 - **Issues**: https://github.com/vitorpixel-6436/music-stream-app/issues
 - **Releases**: https://github.com/vitorpixel-6436/music-stream-app/releases
 
@@ -411,23 +298,6 @@ Email: vitorleitye6436@gmail.com
 ## 📜 License
 
 MIT License - see LICENSE file for details
-
----
-
-## 🚀 Roadmap
-
-### v2.1.0 (Planned)
-- [ ] Плейлисты и коллекции
-- [ ] Социальные функции
-- [ ] Lyrics интеграция
-- [ ] Тёмная/светлая тема переключатель
-- [ ] Продвинутый аудиоплеер с эквалайзером
-
-### v2.2.0 (Future)
-- [ ] Real-time collaboration
-- [ ] Live streaming support
-- [ ] Mobile apps (iOS/Android)
-- [ ] Desktop apps (Electron)
 
 ---
 
