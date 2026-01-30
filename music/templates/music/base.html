@@ -47,6 +47,9 @@
     <link rel="stylesheet" href="{% static 'css/steam-cards.css' %}">
     <link rel="stylesheet" href="{% static 'css/steam-carousel.css' %}">
     
+    <!-- Spotify Minimalism -->
+    <link rel="stylesheet" href="{% static 'css/spotify-minimal.css' %}">
+    
     <style>
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -81,52 +84,52 @@
             <div class="mb-10">
                 <h1 class="text-2xl font-bold gradient-text-red flex items-center gap-3">
                     <i class="fas fa-music"></i>
-                    Music Stream
+                    <span class="sidebar-text">Music Stream</span>
                 </h1>
-                <p class="text-xs text-white/40 mt-1">Your personal library</p>
+                <p class="text-xs text-white/40 mt-1 sidebar-text">Your personal library</p>
             </div>
             
             <!-- Navigation -->
             <nav class="flex-1 space-y-2">
                 <a href="{% url 'music:index' %}" class="flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-white/10 transition-all duration-300 group">
-                    <i class="fas fa-home w-5 text-white/60 group-hover:text-red-400 transition-colors"></i>
-                    <span class="font-medium group-hover:text-red-400 transition-colors">Home</span>
+                    <i class="fas fa-home sidebar-icon w-5 text-white/60 group-hover:text-red-400 transition-colors"></i>
+                    <span class="sidebar-text font-medium group-hover:text-red-400 transition-colors">Home</span>
                 </a>
                 
                 <a href="{% url 'music:upload_page' %}" class="flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-white/10 transition-all duration-300 group">
-                    <i class="fas fa-upload w-5 text-white/60 group-hover:text-red-400 transition-colors"></i>
-                    <span class="font-medium group-hover:text-red-400 transition-colors">Upload</span>
+                    <i class="fas fa-upload sidebar-icon w-5 text-white/60 group-hover:text-red-400 transition-colors"></i>
+                    <span class="sidebar-text font-medium group-hover:text-red-400 transition-colors">Upload</span>
                 </a>
                 
                 <a href="/admin/" class="flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-white/10 transition-all duration-300 group">
-                    <i class="fas fa-cog w-5 text-white/60 group-hover:text-red-400 transition-colors"></i>
-                    <span class="font-medium group-hover:text-red-400 transition-colors">Settings</span>
+                    <i class="fas fa-cog sidebar-icon w-5 text-white/60 group-hover:text-red-400 transition-colors"></i>
+                    <span class="sidebar-text font-medium group-hover:text-red-400 transition-colors">Settings</span>
                 </a>
                 
                 <div class="border-t border-white/10 my-4"></div>
                 
                 <div class="px-4 py-3 space-y-1">
-                    <p class="text-xs font-bold uppercase tracking-wider text-white/40">Playlists</p>
+                    <p class="sidebar-text text-xs font-bold uppercase tracking-wider text-white/40">Playlists</p>
                 </div>
                 
                 <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-white/10 transition-all duration-300 group">
-                    <i class="fas fa-heart w-5 text-white/60 group-hover:text-red-400 transition-colors"></i>
-                    <span class="font-medium group-hover:text-red-400 transition-colors">Favorites</span>
+                    <i class="fas fa-heart sidebar-icon w-5 text-white/60 group-hover:text-red-400 transition-colors"></i>
+                    <span class="sidebar-text font-medium group-hover:text-red-400 transition-colors">Favorites</span>
                 </a>
                 
                 <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-white/10 transition-all duration-300 group">
-                    <i class="fas fa-clock w-5 text-white/60 group-hover:text-red-400 transition-colors"></i>
-                    <span class="font-medium group-hover:text-red-400 transition-colors">Recent</span>
+                    <i class="fas fa-clock sidebar-icon w-5 text-white/60 group-hover:text-red-400 transition-colors"></i>
+                    <span class="sidebar-text font-medium group-hover:text-red-400 transition-colors">Recent</span>
                 </a>
             </nav>
             
             <!-- User Profile (if needed) -->
             <div class="mt-auto pt-6 border-t border-white/10">
                 <div class="glass-layer-2 glass-radius-lg px-4 py-3 flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center font-bold">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center font-bold sidebar-icon">
                         U
                     </div>
-                    <div class="flex-1 min-w-0">
+                    <div class="flex-1 min-w-0 sidebar-text">
                         <p class="font-semibold text-sm truncate">User</p>
                         <p class="text-xs text-white/40 truncate">Free Plan</p>
                     </div>
@@ -144,6 +147,45 @@
     
     <!-- Main Content Area -->
     <main class="lg:ml-72 min-h-screen relative z-10">
+        
+        <!-- Spotify-style Sticky Navigation -->
+        <nav class="spotify-nav">
+            <div class="spotify-nav-content">
+                <!-- Back/Forward Arrows -->
+                <div class="spotify-nav-arrows">
+                    <button class="spotify-nav-arrow" data-nav="back" aria-label="Go back">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="spotify-nav-arrow" data-nav="forward" aria-label="Go forward">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                
+                <!-- Breadcrumbs -->
+                <div class="spotify-breadcrumbs">
+                    <div class="spotify-breadcrumb-item">
+                        <a href="{% url 'music:index' %}">
+                            <i class="fas fa-home"></i>
+                        </a>
+                    </div>
+                    {% block breadcrumbs %}
+                    <!-- Page-specific breadcrumbs will be inserted here -->
+                    {% endblock %}
+                </div>
+                
+                <!-- Search Bar -->
+                <div class="spotify-search">
+                    <i class="fas fa-search spotify-search-icon"></i>
+                    <form action="{% url 'music:index' %}" method="get" class="w-full">
+                        <input type="text" 
+                               name="q" 
+                               class="spotify-search-input" 
+                               placeholder="What do you want to listen to?" 
+                               value="{{ search_query }}">
+                    </form>
+                </div>
+            </div>
+        </nav>
         
         <!-- Messages/Notifications with Frosted Glass -->
         {% if messages %}
@@ -322,6 +364,9 @@
     
     <!-- Steam Carousel System -->
     <script src="{% static 'js/steam-carousel.js' %}" defer></script>
+    
+    <!-- Spotify Minimal System -->
+    <script src="{% static 'js/spotify-minimal.js' %}" defer></script>
     
     <!-- Extra Scripts -->
     {% block extra_js %}{% endblock %}
