@@ -238,9 +238,9 @@ class SteamCardController {
     const trackId = card.dataset.trackId;
     console.log('ℹ️ Opening track details:', trackId);
     
-    // Navigate to track page or open modal
+    // Navigate to player page
     if (trackId) {
-      window.location.href = `/track/${trackId}/`;
+      window.location.href = `/player/${trackId}/`;
     }
   }
   
@@ -290,7 +290,7 @@ class SteamCardController {
   
   shareTrack(card) {
     const trackId = card.dataset.trackId;
-    const url = `${window.location.origin}/track/${trackId}/`;
+    const url = `${window.location.origin}/player/${trackId}/`;
     
     if (navigator.share) {
       navigator.share({
@@ -379,7 +379,7 @@ class FeaturedBannerController {
       if (secondaryBtn) {
         secondaryBtn.addEventListener('click', () => {
           const albumId = banner.dataset.albumId;
-          console.log('📀 Opening album:', albumId);
+          console.log('💿 Opening album:', albumId);
           
           if (albumId) {
             window.location.href = `/album/${albumId}/`;
