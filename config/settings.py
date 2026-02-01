@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'django_cleanup.apps.CleanupConfig',  # Ensure file cleanup is active
+    'steam_ui',  # Steam UI Framework
     'music',
 ]
 
@@ -40,7 +41,10 @@ ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [{
     'BACKEND': 'django.template.backends.django.DjangoTemplates',
-    'DIRS': [BASE_DIR / 'music' / 'templates'],
+    'DIRS': [
+        BASE_DIR / 'music' / 'templates',
+        BASE_DIR / 'steam_ui' / 'templates',  # Steam UI templates
+    ],
     'APP_DIRS': True,
     'OPTIONS': {
         'context_processors': [
@@ -75,6 +79,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Static files directories
+STATICFILES_DIRS = [
+    BASE_DIR / 'steam_ui' / 'static',  # Steam UI static files
+]
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -143,3 +153,12 @@ if not DEBUG:
     CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
 else:
     CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000']
+
+# Steam UI Configuration
+from steam_ui.config import config as steam_ui_config
+steam_ui_config.update(
+    STATIC_URL='/static/steam_ui/',
+    ENABLE_ANIMATIONS=True,
+    ENABLE_GLASS_EFFECTS=True,
+    PRIMARY_COLOR='#e31837',
+)
