@@ -1,0 +1,156 @@
+{% comment %}
+Steam UI Playlist Component
+===========================
+
+Required context:
+  - playlist: Playlist object with name, tracks, cover_images
+  
+Optional context:
+  - mode: 'card' or 'list' (default: 'card')
+  - show_tracks: Show track list (default: False)
+  - max_tracks: Max tracks to display (default: 5)
+{% endcomment %}
+
+{% if mode == 'list' %}
+<!-- List Mode: Compact horizontal layout -->
+<div class="steam-playlist-list" data-playlist-id="{{ playlist.pk }}">
+    <div class="steam-playlist-list-cover">
+        {% if playlist.cover_image %}
+        <img src="{{ playlist.cover_image.url }}" alt="{{ playlist.name }}">
+        {% else %}
+        <!-- Mosaic of first 4 track covers -->
+        <div class="steam-playlist-mosaic">
+            {% for track in playlist.tracks.all|slice:":4" %}
+            <div class="steam-playlist-mosaic-item">
+                {% if track.cover_image %}
+                <img src="{{ track.cover_image.url }}" alt="">
+                {% else %}
+                <div class="bg-gradient-to-br from-red-900/30 to-black">
+                    <i class="fas fa-music text-white/20"></i>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <button class="steam-playlist-play-btn">
+            <i class="fas fa-play"></i>
+        </button>
+    </div>
+    
+    <div class="steam-playlist-list-info">
+        <h3 class="steam-playlist-list-name">{{ playlist.name }}</h3>
+        <p class="steam-playlist-list-meta">
+            {{ playlist.tracks.count }} tracks
+            {% if playlist.total_duration %}
+            · {{ playlist.total_duration|floatformat:0 }} min
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+{% else %}
+<!-- Card Mode: Full card layout -->
+<div class="steam-playlist-card" data-playlist-id="{{ playlist.pk }}">
+    <!-- Cover -->
+    <div class="steam-playlist-cover">
+        {% if playlist.cover_image %}
+        <img src="{{ playlist.cover_image.url }}" alt="{{ playlist.name }}" class="steam-playlist-cover-image">
+        {% else %}
+        <!-- Mosaic grid of 4 track covers -->
+        <div class="steam-playlist-cover-mosaic">
+            {% for track in playlist.tracks.all|slice:":4" %}
+            <div class="steam-playlist-cover-mosaic-item">
+                {% if track.cover_image %}
+                <img src="{{ track.cover_image.url }}" alt="">
+                {% else %}
+                <div class="w-full h-full bg-gradient-to-br from-red-900/30 to-black flex items-center justify-center">
+                    <i class="fas fa-music text-white/20"></i>
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="steam-playlist-cover-empty">
+                <i class="fas fa-list-music text-6xl text-white/20"></i>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- Play Overlay -->
+        <div class="steam-playlist-overlay">
+            <button class="steam-playlist-play-button">
+                <i class="fas fa-play"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Info -->
+    <div class="steam-playlist-info">
+        <h3 class="steam-playlist-name" title="{{ playlist.name }}">{{ playlist.name }}</h3>
+        <div class="steam-playlist-meta">
+            <span>
+                <i class="fas fa-music"></i>
+                {{ playlist.tracks.count }} tracks
+            </span>
+            {% if playlist.total_duration %}
+            <span>
+                <i class="far fa-clock"></i>
+                {{ playlist.total_duration|floatformat:0 }} min
+            </span>
+            {% endif %}
+        </div>
+        
+        {% if playlist.description %}
+        <p class="steam-playlist-description">{{ playlist.description|truncatewords:15 }}</p>
+        {% endif %}
+    </div>
+    
+    <!-- Actions -->
+    <div class="steam-playlist-actions">
+        <button class="steam-playlist-action-btn" data-action="favorite" title="Add to Favorites">
+            <i class="far fa-heart"></i>
+        </button>
+        <button class="steam-playlist-action-btn" data-action="share" title="Share">
+            <i class="fas fa-share-alt"></i>
+        </button>
+        <button class="steam-playlist-action-btn" data-action="more" title="More">
+            <i class="fas fa-ellipsis-h"></i>
+        </button>
+    </div>
+    
+    <!-- Optional Track List -->
+    {% if show_tracks|default:False %}
+    <div class="steam-playlist-tracks">
+        <h4 class="steam-playlist-tracks-title">Tracks</h4>
+        <ul class="steam-playlist-tracks-list">
+            {% for track in playlist.tracks.all|slice:":max_tracks|default:5" %}
+            <li class="steam-playlist-track-item" data-track-id="{{ track.pk }}">
+                <span class="steam-playlist-track-number">{{ forloop.counter }}</span>
+                <div class="steam-playlist-track-info">
+                    <span class="steam-playlist-track-title">{{ track.title }}</span>
+                    <span class="steam-playlist-track-artist">{{ track.artist.name }}</span>
+                </div>
+                <span class="steam-playlist-track-duration">
+                    {% if track.duration %}
+                    {{ track.duration|floatformat:0 }}s
+                    {% else %}
+                    --:--
+                    {% endif %}
+                </span>
+            </li>
+            {% endfor %}
+            
+            {% if playlist.tracks.count > max_tracks|default:5 %}
+            <li class="steam-playlist-track-more">
+                <a href="{% url 'music:playlist_detail' playlist.pk %}">
+                    +{{ playlist.tracks.count|add:"-5" }} more tracks
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
