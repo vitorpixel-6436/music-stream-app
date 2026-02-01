@@ -101,12 +101,28 @@ def index(request):
     # Get filters data
     all_artists = Artist.objects.all().order_by('name')
     
+    # Build categories for steam_category_pills component
+    categories = [
+        {'id': 'all', 'name': 'All Tracks', 'icon': 'fa-fire'},
+        {'id': 'recent', 'name': 'Recent', 'icon': 'fa-clock'},
+        {'id': 'popular', 'name': 'Popular', 'icon': 'fa-chart-line'},
+    ]
+    
+    # Add top artists as categories (limit to 5)
+    for artist in all_artists[:5]:
+        categories.append({
+            'id': f'artist-{artist.id}',
+            'name': artist.name,
+            'icon': 'fa-user',
+        })
+    
     context = {
         'music_files': music_files,
         'search_query': search_query,
         'selected_artist': artist_filter,
         'sort_by': sort_by,
         'all_artists': all_artists,
+        'categories': categories,  # For steam_category_pills
     }
     return render(request, 'music/index.html', context)
 
