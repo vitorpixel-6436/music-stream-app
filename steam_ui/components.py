@@ -153,6 +153,68 @@ class CategoryPills(BaseComponent):
         return context
 
 
+class PlayerBar(BaseComponent):
+    """
+    Floating audio player bar (fixed bottom).
+    
+    Usage:
+        player = PlayerBar(autoplay=False)
+        html = player.render(current_track=track)
+    
+    Template variables:
+        - current_track: Currently playing track object
+        - show_queue: bool, show queue button (default: True)
+        - show_volume: bool, show volume control (default: True)
+        - autoplay: bool, start playing automatically (default: False)
+    """
+    
+    template_name = 'steam_ui/player_bar.html'
+    
+    def __init__(self, show_queue=True, show_volume=True, autoplay=False, **kwargs):
+        super().__init__(**kwargs)
+        self.show_queue = show_queue
+        self.show_volume = show_volume
+        self.autoplay = autoplay
+    
+    def get_context(self, **kwargs) -> Dict[str, Any]:
+        context = super().get_context(**kwargs)
+        context.setdefault('show_queue', self.show_queue)
+        context.setdefault('show_volume', self.show_volume)
+        context.setdefault('autoplay', self.autoplay)
+        return context
+
+
+class Playlist(BaseComponent):
+    """
+    Playlist card component.
+    
+    Usage:
+        playlist = Playlist(mode='card', show_tracks=True)
+        html = playlist.render(playlist=playlist_object)
+    
+    Template variables:
+        - playlist: Playlist object with name, tracks, cover_image
+        - mode: str, 'card' or 'list' layout (default: 'card')
+        - show_tracks: bool, show track list (default: False)
+        - max_tracks: int, max tracks to display (default: 5)
+    """
+    
+    template_name = 'steam_ui/playlist.html'
+    
+    def __init__(self, mode='card', show_tracks=False, max_tracks=5, **kwargs):
+        super().__init__(**kwargs)
+        self.mode = mode
+        self.show_tracks = show_tracks
+        self.max_tracks = max_tracks
+    
+    def get_context(self, **kwargs) -> Dict[str, Any]:
+        context = super().get_context(**kwargs)
+        context.setdefault('mode', self.mode)
+        context.setdefault('show_tracks', self.show_tracks)
+        context.setdefault('max_tracks', self.max_tracks)
+        return context
+
+
 class Grid(BaseComponent):
     """
     Responsive grid layout container.
