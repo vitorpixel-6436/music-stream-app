@@ -1,0 +1,75 @@
+{% comment %}
+Steam UI Card Component
+=======================
+
+Required context:
+  - track: Track object with title, artist, cover_image, pk, duration
+  
+Optional context:
+  - show_actions: Show action buttons (default: True)
+  - size: 'normal', 'large', 'small' (default: 'normal')
+{% endcomment %}
+
+<div class="steam-card steam-card-{{ size|default:'normal' }}" 
+     data-track-id="{{ track.pk }}" 
+     data-glass-context>
+    
+    <!-- Cover Image -->
+    <div class="steam-card-cover">
+        {% if track.cover_image %}
+            <img src="{{ track.cover_image.url }}" 
+                 alt="{{ track.title }}" 
+                 class="steam-card-image"
+                 loading="lazy">
+        {% else %}
+            <div class="w-full h-full bg-gradient-to-br from-red-900/30 to-black flex items-center justify-center">
+                <i class="fas fa-music text-6xl text-white/20"></i>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Gradient Overlay -->
+    <div class="steam-card-overlay"></div>
+    
+    <!-- Quick Actions -->
+    {% if show_actions|default:True %}
+    <div class="steam-card-actions">
+        <button class="steam-action-btn" data-action="like" title="Like">
+            <i class="far fa-heart"></i>
+        </button>
+        <button class="steam-action-btn" data-action="add-playlist" title="Add to Playlist">
+            <i class="fas fa-plus"></i>
+        </button>
+        <a href="{% url 'music:download' track.pk %}" 
+           class="steam-action-btn" 
+           data-action="download" 
+           title="Download"
+           onclick="event.stopPropagation()">
+            <i class="fas fa-download"></i>
+        </a>
+    </div>
+    {% endif %}
+    
+    <!-- Play Overlay -->
+    <div class="steam-play-overlay">
+        <button class="steam-play-btn">
+            <i class="fas fa-play"></i>
+        </button>
+    </div>
+    
+    <!-- Track Info -->
+    <div class="steam-card-info">
+        <h3 class="steam-card-title" title="{{ track.title }}">{{ track.title }}</h3>
+        <p class="steam-card-artist">{{ track.artist.name }}</p>
+        <div class="steam-card-meta">
+            <span>
+                <i class="far fa-clock"></i> 
+                {% if track.duration %}
+                    {{ track.duration|floatformat:0 }}s
+                {% else %}
+                    --:--
+                {% endif %}
+            </span>
+        </div>
+    </div>
+</div>
