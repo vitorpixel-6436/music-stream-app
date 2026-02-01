@@ -1,22 +1,13 @@
 """
-Music Stream UI Framework
+Music Stream UI Theme System
 
-A modular theme system for rapid UI development and deployment.
-
-Usage:
-    from music.themes import ThemeRegistry
-    
-    # Get active theme
-    theme = ThemeRegistry.get_active_theme()
-    
-    # In templates:
-    {% load theme_tags %}
-    {% theme_css %}
-    {% theme_card track %}
+Simple theme framework for rapid UI development.
 """
 
-from .base import BaseTheme, Component
 from .registry import ThemeRegistry
+from .base import BaseTheme
 
-__all__ = ['BaseTheme', 'Component', 'ThemeRegistry']
-__version__ = '1.0.0'
+# Auto-register available themes
+registry = ThemeRegistry()
+
+__all__ = ['ThemeRegistry', 'BaseTheme', 'registry']
