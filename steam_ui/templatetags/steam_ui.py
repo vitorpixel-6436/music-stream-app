@@ -8,13 +8,22 @@ Usage:
     {% load steam_ui %}
     {% steam_card track %}
     {% steam_carousel tracks title="Recent" %}
+    {% steam_player_bar current_track %}
+    {% steam_playlist playlist %}
     {% steam_css %}
     {% steam_js %}
 """
 
 from django import template
 from django.utils.safestring import mark_safe
-from steam_ui.components import Card, Carousel, FeaturedBanner, CategoryPills
+from steam_ui.components import (
+    Card,
+    Carousel,
+    FeaturedBanner,
+    CategoryPills,
+    PlayerBar,
+    Playlist,
+)
 from steam_ui.config import config
 
 register = template.Library()
@@ -36,6 +45,8 @@ def steam_css(*files):
             'css/glass-dynamics.css',
             'css/steam-cards.css',
             'css/steam-carousel.css',
+            'css/steam-player.css',
+            'css/steam-playlist.css',
         ]
     else:
         # Add .css extension if missing
@@ -63,6 +74,7 @@ def steam_js(*files):
         files = [
             'js/glass-dynamics.js',
             'js/steam-carousel.js',
+            'js/steam-player.js',
         ]
     else:
         # Add .js extension if missing
@@ -132,6 +144,42 @@ def steam_category_pills(categories, active='all'):
     """
     pills = CategoryPills()
     return pills.render(categories=categories, active=active)
+
+
+@register.simple_tag
+def steam_player_bar(current_track=None, show_queue=True, show_volume=True, autoplay=False):
+    """
+    Render floating audio player bar.
+    
+    Usage:
+        {% steam_player_bar %}
+        {% steam_player_bar current_track autoplay=True %}
+        {% steam_player_bar current_track show_queue=False %}
+    """
+    player = PlayerBar(
+        show_queue=show_queue,
+        show_volume=show_volume,
+        autoplay=autoplay
+    )
+    return player.render(current_track=current_track)
+
+
+@register.simple_tag
+def steam_playlist(playlist, mode='card', show_tracks=False, max_tracks=5):
+    """
+    Render playlist component.
+    
+    Usage:
+        {% steam_playlist playlist %}
+        {% steam_playlist playlist mode='list' %}
+        {% steam_playlist playlist show_tracks=True max_tracks=10 %}
+    """
+    playlist_comp = Playlist(
+        mode=mode,
+        show_tracks=show_tracks,
+        max_tracks=max_tracks
+    )
+    return playlist_comp.render(playlist=playlist)
 
 
 @register.filter
