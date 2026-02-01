@@ -1,0 +1,141 @@
+{% comment %}
+Steam UI Player Bar Component
+=============================
+
+Required context:
+  - current_track: Currently playing track object
+  
+Optional context:
+  - show_queue: Show queue button (default: True)
+  - show_volume: Show volume control (default: True)
+  - autoplay: Start playing automatically (default: False)
+{% endcomment %}
+
+<div class="steam-player-bar" id="steamPlayerBar" style="display: none;">
+    <!-- Background Glass Layer -->
+    <div class="steam-player-glass"></div>
+    
+    <!-- Main Content -->
+    <div class="steam-player-content">
+        
+        <!-- Track Info Section -->
+        <div class="steam-player-info">
+            <!-- Cover Art -->
+            <div class="steam-player-cover">
+                {% if current_track.cover_image %}
+                <img src="{{ current_track.cover_image.url }}" 
+                     alt="{{ current_track.title }}"
+                     id="playerCoverImage">
+                {% else %}
+                <div class="steam-player-cover-placeholder">
+                    <i class="fas fa-music"></i>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Track Details -->
+            <div class="steam-player-details">
+                <h4 class="steam-player-title" id="playerTitle">{{ current_track.title|default:"No track playing" }}</h4>
+                <p class="steam-player-artist" id="playerArtist">{{ current_track.artist.name|default:"Unknown Artist" }}</p>
+            </div>
+            
+            <!-- Like Button -->
+            <button class="steam-player-action" id="playerLikeBtn" title="Like">
+                <i class="far fa-heart"></i>
+            </button>
+        </div>
+        
+        <!-- Player Controls Section -->
+        <div class="steam-player-controls">
+            <!-- Control Buttons -->
+            <div class="steam-player-buttons">
+                <button class="steam-player-btn" id="playerShuffleBtn" title="Shuffle">
+                    <i class="fas fa-random"></i>
+                </button>
+                
+                <button class="steam-player-btn" id="playerPrevBtn" title="Previous">
+                    <i class="fas fa-step-backward"></i>
+                </button>
+                
+                <button class="steam-player-btn steam-player-btn-play" id="playerPlayBtn" title="Play">
+                    <i class="fas fa-play"></i>
+                </button>
+                
+                <button class="steam-player-btn" id="playerNextBtn" title="Next">
+                    <i class="fas fa-step-forward"></i>
+                </button>
+                
+                <button class="steam-player-btn" id="playerRepeatBtn" title="Repeat">
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="steam-player-progress-container">
+                <span class="steam-player-time" id="playerCurrentTime">0:00</span>
+                <div class="steam-player-progress-bar">
+                    <div class="steam-player-progress-track">
+                        <div class="steam-player-progress-filled" id="playerProgressFilled"></div>
+                        <div class="steam-player-progress-handle" id="playerProgressHandle"></div>
+                    </div>
+                    <input type="range" 
+                           class="steam-player-progress-input" 
+                           id="playerProgressInput"
+                           min="0" 
+                           max="100" 
+                           value="0"
+                           step="0.1">
+                </div>
+                <span class="steam-player-time" id="playerDuration">0:00</span>
+            </div>
+        </div>
+        
+        <!-- Right Section (Volume & Queue) -->
+        <div class="steam-player-right">
+            {% if show_queue|default:True %}
+            <button class="steam-player-action" id="playerQueueBtn" title="Queue">
+                <i class="fas fa-list"></i>
+            </button>
+            {% endif %}
+            
+            {% if show_volume|default:True %}
+            <div class="steam-player-volume">
+                <button class="steam-player-action" id="playerVolumeBtn" title="Volume">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+                <div class="steam-player-volume-slider">
+                    <input type="range" 
+                           id="playerVolumeInput"
+                           min="0" 
+                           max="100" 
+                           value="70"
+                           step="1">
+                </div>
+            </div>
+            {% endif %}
+            
+            <button class="steam-player-action" id="playerFullscreenBtn" title="Fullscreen Player">
+                <i class="fas fa-expand"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Audio Element -->
+    <audio id="playerAudioElement" preload="metadata">
+        {% if current_track.audio_file %}
+        <source src="{{ current_track.audio_file.url }}" type="audio/mpeg">
+        {% endif %}
+    </audio>
+</div>
+
+<!-- Hidden data for JavaScript -->
+<script>
+    window.STEAM_PLAYER_DATA = {
+        trackId: '{{ current_track.pk }}',
+        trackTitle: '{{ current_track.title|escapejs }}',
+        trackArtist: '{{ current_track.artist.name|escapejs }}',
+        trackCover: '{{ current_track.cover_image.url|default:"" }}',
+        trackUrl: '{{ current_track.audio_file.url|default:"" }}',
+        autoplay: {{ autoplay|default:False|yesno:"true,false" }}
+    };
+</script>
