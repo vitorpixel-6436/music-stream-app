@@ -1,0 +1,36 @@
+{# Generic card wrapper - delegates to active theme #}
+{% load static %}
+
+{% with component=theme.get_component|default:"card" %}
+    {% if component %}
+        {% include component.template %}
+    {% else %}
+        {# Fallback if theme doesn't have card component #}
+        <div class="steam-card" data-track-id="{{ track.pk }}" data-glass-context>
+            <div class="steam-card-cover">
+                {% if track.cover_image %}
+                <img src="{{ track.cover_image.url }}" 
+                     alt="{{ track.title }}" 
+                     class="steam-card-image">
+                {% else %}
+                <div class="w-full h-full bg-gradient-to-br from-red-900/30 to-black flex items-center justify-center">
+                    <i class="fas fa-music text-6xl text-white/20"></i>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="steam-card-overlay"></div>
+            
+            <div class="steam-play-overlay">
+                <button class="steam-play-btn">
+                    <i class="fas fa-play"></i>
+                </button>
+            </div>
+            
+            <div class="steam-card-info">
+                <h3 class="steam-card-title" title="{{ track.title }}">{{ track.title }}</h3>
+                <p class="steam-card-artist">{{ track.artist.name }}</p>
+            </div>
+        </div>
+    {% endif %}
+{% endwith %}
