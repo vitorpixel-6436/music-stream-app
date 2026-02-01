@@ -1,0 +1,24 @@
+{% comment %}
+Steam UI Category Pills Component
+==================================
+
+Required context:
+  - categories: List of category dicts with 'id', 'name', 'icon'
+  
+Optional context:
+  - active: Currently active category id (default: 'all')
+{% endcomment %}
+
+<section class="max-w-[1920px] mx-auto mb-8">
+    <div class="steam-category-pills">
+        {% for category in categories %}
+        <button class="steam-category-pill {% if category.id == active|default:'all' %}active{% endif %}" 
+                data-category="{{ category.id }}">
+            {% if category.icon %}
+            <i class="fas {{ category.icon }} mr-2"></i>
+            {% endif %}
+            {{ category.name }}
+        </button>
+        {% endfor %}
+    </div>
+</section>
