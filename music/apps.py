@@ -6,25 +6,14 @@ class MusicConfig(AppConfig):
     name = 'music'
 
     def ready(self):
-        """
-        Initialize themes on app startup
-        """
-        # Import theme registry and theme classes
-        from music.themes import ThemeRegistry
-        from music.themes.configs.steam import SteamTheme
-        from music.themes.configs.apple_glass import AppleGlassTheme
-        from music.themes.configs.spotify import SpotifyTheme
+        """Initialize themes when app loads"""
+        from music.themes import registry
+        from music.themes.steam import SteamTheme
+        from music.themes.minimal import MinimalTheme
         
-        # Register all available themes
-        ThemeRegistry.register_theme_class(SteamTheme)
-        ThemeRegistry.register_theme_class(AppleGlassTheme)
-        ThemeRegistry.register_theme_class(SpotifyTheme)
+        # Register all themes
+        registry.register(SteamTheme)
+        registry.register(MinimalTheme)
         
-        # Set default active theme
-        # This can be overridden in settings.py with ACTIVE_THEME
-        ThemeRegistry.set_active_theme('steam')
-        
-        print("✅ Themes initialized:")
-        for theme in ThemeRegistry.get_all_themes():
-            print(f"   - {theme.display_name} (v{theme.version})")
-        print(f"   Active: {ThemeRegistry.get_active_theme().display_name}")
+        # Set default theme (можно сделать через settings)
+        registry.set_active_theme('steam')
