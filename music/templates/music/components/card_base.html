@@ -1,0 +1,46 @@
+{% comment %}
+Base Card Component
+
+Reusable card component that can be styled by themes.
+
+Usage:
+    {% include 'music/components/card_base.html' with track=track %}
+{% endcomment %}
+
+<div class="music-card" data-track-id="{{ track.pk }}">
+    <!-- Cover Image -->
+    <div class="music-card-cover">
+        {% if track.cover_image %}
+        <img src="{{ track.cover_image.url }}" 
+             alt="{{ track.title }}" 
+             class="music-card-image">
+        {% else %}
+        <div class="music-card-placeholder">
+            <i class="fas fa-music"></i>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Info -->
+    <div class="music-card-info">
+        <h3 class="music-card-title">{{ track.title }}</h3>
+        <p class="music-card-artist">{{ track.artist.name }}</p>
+        
+        {% if track.duration %}
+        <div class="music-card-meta">
+            <i class="far fa-clock"></i>
+            <span>{{ track.duration|floatformat:0|date:"i:s" }}</span>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Actions -->
+    <div class="music-card-actions">
+        <a href="{% url 'music:player' track.pk %}" class="music-card-btn-play">
+            <i class="fas fa-play"></i>
+        </a>
+        <a href="{% url 'music:download' track.pk %}" class="music-card-btn-download">
+            <i class="fas fa-download"></i>
+        </a>
+    </div>
+</div>

@@ -1,21 +1,19 @@
 """
-Context Processors for Music App
+Context Processors
 
-Provides global context variables for all templates.
+Make theme available in all templates.
 """
 
-from music.themes import ThemeRegistry
+from music.themes import registry
 
 
 def theme_context(request):
-    """
-    Add theme information to template context.
+    """Add active theme to template context"""
+    theme = registry.get_active_theme()
     
-    Usage in template:
-        {{ current_theme.display_name }}
-        {{ current_theme.colors.primary }}
-    """
     return {
-        'current_theme': ThemeRegistry.get_active_theme(),
-        'all_themes': ThemeRegistry.get_all_themes(),
+        'theme': theme,
+        'theme_name': theme.name if theme else 'base',
+        'theme_css': theme.get_static_css() if theme else [],
+        'theme_js': theme.get_static_js() if theme else [],
     }
