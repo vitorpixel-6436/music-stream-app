@@ -1,0 +1,70 @@
+{% comment %}
+Steam UI Featured Banner Component
+===================================
+
+Required context:
+  - track: Featured track object
+  
+Optional context:
+  - show_description: Show description text (default: True)
+  - cta_primary: Primary button text (default: 'Play Now')
+  - cta_secondary: Secondary button text (default: 'Download')
+{% endcomment %}
+
+<section class="max-w-[1920px] mx-auto mb-16" data-glass-context>
+    <div class="steam-featured" data-track-id="{{ track.pk }}" data-album-id="1">
+        
+        <!-- Background Image -->
+        <div class="steam-featured-bg">
+            {% if track.cover_image %}
+            <img src="{{ track.cover_image.url }}" 
+                 alt="{{ track.title }}" 
+                 class="steam-featured-image">
+            {% else %}
+            <div class="w-full h-full bg-gradient-to-br from-red-900/50 to-black"></div>
+            {% endif %}
+        </div>
+        
+        <!-- Gradient Overlay -->
+        <div class="steam-featured-overlay"></div>
+        
+        <!-- Content -->
+        <div class="steam-featured-content">
+            
+            <!-- Featured Label -->
+            <div class="steam-featured-label">
+                <i class="fas fa-star"></i>
+                FEATURED TRACK
+            </div>
+            
+            <!-- Title -->
+            <h1 class="steam-featured-title">{{ track.title }}</h1>
+            
+            <!-- Artist -->
+            <p class="steam-featured-artist">{{ track.artist.name }}</p>
+            
+            <!-- Description -->
+            {% if show_description|default:True %}
+            <p class="steam-featured-description">
+                Experience high-quality audio streaming with crystal clear sound. 
+                Listen now and add to your collection.
+            </p>
+            {% endif %}
+            
+            <!-- Action Buttons -->
+            <div class="steam-featured-actions">
+                <a href="{% url 'music:player' track.pk %}" 
+                   class="steam-featured-btn steam-featured-btn-primary">
+                    <i class="fas fa-play"></i>
+                    {{ cta_primary|default:'Play Now' }}
+                </a>
+                <a href="{% url 'music:download' track.pk %}" 
+                   class="steam-featured-btn steam-featured-btn-secondary">
+                    <i class="fas fa-download"></i>
+                    {{ cta_secondary|default:'Download' }}
+                </a>
+            </div>
+            
+        </div>
+    </div>
+</section>
