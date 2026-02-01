@@ -1,184 +1,31 @@
 {% extends 'music/base.html' %}
 {% load static %}
+{% load steam_ui %}
 
 {% block title %}Music Library - Music Stream{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/steam-cards.css' %}">
-<link rel="stylesheet" href="{% static 'css/steam-carousel.css' %}">
+{% steam_css %}
 {% endblock %}
 
 {% block content %}
 
 <!-- Featured Banner (Hero) -->
 {% if music_files %}
-<section class="max-w-[1920px] mx-auto mb-16" data-glass-context>
-    <div class="steam-featured" data-track-id="{{ music_files.0.pk }}" data-album-id="1">
-        <!-- Background Image -->
-        <div class="steam-featured-bg">
-            {% if music_files.0.cover_image %}
-            <img src="{{ music_files.0.cover_image.url }}" 
-                 alt="{{ music_files.0.title }}" 
-                 class="steam-featured-image">
-            {% else %}
-            <div class="w-full h-full bg-gradient-to-br from-red-900/50 to-black"></div>
-            {% endif %}
-        </div>
-        
-        <!-- Gradient Overlay -->
-        <div class="steam-featured-overlay"></div>
-        
-        <!-- Content -->
-        <div class="steam-featured-content">
-            <div class="steam-featured-label">
-                <i class="fas fa-star"></i>
-                FEATURED TRACK
-            </div>
-            
-            <h1 class="steam-featured-title">{{ music_files.0.title }}</h1>
-            <p class="steam-featured-artist">{{ music_files.0.artist.name }}</p>
-            <p class="steam-featured-description">
-                Experience high-quality audio streaming with crystal clear sound. 
-                Listen now and add to your collection.
-            </p>
-            
-            <div class="steam-featured-actions">
-                <a href="{% url 'music:player' music_files.0.pk %}" class="steam-featured-btn steam-featured-btn-primary">
-                    <i class="fas fa-play"></i>
-                    Play Now
-                </a>
-                <a href="{% url 'music:download' music_files.0.pk %}" class="steam-featured-btn steam-featured-btn-secondary">
-                    <i class="fas fa-download"></i>
-                    Download
-                </a>
-            </div>
-        </div>
-    </div>
-</section>
+{% steam_featured music_files.0 %}
 {% endif %}
 
 <!-- Category Pills -->
-<section class="max-w-[1920px] mx-auto mb-8">
-    <div class="steam-category-pills">
-        <button class="steam-category-pill active" data-category="all">
-            <i class="fas fa-fire mr-2"></i>All Tracks
-        </button>
-        <button class="steam-category-pill" data-category="recent">
-            <i class="fas fa-clock mr-2"></i>Recent
-        </button>
-        <button class="steam-category-pill" data-category="popular">
-            <i class="fas fa-chart-line mr-2"></i>Popular
-        </button>
-        {% for artist in all_artists|slice:":5" %}
-        <button class="steam-category-pill" data-category="artist-{{ artist.id }}">
-            <i class="fas fa-user mr-2"></i>{{ artist.name }}
-        </button>
-        {% endfor %}
-    </div>
-</section>
+{% steam_category_pills categories active='all' %}
 
 <!-- Carousel: Recently Added -->
-{% if music_files|slice:":6" %}
-<section class="max-w-[1920px] mx-auto steam-carousel-section" data-glass-context>
-    <div class="steam-carousel-header">
-        <h2 class="steam-carousel-title">
-            <i class="fas fa-clock"></i>
-            Recently Added
-        </h2>
-        <div class="steam-carousel-nav">
-            <button class="steam-carousel-arrow" data-carousel-prev aria-label="Previous">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <button class="steam-carousel-arrow" data-carousel-next aria-label="Next">
-                <i class="fas fa-chevron-right"></i>
-            </button>
-        </div>
-    </div>
-    
-    <div class="steam-carousel-wrapper">
-        <div class="steam-carousel">
-            {% for track in music_files|slice:":12" %}
-            <div class="steam-carousel-item">
-                <div class="steam-carousel-card" data-track-id="{{ track.pk }}">
-                    {% if track.cover_image %}
-                    <img src="{{ track.cover_image.url }}" 
-                         alt="{{ track.title }}" 
-                         class="steam-carousel-card-image">
-                    {% else %}
-                    <div class="w-full h-full bg-gradient-to-br from-red-900/30 to-black flex items-center justify-center">
-                        <i class="fas fa-music text-5xl text-white/20"></i>
-                    </div>
-                    {% endif %}
-                    
-                    <div class="steam-carousel-card-overlay">
-                        <h3 class="steam-carousel-card-title" title="{{ track.title }}">{{ track.title }}</h3>
-                        <p class="steam-carousel-card-artist">{{ track.artist.name }}</p>
-                    </div>
-                    
-                    <div class="steam-carousel-card-play">
-                        <i class="fas fa-play"></i>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        <div class="steam-carousel-progress">
-            <div class="steam-carousel-progress-bar"></div>
-        </div>
-    </div>
-</section>
+{% if music_files|slice:":12" %}
+{% steam_carousel music_files|slice:":12" title="Recently Added" icon="fa-clock" %}
 {% endif %}
 
-<!-- Carousel: Popular Tracks -->
-{% if music_files|slice:"6:" %}
-<section class="max-w-[1920px] mx-auto steam-carousel-section" data-glass-context>
-    <div class="steam-carousel-header">
-        <h2 class="steam-carousel-title">
-            <i class="fas fa-fire"></i>
-            Trending Now
-        </h2>
-        <div class="steam-carousel-nav">
-            <button class="steam-carousel-arrow" data-carousel-prev aria-label="Previous">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <button class="steam-carousel-arrow" data-carousel-next aria-label="Next">
-                <i class="fas fa-chevron-right"></i>
-            </button>
-        </div>
-    </div>
-    
-    <div class="steam-carousel-wrapper">
-        <div class="steam-carousel">
-            {% for track in music_files|slice:"6:18" %}
-            <div class="steam-carousel-item">
-                <div class="steam-carousel-card" data-track-id="{{ track.pk }}">
-                    {% if track.cover_image %}
-                    <img src="{{ track.cover_image.url }}" 
-                         alt="{{ track.title }}" 
-                         class="steam-carousel-card-image">
-                    {% else %}
-                    <div class="w-full h-full bg-gradient-to-br from-blue-900/30 to-black flex items-center justify-center">
-                        <i class="fas fa-music text-5xl text-white/20"></i>
-                    </div>
-                    {% endif %}
-                    
-                    <div class="steam-carousel-card-overlay">
-                        <h3 class="steam-carousel-card-title" title="{{ track.title }}">{{ track.title }}</h3>
-                        <p class="steam-carousel-card-artist">{{ track.artist.name }}</p>
-                    </div>
-                    
-                    <div class="steam-carousel-card-play">
-                        <i class="fas fa-play"></i>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        <div class="steam-carousel-progress">
-            <div class="steam-carousel-progress-bar"></div>
-        </div>
-    </div>
-</section>
+<!-- Carousel: Trending Now -->
+{% if music_files|slice:"6:18" %}
+{% steam_carousel music_files|slice:"6:18" title="Trending Now" icon="fa-fire" %}
 {% endif %}
 
 <!-- Main Section Header -->
@@ -225,69 +72,11 @@
     </div>
 </section>
 
-<!-- Steam Grid -->
+<!-- Steam Grid with Steam UI Cards -->
 <section class="max-w-[1920px] mx-auto mb-20">
     <div class="steam-grid">
         {% for track in music_files %}
-        <div class="steam-card" data-track-id="{{ track.pk }}" data-glass-context>
-            <!-- Cover Image -->
-            <div class="steam-card-cover">
-                {% if track.cover_image %}
-                <img src="{{ track.cover_image.url }}" 
-                     alt="{{ track.title }}" 
-                     class="steam-card-image">
-                {% else %}
-                <div class="w-full h-full bg-gradient-to-br from-red-900/30 to-black flex items-center justify-center">
-                    <i class="fas fa-music text-6xl text-white/20"></i>
-                </div>
-                {% endif %}
-            </div>
-            
-            <!-- Gradient Overlay -->
-            <div class="steam-card-overlay"></div>
-            
-            <!-- Quick Actions -->
-            <div class="steam-card-actions">
-                <button class="steam-action-btn" data-action="like" title="Like">
-                    <i class="far fa-heart"></i>
-                </button>
-                <button class="steam-action-btn" data-action="add-playlist" title="Add to Playlist">
-                    <i class="fas fa-plus"></i>
-                </button>
-                <a href="{% url 'music:download' track.pk %}" 
-                   class="steam-action-btn" 
-                   data-action="download" 
-                   title="Download"
-                   onclick="event.stopPropagation()">
-                    <i class="fas fa-download"></i>
-                </a>
-            </div>
-            
-            <!-- Play Overlay -->
-            <div class="steam-play-overlay">
-                <button class="steam-play-btn">
-                    <i class="fas fa-play"></i>
-                </button>
-            </div>
-            
-            <!-- Track Info -->
-            <div class="steam-card-info">
-                <h3 class="steam-card-title" title="{{ track.title }}">{{ track.title }}</h3>
-                <p class="steam-card-artist">{{ track.artist.name }}</p>
-                <div class="steam-card-meta">
-                    <span><i class="far fa-clock"></i> 
-                        {% if track.duration %}
-                            {{ track.duration|floatformat:0|date:"i:s" }}
-                        {% else %}
-                            --:--
-                        {% endif %}
-                    </span>
-                    {% if forloop.counter0|divisibleby:3 %}
-                    <span class="steam-card-badge">New</span>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+            {% steam_card track %}
         {% empty %}
         <!-- Empty State -->
         <div class="col-span-full flex flex-col items-center justify-center py-32 opacity-40">
@@ -360,16 +149,20 @@
     </div>
 </section>
 
+<!-- Floating Player Bar -->
+{% if music_files %}
+{% steam_player_bar music_files.0 %}
+{% endif %}
+
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/steam-carousel.js' %}"></script>
+{% steam_js %}
 <script>
-// Redirect to player on card click (Steam Grid)
+// Redirect to player on card click
 document.querySelectorAll('.steam-card, .steam-carousel-card').forEach(card => {
     card.style.cursor = 'pointer';
     card.addEventListener('click', (e) => {
-        // Don't redirect if clicking on action buttons
         if (e.target.closest('.steam-action-btn, .steam-card-actions')) {
             return;
         }
@@ -380,22 +173,14 @@ document.querySelectorAll('.steam-card, .steam-carousel-card').forEach(card => {
     });
 });
 
-// Listen to custom trackPlay events from carousel
-window.addEventListener('trackPlay', (e) => {
-    const trackId = e.detail.trackId;
-    if (trackId) {
-        window.location.href = `/player/${trackId}/`;
-    }
-});
-
-// Category filter (placeholder - implement with AJAX in production)
+// Category filter handler
 window.addEventListener('categoryChange', (e) => {
     const category = e.detail.category;
     console.log('Filter by category:', category);
     // TODO: Implement AJAX filtering
 });
 
-// Welcome toast for first-time users
+// Welcome toast
 if (!localStorage.getItem('steam_ui_tour')) {
     setTimeout(() => {
         const toast = document.createElement('div');
@@ -407,9 +192,7 @@ if (!localStorage.getItem('steam_ui_tour')) {
                 </div>
                 <div class="flex-1">
                     <h4 class="font-bold text-lg mb-1">Welcome to Music Stream!</h4>
-                    <p class="text-sm text-white/70 mb-3">
-                        Click on any track to play. Hover over cards for quick actions.
-                    </p>
+                    <p class="text-sm text-white/70 mb-3">Click any track to play. Hover for quick actions.</p>
                     <button onclick="this.closest('div').closest('div').closest('div').remove(); localStorage.setItem('steam_ui_tour', 'true');" 
                             class="glass-red-tint glass-radius-lg glass-pressable px-4 py-2 text-sm font-semibold">
                         Got it!
