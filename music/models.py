@@ -120,16 +120,200 @@ class MusicFile(models.Model):
         self.download_count += 1
         self.save(update_fields=['download_count'])
 
+
+# ============================================================================
+# Playlist System v2.0
+# ============================================================================
+
 class Playlist(models.Model):
+    """Enhanced playlist model with cover, description, and ordered tracks"""
+    
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, help_text="Optional playlist description")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='playlists')
-    tracks = models.ManyToManyField(MusicFile, related_name='playlists', blank=True)
-    is_public = models.BooleanField(default=False)
+    
+    # Visual
+    cover = models.ImageField(
+        upload_to='playlist_covers/', 
+        blank=True, 
+        null=True,
+        help_text="Custom cover image for playlist"
+    )
+    
+    # Tracks relationship (through intermediate model for ordering)
+    tracks = models.ManyToManyField(
+        MusicFile,
+        through='PlaylistTrack',
+        related_name='in_playlists',
+        blank=True
+    )
+    
+    # Settings
+    is_public = models.BooleanField(
+        default=False,
+        help_text="Public playlists can be viewed by other users"
+    )
+    is_collaborative = models.BooleanField(
+        default=False,
+        help_text="Allow other users to add tracks"
+    )
+    
+    # Statistics (cached for performance)
+    track_count = models.PositiveIntegerField(default=0, editable=False)
+    total_duration = models.PositiveIntegerField(
+        default=0, 
+        editable=False,
+        help_text="Total duration in seconds"
+    )
+    
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-updated_at']
+        indexes = [
+            models.Index(fields=['user', '-updated_at']),
+            models.Index(fields=['is_public', '-updated_at']),
+        ]
 
     def __str__(self):
         return f"{self.name} by {self.user.username}"
+    
+    def add_track(self, track, position=None):
+        """
+        Add track to playlist at specified position.
+        If position is None, adds to end.
+        
+        Args:
+            track: MusicFile instance
+            position: Optional position (1-based). None = end
+        
+        Returns:
+            PlaylistTrack instance
+        """
+        if position is None:
+            # Add to end
+            max_position = self.playlist_tracks.aggregate(
+                models.Max('position')
+            )['position__max'] or 0
+            position = max_position + 1
+        else:
+            # Shift existing tracks
+            self.playlist_tracks.filter(
+                position__gte=position
+            ).update(position=models.F('position') + 1)
+        
+        playlist_track = PlaylistTrack.objects.create(
+            playlist=self,
+            track=track,
+            position=position
+        )
+        
+        self.update_statistics()
+        return playlist_track
+    
+    def remove_track(self, track):
+        """
+        Remove track from playlist and reorder remaining tracks.
+        
+        Args:
+            track: MusicFile instance
+        """
+        playlist_track = self.playlist_tracks.filter(track=track).first()
+        if playlist_track:
+            removed_position = playlist_track.position
+            playlist_track.delete()
+            
+            # Reorder tracks after removed position
+            self.playlist_tracks.filter(
+                position__gt=removed_position
+            ).update(position=models.F('position') - 1)
+            
+            self.update_statistics()
+    
+    def reorder_tracks(self, track_ids):
+        """
+        Reorder all tracks based on provided track ID list.
+        
+        Args:
+            track_ids: List of track UUIDs in desired order
+        """
+        for position, track_id in enumerate(track_ids, start=1):
+            self.playlist_tracks.filter(
+                track_id=track_id
+            ).update(position=position)
+    
+    def update_statistics(self):
+        """
+        Update cached statistics (track count and total duration).
+        """
+        tracks = self.playlist_tracks.select_related('track').all()
+        self.track_count = tracks.count()
+        self.total_duration = sum(pt.track.duration for pt in tracks)
+        self.save(update_fields=['track_count', 'total_duration', 'updated_at'])
+    
+    def get_ordered_tracks(self):
+        """
+        Get all tracks in playlist order.
+        
+        Returns:
+            QuerySet of MusicFile ordered by position
+        """
+        return self.tracks.order_by('playlisttrack__position')
+    
+    @property
+    def duration_formatted(self):
+        """Return formatted duration (HH:MM:SS or MM:SS)"""
+        hours = self.total_duration // 3600
+        minutes = (self.total_duration % 3600) // 60
+        seconds = self.total_duration % 60
+        
+        if hours > 0:
+            return f"{hours}:{minutes:02d}:{seconds:02d}"
+        return f"{minutes}:{seconds:02d}"
+
+
+class PlaylistTrack(models.Model):
+    """
+    Intermediate model for ordered many-to-many relationship
+    between Playlist and MusicFile.
+    """
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    playlist = models.ForeignKey(
+        Playlist,
+        on_delete=models.CASCADE,
+        related_name='playlist_tracks'
+    )
+    track = models.ForeignKey(
+        MusicFile,
+        on_delete=models.CASCADE,
+        related_name='track_playlists'
+    )
+    position = models.PositiveIntegerField(
+        default=1,
+        help_text="Position in playlist (1-based)"
+    )
+    added_at = models.DateTimeField(auto_now_add=True)
+    added_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text="User who added this track (for collaborative playlists)"
+    )
+    
+    class Meta:
+        ordering = ['playlist', 'position']
+        unique_together = ['playlist', 'track']
+        indexes = [
+            models.Index(fields=['playlist', 'position']),
+        ]
+    
+    def __str__(self):
+        return f"{self.position}. {self.track.title} in {self.playlist.name}"
+
 
 class Favorite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -377,6 +561,7 @@ class DownloadTask(models.Model):
     def elapsed_time(self):
         """Calculate elapsed time since task start"""
         if self.started_at:
+            from django.utils import timezone
             end_time = self.completed_at or timezone.now()
             return (end_time - self.started_at).total_seconds()
         return None
