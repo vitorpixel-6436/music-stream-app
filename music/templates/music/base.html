@@ -114,6 +114,13 @@
                     <span class="sidebar-text font-medium group-hover:text-red-400 transition-colors">Upload</span>
                 </a>
                 
+                <!-- NEW: Download Manager -->
+                <a href="{% url 'music:download_manager' %}" class="flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-white/10 transition-all duration-300 group relative">
+                    <i class="fas fa-download sidebar-icon w-5 text-white/60 group-hover:text-red-400 transition-colors"></i>
+                    <span class="sidebar-text font-medium group-hover:text-red-400 transition-colors">Downloads</span>
+                    <span class="ml-auto text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full font-bold">NEW</span>
+                </a>
+                
                 <a href="/admin/" class="flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-white/10 transition-all duration-300 group">
                     <i class="fas fa-cog sidebar-icon w-5 text-white/60 group-hover:text-red-400 transition-colors"></i>
                     <span class="sidebar-text font-medium group-hover:text-red-400 transition-colors">Settings</span>
@@ -122,12 +129,18 @@
                 <div class="border-t border-white/10 my-4"></div>
                 
                 <div class="px-4 py-3 space-y-1">
-                    <p class="sidebar-text text-xs font-bold uppercase tracking-wider text-white/40">Playlists</p>
+                    <p class="sidebar-text text-xs font-bold uppercase tracking-wider text-white/40">Library</p>
                 </div>
                 
                 <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-white/10 transition-all duration-300 group">
                     <i class="fas fa-heart sidebar-icon w-5 text-white/60 group-hover:text-red-400 transition-colors"></i>
                     <span class="sidebar-text font-medium group-hover:text-red-400 transition-colors">Favorites</span>
+                </a>
+                
+                <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-white/10 transition-all duration-300 group">
+                    <i class="fas fa-list sidebar-icon w-5 text-white/60 group-hover:text-red-400 transition-colors"></i>
+                    <span class="sidebar-text font-medium group-hover:text-red-400 transition-colors">Playlists</span>
+                    <span class="ml-auto text-[10px] bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full font-bold">SOON</span>
                 </a>
                 
                 <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-white/10 transition-all duration-300 group">
