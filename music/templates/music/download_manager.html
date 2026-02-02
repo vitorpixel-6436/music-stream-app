@@ -1,176 +1,352 @@
 {% extends 'music/base.html' %}
 {% load static %}
+{% load steam_ui %}
 
 {% block title %}Download Manager - Music Stream{% endblock %}
 
+{% block extra_css %}
+{% steam_css %}
+<style>
+.download-task {
+    transition: all 0.3s ease;
+}
+
+.download-task:hover {
+    transform: translateY(-2px);
+}
+
+.progress-bar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #e74c3c, #c0392b);
+    transition: width 0.5s ease;
+    border-radius: 2px;
+}
+
+.progress-fill.downloading {
+    background: linear-gradient(90deg, #3498db, #2980b9);
+}
+
+.progress-fill.completed {
+    background: linear-gradient(90deg, #2ecc71, #27ae60);
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.status-pending { background: rgba(52, 152, 219, 0.2); color: #3498db; }
+.status-downloading { background: rgba(155, 89, 182, 0.2); color: #9b59b6; }
+.status-processing { background: rgba(241, 196, 15, 0.2); color: #f1c40f; }
+.status-completed { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
+.status-failed { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
+.status-cancelled { background: rgba(149, 165, 166, 0.2); color: #95a5a6; }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-6xl mx-auto">
-        <!-- Header -->
-        <div class="glass-layer-2 glass-radius-xl p-8 mb-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-3xl font-bold mb-2">📥 Download Manager</h1>
-                    <p class="text-gray-400">Track your download tasks</p>
-                </div>
-                <a href="{% url 'music:url_import' %}" class="bg-blue-500 hover:bg-blue-600 px-6 py-3 rounded-lg font-medium transition">
-                    <i class="fas fa-plus mr-2"></i>
-                    New Download
-                </a>
-            </div>
-        </div>
 
-        <!-- Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div class="glass-layer-1 p-4 rounded-lg">
-                <div class="text-sm text-gray-400 mb-1">Total Tasks</div>
-                <div class="text-2xl font-bold">{{ tasks.count }}</div>
-            </div>
-            <div class="glass-layer-1 p-4 rounded-lg">
-                <div class="text-sm text-gray-400 mb-1">Active</div>
-                <div class="text-2xl font-bold text-blue-400">{{ active_count }}</div>
-            </div>
-            <div class="glass-layer-1 p-4 rounded-lg">
-                <div class="text-sm text-gray-400 mb-1">Completed</div>
-                <div class="text-2xl font-bold text-green-400">{{ tasks|length }}</div>
-            </div>
-            <div class="glass-layer-1 p-4 rounded-lg">
-                <div class="text-sm text-gray-400 mb-1">Failed</div>
-                <div class="text-2xl font-bold text-red-400">0</div>
-            </div>
-        </div>
-
-        <!-- Tasks List -->
-        <div class="glass-layer-2 glass-radius-xl p-6">
-            {% if tasks %}
-                <div class="space-y-4">
-                    {% for task in tasks %}
-                    <div class="glass-layer-1 p-4 rounded-lg hover:bg-white/5 transition" data-task-id="{{ task.id }}">
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <!-- Status Badge -->
-                                    {% if task.status == 'completed' %}
-                                        <span class="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-medium">
-                                            ✓ Completed
-                                        </span>
-                                    {% elif task.status == 'downloading' %}
-                                        <span class="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-medium">
-                                            <i class="fas fa-spinner fa-spin"></i> Downloading
-                                        </span>
-                                    {% elif task.status == 'processing' %}
-                                        <span class="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs font-medium">
-                                            <i class="fas fa-cog fa-spin"></i> Processing
-                                        </span>
-                                    {% elif task.status == 'failed' %}
-                                        <span class="px-3 py-1 bg-red-500/20 text-red-400 rounded-full text-xs font-medium">
-                                            ✗ Failed
-                                        </span>
-                                    {% elif task.status == 'pending' %}
-                                        <span class="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs font-medium">
-                                            ⏳ Pending
-                                        </span>
-                                    {% endif %}
-                                    
-                                    <!-- Source Badge -->
-                                    <span class="px-2 py-1 bg-white/5 rounded text-xs text-gray-400">
-                                        {{ task.source_type|upper }}
-                                    </span>
-                                </div>
-                                
-                                <div class="font-medium mb-1">
-                                    {% if task.original_title %}
-                                        {{ task.original_title }}
-                                    {% else %}
-                                        {{ task.url|truncatechars:60 }}
-                                    {% endif %}
-                                </div>
-                                <div class="text-sm text-gray-500">
-                                    {{ task.url|truncatechars:80 }}
-                                </div>
-                            </div>
-                            
-                            <!-- Actions -->
-                            <div class="flex items-center gap-2">
-                                {% if task.result_track %}
-                                    <a href="{% url 'music:player' task.result_track.id %}" class="px-3 py-1 bg-green-500 hover:bg-green-600 rounded text-sm transition">
-                                        <i class="fas fa-play"></i> Play
-                                    </a>
-                                {% endif %}
-                            </div>
-                        </div>
-                        
-                        <!-- Progress Bar -->
-                        {% if task.is_active %}
-                        <div class="mb-2">
-                            <div class="flex justify-between text-xs text-gray-500 mb-1">
-                                <span>{{ task.current_step|default:"Initializing..." }}</span>
-                                <span>{{ task.progress }}%</span>
-                            </div>
-                            <div class="w-full bg-white/5 rounded-full h-2 overflow-hidden">
-                                <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-full transition-all duration-300" style="width: {{ task.progress }}%"></div>
-                            </div>
-                        </div>
-                        {% endif %}
-                        
-                        <!-- Meta Info -->
-                        <div class="flex items-center gap-4 text-xs text-gray-500">
-                            <span>
-                                <i class="fas fa-clock mr-1"></i>
-                                {{ task.created_at|timesince }} ago
-                            </span>
-                            {% if task.duration %}
-                                <span>
-                                    <i class="fas fa-hourglass mr-1"></i>
-                                    {{ task.duration|floatformat:1 }}s
-                                </span>
-                            {% endif %}
-                            <span>
-                                <i class="fas fa-file-audio mr-1"></i>
-                                {{ task.output_format|upper }} @ {{ task.output_quality }}
-                            </span>
-                        </div>
-                        
-                        <!-- Error Message -->
-                        {% if task.error_message %}
-                        <div class="mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded text-xs text-red-400">
-                            <i class="fas fa-exclamation-triangle mr-1"></i>
-                            {{ task.error_message }}
-                        </div>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="text-center py-12">
-                    <div class="text-6xl mb-4">📥</div>
-                    <div class="text-xl font-medium mb-2">No downloads yet</div>
-                    <p class="text-gray-400 mb-6">Start by importing music from a URL</p>
-                    <a href="{% url 'music:url_import' %}" class="inline-block bg-blue-500 hover:bg-blue-600 px-6 py-3 rounded-lg font-medium transition">
-                        <i class="fas fa-plus mr-2"></i>
-                        Import from URL
-                    </a>
-                </div>
-            {% endif %}
-        </div>
+<div class="max-w-[1920px] mx-auto">
+    
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold mb-2 flex items-center gap-3">
+            <i class="fas fa-download text-red-500"></i>
+            Download Manager
+        </h1>
+        <p class="text-white/60">Track your YouTube, SoundCloud, and Bandcamp downloads</p>
     </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
+        <div class="glass-layer-2 glass-radius-xl p-4 text-center" data-glass-context>
+            <div class="text-3xl font-black text-white/90 mb-1">{{ stats.total }}</div>
+            <div class="text-xs text-white/40 uppercase tracking-wider">Total</div>
+        </div>
+        <div class="glass-layer-2 glass-radius-xl p-4 text-center" data-glass-context>
+            <div class="text-3xl font-black text-blue-400 mb-1">{{ stats.pending }}</div>
+            <div class="text-xs text-white/40 uppercase tracking-wider">Pending</div>
+        </div>
+        <div class="glass-layer-2 glass-radius-xl p-4 text-center" data-glass-context>
+            <div class="text-3xl font-black text-purple-400 mb-1">{{ stats.downloading }}</div>
+            <div class="text-xs text-white/40 uppercase tracking-wider">Active</div>
+        </div>
+        <div class="glass-layer-2 glass-radius-xl p-4 text-center" data-glass-context>
+            <div class="text-3xl font-black text-green-400 mb-1">{{ stats.completed }}</div>
+            <div class="text-xs text-white/40 uppercase tracking-wider">Done</div>
+        </div>
+        <div class="glass-layer-2 glass-radius-xl p-4 text-center" data-glass-context>
+            <div class="text-3xl font-black text-red-400 mb-1">{{ stats.failed }}</div>
+            <div class="text-xs text-white/40 uppercase tracking-wider">Failed</div>
+        </div>
+        <a href="{% url 'music:download_create' %}" 
+           class="glass-red-tint glass-radius-xl glass-pressable p-4 text-center flex flex-col items-center justify-center hover:scale-105 transition-transform">
+            <i class="fas fa-plus text-2xl mb-1"></i>
+            <div class="text-xs uppercase tracking-wider">New</div>
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="glass-layer-1 glass-radius-xl p-6 mb-6" data-glass-context>
+        <form method="get" class="flex flex-wrap gap-3">
+            <!-- Search -->
+            <div class="flex-1 min-w-[200px]">
+                <div class="glass-layer-2 glass-radius-lg px-4 py-2 flex items-center gap-2">
+                    <i class="fas fa-search text-white/40"></i>
+                    <input type="text" 
+                           name="q" 
+                           value="{{ search_query }}" 
+                           placeholder="Search downloads..."
+                           class="bg-transparent border-none outline-none text-sm w-full placeholder:text-white/30 text-white">
+                </div>
+            </div>
+            
+            <!-- Status Filter -->
+            <select name="status" 
+                    class="glass-layer-2 glass-radius-lg px-4 py-2 text-sm text-white bg-transparent border-none outline-none cursor-pointer"
+                    onchange="this.form.submit()">
+                <option value="">All Statuses</option>
+                {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            
+            <button type="submit" class="glass-red-tint glass-radius-lg glass-pressable px-6 py-2">
+                <i class="fas fa-filter mr-2"></i>Filter
+            </button>
+        </form>
+    </div>
+
+    <!-- Download Tasks List -->
+    <div class="space-y-4">
+        {% for task in tasks %}
+        <div class="download-task glass-layer-2 glass-radius-xl p-6" data-glass-context data-task-id="{{ task.id }}">
+            <div class="flex items-start gap-4">
+                <!-- Icon/Status -->
+                <div class="w-16 h-16 glass-layer-3 glass-radius-xl flex items-center justify-center flex-shrink-0">
+                    {% if task.status == 'completed' %}
+                        <i class="fas fa-check-circle text-2xl text-green-400"></i>
+                    {% elif task.status == 'failed' %}
+                        <i class="fas fa-times-circle text-2xl text-red-400"></i>
+                    {% elif task.status == 'downloading' or task.status == 'processing' %}
+                        <i class="fas fa-spinner fa-spin text-2xl text-blue-400"></i>
+                    {% elif task.status == 'pending' %}
+                        <i class="fas fa-clock text-2xl text-yellow-400"></i>
+                    {% else %}
+                        <i class="fas fa-ban text-2xl text-gray-400"></i>
+                    {% endif %}
+                </div>
+
+                <!-- Content -->
+                <div class="flex-1 min-w-0">
+                    <!-- Title & Artist -->
+                    <h3 class="font-bold text-lg mb-1 truncate">
+                        {{ task.original_title|default:"Untitled" }}
+                    </h3>
+                    <p class="text-white/60 text-sm mb-2 truncate">
+                        {{ task.original_artist|default:"Unknown Artist" }}
+                    </p>
+
+                    <!-- Status & Progress -->
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="status-badge status-{{ task.status }}">
+                            {{ task.get_status_display }}
+                        </span>
+                        {% if task.duration %}
+                        <span class="text-xs text-white/40">
+                            <i class="far fa-clock mr-1"></i>{{ task.duration|floatformat:0 }}s
+                        </span>
+                        {% endif %}
+                        <span class="text-xs text-white/40">
+                            {{ task.output_format|upper }} @ {{ task.output_quality }}
+                        </span>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    {% if task.is_active %}
+                    <div class="progress-bar mb-2" data-progress-bar>
+                        <div class="progress-fill downloading" 
+                             style="width: {{ task.progress }}%"
+                             data-progress-fill></div>
+                    </div>
+                    <p class="text-xs text-white/60" data-current-step>
+                        {{ task.current_step|default:"Initializing..." }}
+                    </p>
+                    {% endif %}
+
+                    <!-- Error Message -->
+                    {% if task.error_message %}
+                    <div class="mt-2 text-xs text-red-400 bg-red-500/10 rounded p-2">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                        {{ task.error_message }}
+                    </div>
+                    {% endif %}
+
+                    <!-- URL -->
+                    <details class="mt-2">
+                        <summary class="text-xs text-white/40 cursor-pointer hover:text-white/60">
+                            Source URL
+                        </summary>
+                        <p class="text-xs text-white/60 mt-1 break-all">
+                            {{ task.url }}
+                        </p>
+                    </details>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-col gap-2">
+                    {% if task.result_track %}
+                    <a href="{% url 'music:player' task.result_track.id %}" 
+                       class="glass-layer-3 glass-radius-lg glass-pressable px-4 py-2 text-sm font-semibold text-center">
+                        <i class="fas fa-play mr-2"></i>Play
+                    </a>
+                    {% endif %}
+                    
+                    {% if task.is_active %}
+                    <form method="post" action="{% url 'music:cancel_download' task.id %}" class="cancel-form">
+                        {% csrf_token %}
+                        <button type="submit" 
+                                class="glass-layer-3 glass-radius-lg glass-pressable px-4 py-2 text-sm font-semibold w-full">
+                            <i class="fas fa-stop mr-2"></i>Cancel
+                        </button>
+                    </form>
+                    {% elif task.status == 'failed' %}
+                    <form method="post" action="{% url 'music:retry_download' task.id %}" class="retry-form">
+                        {% csrf_token %}
+                        <button type="submit" 
+                                class="glass-red-tint glass-radius-lg glass-pressable px-4 py-2 text-sm font-semibold w-full">
+                            <i class="fas fa-redo mr-2"></i>Retry
+                        </button>
+                    </form>
+                    {% endif %}
+                    
+                    <form method="post" action="{% url 'music:delete_download' task.id %}" class="delete-form">
+                        {% csrf_token %}
+                        <button type="submit" 
+                                class="glass-layer-3 glass-radius-lg glass-pressable px-4 py-2 text-sm text-red-400 w-full"
+                                onclick="return confirm('Delete this download task?')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="glass-layer-2 glass-radius-xl p-12 text-center" data-glass-context>
+            <i class="fas fa-cloud-download-alt text-6xl text-white/20 mb-4"></i>
+            <h3 class="text-xl font-bold mb-2">No downloads yet</h3>
+            <p class="text-white/60 mb-6">Start by adding a YouTube or SoundCloud URL</p>
+            <a href="{% url 'music:download_create' %}" 
+               class="glass-red-tint glass-radius-xl glass-pressable px-8 py-3 inline-block font-semibold">
+                <i class="fas fa-plus mr-2"></i>New Download
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if tasks.has_other_pages %}
+    <div class="mt-8 flex justify-center gap-2">
+        {% if tasks.has_previous %}
+        <a href="?page={{ tasks.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
+           class="glass-layer-2 glass-radius-lg glass-pressable px-4 py-2">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        {% endif %}
+        
+        <span class="glass-layer-2 glass-radius-lg px-4 py-2">
+            Page {{ tasks.number }} of {{ tasks.paginator.num_pages }}
+        </span>
+        
+        {% if tasks.has_next %}
+        <a href="?page={{ tasks.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
+           class="glass-layer-2 glass-radius-lg glass-pressable px-4 py-2">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
 </div>
 
-<!-- Auto-refresh for active tasks -->
+{% endblock %}
+
+{% block extra_js %}
+{% steam_js %}
 <script>
-(function() {
-    const activeTasks = document.querySelectorAll('[data-task-id]');
-    const hasActiveTasks = Array.from(activeTasks).some(el => {
-        const badge = el.querySelector('.fa-spinner, .fa-cog');
-        return badge !== null;
-    });
+// Real-time progress updates
+const activeTasks = document.querySelectorAll('[data-task-id]');
+const updateInterval = 2000; // 2 seconds
+
+function updateTaskProgress(taskElement) {
+    const taskId = taskElement.dataset.taskId;
     
-    if (hasActiveTasks) {
-        // Reload page every 5 seconds if there are active tasks
-        setTimeout(() => {
-            window.location.reload();
-        }, 5000);
-    }
-})();
+    fetch(`/api/download/${taskId}/progress/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'completed' || data.status === 'failed') {
+                // Reload page on completion/failure
+                location.reload();
+                return;
+            }
+            
+            // Update progress bar
+            const progressFill = taskElement.querySelector('[data-progress-fill]');
+            if (progressFill) {
+                progressFill.style.width = `${data.progress}%`;
+            }
+            
+            // Update current step
+            const stepElement = taskElement.querySelector('[data-current-step]');
+            if (stepElement && data.current_step) {
+                stepElement.textContent = data.current_step;
+            }
+        })
+        .catch(error => console.error('Progress update error:', error));
+}
+
+// Poll active tasks
+if (activeTasks.length > 0) {
+    setInterval(() => {
+        activeTasks.forEach(updateTaskProgress);
+    }, updateInterval);
+}
+
+// AJAX form submissions
+document.querySelectorAll('.cancel-form, .retry-form, .delete-form').forEach(form => {
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: new FormData(form)
+            });
+            
+            if (response.ok) {
+                location.reload();
+            }
+        } catch (error) {
+            console.error('Form submission error:', error);
+        }
+    });
+});
 </script>
 {% endblock %}
