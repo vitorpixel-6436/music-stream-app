@@ -14,11 +14,23 @@ Featuring the **Steam UI Framework** - a modular, reusable component library for
 
 ### Music App
 - 🎶 **Upload & Stream** - MP3, FLAC, OGG, M4A, WAV support
+- 📥 **Download Manager** ⭐ NEW! - Import from YouTube, SoundCloud, Bandcamp
+- 📊 **Real-time Progress** - Live download tracking with progress bars
 - 🎨 **Automatic Metadata** - Extract title, artist, album from files
 - 🖼️ **Cover Art** - Automatic extraction or manual upload
 - 🔍 **Search & Filter** - Find tracks quickly
-- 📦 **Download** - Get your files back anytime
+- 📦 **Export** - Get your files back anytime
 - 📊 **Admin Panel** - Full Django admin integration
+
+### Download Manager ⭐ NEW!
+- 🌐 **Multiple Sources** - YouTube, SoundCloud, Bandcamp, Direct URLs
+- 📈 **Live Progress Tracking** - Real-time progress bars (0-100%)
+- 🔄 **Auto-retry** - Up to 3 automatic retry attempts
+- 🎵 **Format Conversion** - MP3, FLAC, OGG, M4A, WAV output
+- 🎛️ **Quality Control** - 320k, 256k, 192k, 128k bitrates
+- 🧵 **Background Processing** - Non-blocking, threaded downloads
+- 📝 **Auto Metadata** - Automatic title, artist, album extraction
+- 🎨 **Beautiful UI** - Steam-inspired design with live updates
 
 ### Steam UI Framework
 - 🎭 **Glass Morphism** - Multi-layered frosted glass effects
@@ -31,7 +43,7 @@ Featuring the **Steam UI Framework** - a modular, reusable component library for
 
 ---
 
-## 📦 Installation
+## 🚀 Quick Start
 
 ### Full App Installation
 
@@ -56,20 +68,82 @@ venv\Scripts\activate     # Windows
 pip install -r requirements.txt
 ```
 
-#### 4. Setup Database
+#### 4. Install FFmpeg (Required for Download Manager)
+
+**Windows:**
+```bash
+choco install ffmpeg
+```
+
+**Linux:**
+```bash
+sudo apt install ffmpeg
+```
+
+**macOS:**
+```bash
+brew install ffmpeg
+```
+
+#### 5. Setup Database
 
 ```bash
 python manage.py migrate
 python manage.py createsuperuser
 ```
 
-#### 5. Run Development Server
+#### 6. Run Development Server
 
 ```bash
 python manage.py runserver
 ```
 
-Visit: **http://localhost:8000**
+Visit: 
+- **Main App:** http://localhost:8000
+- **Download Manager:** http://localhost:8000/music/downloads/
+
+### ⚡ Download Manager Quick Start
+
+**New to Download Manager?**
+
+👉 [**5-Minute Quick Start Guide**](docs/DOWNLOAD_QUICKSTART.md) ⭐
+
+---
+
+## 📥 Download Manager Documentation
+
+### Getting Started
+
+1. **[Quick Start (5 min)](docs/DOWNLOAD_QUICKSTART.md)** ⭐ - Your first download
+2. **[Full Setup Guide](docs/DOWNLOAD_SETUP.md)** - Detailed configuration
+3. **[API Reference](docs/DOWNLOAD_API.md)** - REST API documentation
+
+### Features in Detail
+
+```python
+# Example: Download from YouTube
+from music.models import DownloadTask
+from django.contrib.auth.models import User
+
+user = User.objects.first()
+task = DownloadTask.objects.create(
+    user=user,
+    url='https://www.youtube.com/watch?v=jNQXAC9IVRw',
+    output_format='mp3',
+    output_quality='320k',
+    source_type='youtube'
+)
+
+# Processing starts automatically!
+print(f"Progress: {task.progress}%")  # Live updates
+print(f"Status: {task.status}")        # pending → downloading → completed
+```
+
+### Web Interface
+
+- **Create Downloads:** `/music/downloads/create/`
+- **Monitor Progress:** `/music/downloads/`
+- **Status API:** `/music/api/downloads/<id>/status/`
 
 ---
 
@@ -201,6 +275,10 @@ pip install https://github.com/vitorpixel-6436/music-stream-app/archive/refs/hea
 python manage.py collectstatic
 ```
 
+### Download Manager Issues
+
+See [**Download Manager Troubleshooting**](docs/DOWNLOAD_SETUP.md#troubleshooting)
+
 **Full troubleshooting guide:** [INSTALL.md](INSTALL.md)
 
 ---
@@ -211,8 +289,11 @@ python manage.py collectstatic
 music-stream-app/
 ├── config/                 # Django settings
 ├── music/                  # Main music app
-│   ├── models.py           # Track, Artist models
+│   ├── models.py           # Track, Artist, DownloadTask models
 │   ├── views.py            # Views and logic
+│   ├── download_views.py   # Download manager views ⭐ NEW!
+│   ├── downloaders.py      # yt-dlp integration ⭐ NEW!
+│   ├── tasks.py            # Background processing ⭐ NEW!
 │   ├── templates/          # HTML templates
 │   └── static/             # Music app static files
 ├── steam_ui/               # 🎨 UI Framework (standalone package)
@@ -221,17 +302,14 @@ music-stream-app/
 │   ├── config.py           # Configuration
 │   ├── templatetags/       # Django template tags
 │   ├── templates/          # Component templates
-│   │   ├── card.html
-│   │   ├── carousel.html
-│   │   ├── featured.html
-│   │   ├── player_bar.html   # NEW!
-│   │   └── playlist.html     # NEW!
 │   └── static/             # CSS & JS
+├── docs/                   # Documentation
+│   ├── DOWNLOAD_QUICKSTART.md  # ⭐ 5-minute guide
+│   ├── DOWNLOAD_SETUP.md       # Full setup
+│   └── DOWNLOAD_API.md         # API reference
 ├── media/                  # Uploaded files
 ├── setup.py                # Package setup
 ├── build_package.py        # Build automation
-├── MANIFEST.in             # Package files
-├── INSTALL.md              # Installation guide
 ├── requirements.txt
 └── manage.py
 ```
@@ -246,7 +324,11 @@ music-stream-app/
   - Steam UI Framework (custom)
   - Tailwind CSS
   - Alpine.js (lightweight)
-- **Audio:** Mutagen (metadata extraction)
+- **Audio:** 
+  - Mutagen (metadata extraction)
+  - FFmpeg (audio conversion)
+  - yt-dlp (YouTube/SoundCloud downloads) ⭐
+- **Task Processing:** Threading (upgradeable to Celery)
 - **Deployment:** Docker ready
 
 ---
@@ -339,29 +421,48 @@ MIT License - feel free to use this project and Steam UI Framework in your own w
 - [Issue Tracker](https://github.com/vitorpixel-6436/music-stream-app/issues)
 - [Steam UI Docs](steam_ui/README.md)
 - [Installation Guide](INSTALL.md) ⭐
+- [Download Manager Quick Start](docs/DOWNLOAD_QUICKSTART.md) ⭐ NEW!
 - [Usage Examples](USAGE_EXAMPLE.md)
 
 ---
 
 ## ⭐ Features Roadmap
 
-- [ ] User authentication
-- [ ] Playlists functionality
-- [ ] Lyrics integration
-- [ ] Social features
-- [ ] Mobile app (React Native)
+### Completed ✅
 - [x] **Steam UI Framework** ✅
 - [x] Glass morphism effects ✅
 - [x] Responsive design ✅
 - [x] **Player Bar component** ✅ (v1.1.0)
 - [x] **Playlist component** ✅ (v1.1.0)
 - [x] **Git-free installation** ✅
+- [x] **Download Manager** ✅ (v1.2.0) ⭐ NEW!
+- [x] Real-time progress tracking ✅
+- [x] YouTube/SoundCloud support ✅
+
+### In Progress 🚧
+- [ ] Playlists functionality
+- [ ] ML-based recommendations
+
+### Planned 📋
+- [ ] User authentication
+- [ ] Lyrics integration
+- [ ] Social features
+- [ ] Mobile app (React Native)
+- [ ] Audio editor/mixer
 
 ---
 
 ## 📊 Version History
 
-### v1.1.0 (Latest)
+### v1.2.0 (Latest) ⭐
+- ✨ **Download Manager** - Import from YouTube, SoundCloud, Bandcamp
+- 📊 Real-time progress tracking
+- 🔄 Auto-retry on failure
+- 🎵 Multiple format support (MP3, FLAC, OGG, M4A, WAV)
+- 🎨 Beautiful Steam-inspired UI
+- 📝 Comprehensive documentation (3 guides)
+
+### v1.1.0
 - ✨ Added `PlayerBar` component (floating audio player)
 - ✨ Added `Playlist` component  
 - 🔧 Improved package distribution
@@ -378,6 +479,11 @@ MIT License - feel free to use this project and Steam UI Framework in your own w
 
 **Made with ❤️ by vitorpixel-6436**
 
-*Featuring Steam UI Framework - A modular component library for Django*
+*Featuring:*
+- *Steam UI Framework - A modular component library for Django*
+- *Download Manager - Import music from anywhere* ⭐ NEW!
 
-**Installation Help:** Having issues? See [INSTALL.md](INSTALL.md) or [open an issue](https://github.com/vitorpixel-6436/music-stream-app/issues)
+**Getting Started:**
+- **App Installation:** See above ⬆️
+- **Download Manager:** [5-Minute Quick Start](docs/DOWNLOAD_QUICKSTART.md) ⭐
+- **Having issues?** [INSTALL.md](INSTALL.md) or [open an issue](https://github.com/vitorpixel-6436/music-stream-app/issues)
