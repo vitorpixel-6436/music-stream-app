@@ -1,26 +1,20 @@
-# MANIFEST.in
-# Specifies which files to include in the package distribution
-
-# Documentation
+# Include package metadata
 include README.md
 include LICENSE
-include steam_ui/README.md
+include setup.py
+include requirements.txt
 
-# Templates
+# Include steam_ui package files
 recursive-include steam_ui/templates *.html
-recursive-include steam_ui/templates *.txt
+recursive-include steam_ui/static *.css *.js *.svg *.png *.jpg
 
-# Static files
-recursive-include steam_ui/static *.css
-recursive-include steam_ui/static *.js
-recursive-include steam_ui/static *.svg
-recursive-include steam_ui/static *.png
-recursive-include steam_ui/static *.jpg
-recursive-include steam_ui/static *.woff
-recursive-include steam_ui/static *.woff2
-
-# Exclude compiled Python files
-global-exclude *.pyc
-global-exclude *.pyo
-global-exclude __pycache__
-global-exclude .DS_Store
+# Exclude unnecessary files
+exclude .gitignore
+exclude .env
+exclude .env.example
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+recursive-exclude * .DS_Store
+exclude music/*
+exclude media/*
+exclude db.sqlite3
