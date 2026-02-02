@@ -1,0 +1,282 @@
+{% extends 'music/base.html' %}
+{% load static %}
+{% load steam_ui %}
+
+{% block title %}Import from URL - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .download-form-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .form-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border-radius: 16px;
+        padding: 40px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-header {
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .form-header h1 {
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .form-header p {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.95rem;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.9rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 14px 16px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+        color: white;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        background: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .help-text {
+        display: block;
+        margin-top: 6px;
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .supported-platforms {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        flex-wrap: wrap;
+    }
+
+    .platform-badge {
+        padding: 6px 12px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.7);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .platform-badge::before {
+        content: '✓';
+        color: #4ade80;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .submit-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .error-message {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        color: #fca5a5;
+        font-size: 0.9rem;
+    }
+
+    .success-message {
+        background: rgba(74, 222, 128, 0.1);
+        border: 1px solid rgba(74, 222, 128, 0.3);
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        color: #86efac;
+        font-size: 0.9rem;
+    }
+
+    .loading-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="download-form-container">
+    <div class="form-card">
+        <div class="form-header">
+            <h1>🎵 Import Music from URL</h1>
+            <p>Download music from YouTube, SoundCloud, Bandcamp, and more</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="{% if message.tags == 'error' %}error-message{% else %}success-message{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" id="downloadForm">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_url">Media URL *</label>
+                {{ form.url }}
+                <span class="help-text">{{ form.url.help_text }}</span>
+                
+                <div class="supported-platforms">
+                    <span class="platform-badge">YouTube</span>
+                    <span class="platform-badge">SoundCloud</span>
+                    <span class="platform-badge">Bandcamp</span>
+                    <span class="platform-badge">Direct URLs</span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_output_format">Output Format</label>
+                    {{ form.output_format }}
+                    <span class="help-text">{{ form.output_format.help_text }}</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_output_quality">Quality / Bitrate</label>
+                    {{ form.output_quality }}
+                    <span class="help-text">{{ form.output_quality.help_text }}</span>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                <span id="btnText">Start Download</span>
+                <span id="btnLoader" style="display: none;">
+                    <span class="loading-spinner"></span> Processing...
+                </span>
+            </button>
+        </form>
+
+        <div style="margin-top: 30px; text-align: center;">
+            <a href="{% url 'music:download_manager' %}" style="color: #667eea; text-decoration: none; font-size: 0.9rem;">
+                ← View All Downloads
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const form = document.getElementById('downloadForm');
+const submitBtn = document.getElementById('submitBtn');
+const btnText = document.getElementById('btnText');
+const btnLoader = document.getElementById('btnLoader');
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Disable button and show loading
+    submitBtn.disabled = true;
+    btnText.style.display = 'none';
+    btnLoader.style.display = 'inline-flex';
+    
+    const formData = new FormData(form);
+    
+    try {
+        const response = await fetch(form.action || window.location.href, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Redirect to download manager
+            window.location.href = data.redirect_url;
+        } else {
+            // Show error
+            alert('Error: ' + (data.error || 'Unknown error'));
+            submitBtn.disabled = false;
+            btnText.style.display = 'inline';
+            btnLoader.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Form submission error:', error);
+        // Fallback to standard form submission
+        form.submit();
+    }
+});
+</script>
+{% endblock %}
