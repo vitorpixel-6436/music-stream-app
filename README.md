@@ -23,7 +23,7 @@ Featuring the **Steam UI Framework** - a modular, reusable component library for
 ### Steam UI Framework
 - 🎭 **Glass Morphism** - Multi-layered frosted glass effects
 - 🎮 **Steam Design** - Gaming-oriented dark theme
-- 📦 **Modular Components** - Card, Carousel, Featured Banner
+- 📦 **Modular Components** - Card, Carousel, Featured Banner, Player Bar, Playlist
 - 🔧 **Highly Customizable** - Configuration system
 - 🚀 **Easy to Use** - Django template tags + Python API
 - 📝 **Well Documented** - Full docs and examples
@@ -33,14 +33,16 @@ Featuring the **Steam UI Framework** - a modular, reusable component library for
 
 ## 📦 Installation
 
-### 1. Clone Repository
+### Full App Installation
+
+#### 1. Clone Repository
 
 ```bash
 git clone https://github.com/vitorpixel-6436/music-stream-app.git
 cd music-stream-app
 ```
 
-### 2. Create Virtual Environment
+#### 2. Create Virtual Environment
 
 ```bash
 python -m venv venv
@@ -48,20 +50,20 @@ source venv/bin/activate  # Linux/Mac
 venv\Scripts\activate     # Windows
 ```
 
-### 3. Install Dependencies
+#### 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Setup Database
+#### 4. Setup Database
 
 ```bash
 python manage.py migrate
 python manage.py createsuperuser
 ```
 
-### 5. Run Development Server
+#### 5. Run Development Server
 
 ```bash
 python manage.py runserver
@@ -71,30 +73,57 @@ Visit: **http://localhost:8000**
 
 ---
 
-## 🎨 Steam UI Framework
+## 🎨 Steam UI Framework - Standalone Installation
 
-This project includes **Steam UI Framework** - a standalone UI component library that can be used in any Django project.
+This project includes **Steam UI Framework** - a standalone UI component library that can be installed in any Django project.
 
-### Quick Start with Steam UI
+### 🚀 Quick Install (Multiple Options)
 
-```django
-{% load steam_ui %}
+#### Option 1: Install from ZIP (⭐ Recommended - No Git Required)
 
-{% steam_css %}  <!-- Load styles -->
+**For users without Git installed:**
 
-<!-- Use components -->
-{% steam_featured featured_track %}
-{% steam_carousel tracks title="Recent" %}
-{% steam_card track %}
-
-{% steam_js %}  <!-- Load scripts -->
+```bash
+pip install https://github.com/vitorpixel-6436/music-stream-app/archive/refs/heads/main.zip
 ```
 
-### Install Steam UI in Other Projects
+#### Option 2: Install from GitHub Release (No Git Required)
+
+```bash
+# Download wheel from Releases page, then:
+pip install steam_ui_framework-1.1.0-py3-none-any.whl
+
+# Or install directly from URL:
+pip install https://github.com/vitorpixel-6436/music-stream-app/releases/download/v1.1.0/steam_ui_framework-1.1.0-py3-none-any.whl
+```
+
+#### Option 3: Install with Git
+
+**If you have Git installed:**
 
 ```bash
 pip install git+https://github.com/vitorpixel-6436/music-stream-app.git
 ```
+
+#### Option 4: Install from PyPI (Coming Soon)
+
+```bash
+pip install steam-ui-framework
+```
+
+### 📚 Detailed Installation Guide
+
+**Having trouble?** See [**INSTALL.md**](INSTALL.md) for:
+- Step-by-step instructions
+- Building from source
+- Troubleshooting
+- Platform-specific guides
+
+---
+
+## 🎮 Using Steam UI Framework
+
+### Django Setup
 
 Add to `settings.py`:
 ```python
@@ -104,12 +133,75 @@ INSTALLED_APPS = [
 ]
 ```
 
+### Template Usage
+
+```django
+{% load steam_ui %}
+
+<!-- Load styles and scripts -->
+{% steam_css %}
+
+<!-- Use components -->
+{% steam_featured featured_track %}
+{% steam_carousel tracks title="Recent" icon="fa-clock" %}
+{% steam_card track %}
+{% steam_player_bar current_track %}
+{% steam_playlist playlist %}
+
+{% steam_js %}
+```
+
+### Python Usage
+
+```python
+from steam_ui import Card, Carousel, PlayerBar, Playlist
+
+# Create components
+card = Card(show_actions=True, size='normal')
+html = card.render(track=my_track)
+
+player = PlayerBar(autoplay=False)
+player_html = player.render(current_track=track)
+```
+
 ### Documentation
 
 - 📖 [**Steam UI README**](steam_ui/README.md) - Full component documentation
-- 📝 [**Usage Examples**](USAGE_EXAMPLE.md) - Code examples and migration guide
+- 📝 [**Usage Examples**](USAGE_EXAMPLE.md) - Code examples and migration guide  
+- 🔧 [**Installation Guide**](INSTALL.md) - Detailed installation instructions
 - 🛠️ [**Components**](steam_ui/components.py) - Python API reference
 - ⚙️ [**Configuration**](steam_ui/config.py) - Customization options
+
+---
+
+## 🐛 Troubleshooting
+
+### "Cannot find command 'git'" Error
+
+**Problem:** Git is not installed on your system.
+
+**Solutions:**
+1. **Use Option 1 or 2 above** (No Git required) ⭐
+2. Install Git from [git-scm.com](https://git-scm.com/downloads)
+3. See [INSTALL.md](INSTALL.md) for more details
+
+### Package Installation Issues
+
+```bash
+# Update pip first
+python -m pip install --upgrade pip
+
+# Then try installation again
+pip install https://github.com/vitorpixel-6436/music-stream-app/archive/refs/heads/main.zip
+```
+
+### Static Files Not Loading
+
+```bash
+python manage.py collectstatic
+```
+
+**Full troubleshooting guide:** [INSTALL.md](INSTALL.md)
 
 ---
 
@@ -129,9 +221,17 @@ music-stream-app/
 │   ├── config.py           # Configuration
 │   ├── templatetags/       # Django template tags
 │   ├── templates/          # Component templates
+│   │   ├── card.html
+│   │   ├── carousel.html
+│   │   ├── featured.html
+│   │   ├── player_bar.html   # NEW!
+│   │   └── playlist.html     # NEW!
 │   └── static/             # CSS & JS
 ├── media/                  # Uploaded files
 ├── setup.py                # Package setup
+├── build_package.py        # Build automation
+├── MANIFEST.in             # Package files
+├── INSTALL.md              # Installation guide
 ├── requirements.txt
 └── manage.py
 ```
@@ -158,6 +258,16 @@ music-stream-app/
 ```bash
 python manage.py test
 ```
+
+### Build Package
+
+```bash
+python build_package.py
+```
+
+This creates:
+- `dist/steam_ui_framework-1.1.0-py3-none-any.whl`
+- `dist/steam-ui-framework-1.1.0.tar.gz`
 
 ### Collect Static Files
 
@@ -228,6 +338,7 @@ MIT License - feel free to use this project and Steam UI Framework in your own w
 - [Live Demo](#) (coming soon)
 - [Issue Tracker](https://github.com/vitorpixel-6436/music-stream-app/issues)
 - [Steam UI Docs](steam_ui/README.md)
+- [Installation Guide](INSTALL.md) ⭐
 - [Usage Examples](USAGE_EXAMPLE.md)
 
 ---
@@ -235,16 +346,38 @@ MIT License - feel free to use this project and Steam UI Framework in your own w
 ## ⭐ Features Roadmap
 
 - [ ] User authentication
-- [ ] Playlists
+- [ ] Playlists functionality
 - [ ] Lyrics integration
 - [ ] Social features
 - [ ] Mobile app (React Native)
 - [x] **Steam UI Framework** ✅
 - [x] Glass morphism effects ✅
 - [x] Responsive design ✅
+- [x] **Player Bar component** ✅ (v1.1.0)
+- [x] **Playlist component** ✅ (v1.1.0)
+- [x] **Git-free installation** ✅
+
+---
+
+## 📊 Version History
+
+### v1.1.0 (Latest)
+- ✨ Added `PlayerBar` component (floating audio player)
+- ✨ Added `Playlist` component  
+- 🔧 Improved package distribution
+- 📝 Added comprehensive installation guide
+- 🐛 Fixed Git dependency issues
+
+### v1.0.0
+- 🎉 Initial release
+- ✨ Core components: Card, Carousel, Featured Banner
+- 🎨 Glass morphism styling
+- 📦 Django template tags
 
 ---
 
 **Made with ❤️ by vitorpixel-6436**
 
 *Featuring Steam UI Framework - A modular component library for Django*
+
+**Installation Help:** Having issues? See [INSTALL.md](INSTALL.md) or [open an issue](https://github.com/vitorpixel-6436/music-stream-app/issues)
