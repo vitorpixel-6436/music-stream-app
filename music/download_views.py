@@ -11,6 +11,7 @@ Features:
 - Download history with filters
 - Task cancellation
 - Permission checks
+- Automatic background processing
 """
 
 from django.shortcuts import render, get_object_or_404, redirect
@@ -23,6 +24,7 @@ from django.db.models import Q
 from django.core.paginator import Paginator
 from .models import DownloadTask
 from .forms import URLImportForm
+from .tasks import process_download_task_async, cancel_task_processing, process_pending_downloads
 import logging
 
 logger = logging.getLogger(__name__)
@@ -68,13 +70,17 @@ def download_create(request):
                     f"Download task created: {task.id} by {request.user.username} - {task.url}"
                 )
                 
-                # Queue for background processing (will implement in next phase)
-                # from .tasks import process_download_task
-                # process_download_task.delay(str(task.id))
+                # Start background processing immediately
+                try:
+                    process_download_task_async(str(task.id))
+                    logger.info(f"Started background processing for task {task.id}")
+                except Exception as e:
+                    logger.error(f"Failed to start background task: {e}")
+                    # Task will be picked up by process_pending_downloads() later
                 
                 messages.success(
                     request, 
-                    f'✅ Download task created! Track ID: {str(task.id)[:8]}'
+                    f'✅ Download started! Task ID: {str(task.id)[:8]}'
                 )
                 
                 # Return JSON for AJAX requests
@@ -82,7 +88,7 @@ def download_create(request):
                     return JsonResponse({
                         'success': True,
                         'task_id': str(task.id),
-                        'message': 'Download task created successfully',
+                        'message': 'Download task created and started',
                         'redirect_url': f'/music/downloads/'
                     })
                 
@@ -173,7 +179,14 @@ def download_status_api(request, task_id):
 def download_list(request):
     """
     List all download tasks for current user with filtering and pagination.
+    Also processes any pending downloads.
     """
+    # Process pending downloads in background
+    try:
+        process_pending_downloads(max_concurrent=3)
+    except Exception as e:
+        logger.error(f"Error processing pending downloads: {e}")
+    
     # Base queryset
     tasks = DownloadTask.objects.filter(user=request.user).select_related(
         'result_track', 'result_track__artist'
@@ -267,7 +280,10 @@ def download_cancel(request, task_id):
             
             return redirect('music:download_manager')
         
-        # Mark as cancelled
+        # Cancel processing thread
+        cancel_task_processing(str(task.id))
+        
+        # Mark as cancelled in DB
         task.status = 'cancelled'
         task.completed_at = timezone.now()
         task.save(update_fields=['status', 'completed_at'])
@@ -312,7 +328,7 @@ def download_cancel(request, task_id):
 def download_retry(request, task_id):
     """
     Retry a failed download task.
-    Creates a new task with same parameters.
+    Creates a new task with same parameters and starts processing.
     """
     try:
         old_task = get_object_or_404(
@@ -336,9 +352,11 @@ def download_retry(request, task_id):
             f"Retry task created: {new_task.id} (original: {old_task.id})"
         )
         
-        # Queue for processing
-        # from .tasks import process_download_task
-        # process_download_task.delay(str(new_task.id))
+        # Start processing immediately
+        try:
+            process_download_task_async(str(new_task.id))
+        except Exception as e:
+            logger.error(f"Failed to start retry task: {e}")
         
         messages.success(
             request,
