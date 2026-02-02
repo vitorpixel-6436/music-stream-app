@@ -6,6 +6,46 @@
 
 {% block extra_css %}
 {% steam_css %}
+<style>
+    /* Download Manager Promo Card */
+    .download-promo-card {
+        background: linear-gradient(135deg, 
+            rgba(220, 38, 38, 0.2) 0%, 
+            rgba(153, 27, 27, 0.15) 50%,
+            rgba(10, 10, 10, 0.9) 100%);
+        border: 1px solid rgba(220, 38, 38, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .download-promo-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(220, 38, 38, 0.3) 0%, transparent 70%);
+        animation: pulse-glow 3s ease-in-out infinite;
+    }
+    
+    .download-promo-icon {
+        background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+        box-shadow: 0 0 30px rgba(220, 38, 38, 0.5),
+                    0 0 60px rgba(220, 38, 38, 0.3);
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    @keyframes pulse-glow {
+        0%, 100% { opacity: 0.3; transform: scale(1); }
+        50% { opacity: 0.6; transform: scale(1.1); }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -14,6 +54,64 @@
 {% if music_files %}
 {% steam_featured music_files.0 %}
 {% endif %}
+
+<!-- Download Manager Promo Card -->
+<section class="max-w-[1920px] mx-auto mb-12 mt-8">
+    <a href="{% url 'music:download_manager' %}" class="block group">
+        <div class="download-promo-card glass-radius-2xl p-8 md:p-12 relative z-10 transition-all duration-300 hover:scale-[1.02]">
+            <div class="flex flex-col md:flex-row items-center gap-8 relative z-10">
+                <!-- Icon -->
+                <div class="download-promo-icon w-24 h-24 rounded-3xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-download text-white text-4xl"></i>
+                </div>
+                
+                <!-- Content -->
+                <div class="flex-1 text-center md:text-left">
+                    <div class="flex items-center gap-3 justify-center md:justify-start mb-3">
+                        <h3 class="text-3xl font-black text-white">
+                            Download Manager
+                        </h3>
+                        <span class="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-black px-3 py-1.5 rounded-full uppercase tracking-wider shadow-lg">
+                            NEW
+                        </span>
+                    </div>
+                    
+                    <p class="text-white/70 text-lg mb-4">
+                        Download music from YouTube, SoundCloud, Bandcamp and more! 
+                        <span class="text-red-400 font-semibold">High-quality audio</span> in MP3, FLAC, OGG formats.
+                    </p>
+                    
+                    <div class="flex flex-wrap gap-3 justify-center md:justify-start">
+                        <div class="glass-layer-2 glass-radius-lg px-4 py-2 text-sm">
+                            <i class="fab fa-youtube text-red-400 mr-2"></i>
+                            YouTube
+                        </div>
+                        <div class="glass-layer-2 glass-radius-lg px-4 py-2 text-sm">
+                            <i class="fab fa-soundcloud text-orange-400 mr-2"></i>
+                            SoundCloud
+                        </div>
+                        <div class="glass-layer-2 glass-radius-lg px-4 py-2 text-sm">
+                            <i class="fab fa-bandcamp text-cyan-400 mr-2"></i>
+                            Bandcamp
+                        </div>
+                        <div class="glass-layer-2 glass-radius-lg px-4 py-2 text-sm">
+                            <i class="fas fa-music text-purple-400 mr-2"></i>
+                            Direct URLs
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- CTA Button -->
+                <div class="flex-shrink-0">
+                    <div class="glass-red-tint glass-radius-xl glass-pressable px-8 py-4 font-bold text-lg group-hover:shadow-[0_0_40px_rgba(220,38,38,0.6)] transition-all duration-300">
+                        Start Downloading
+                        <i class="fas fa-arrow-right ml-3 group-hover:translate-x-2 transition-transform duration-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </a>
+</section>
 
 <!-- Category Pills -->
 {% steam_category_pills categories active='all' %}
@@ -83,9 +181,14 @@
             <i class="fas fa-music text-6xl mb-6"></i>
             <h3 class="text-2xl font-bold mb-2">No tracks found</h3>
             <p class="text-white/60 mb-6">Try adjusting your search or upload some music</p>
-            <a href="{% url 'music:upload_page' %}" class="glass-red-tint glass-radius-xl glass-pressable px-6 py-3 font-semibold">
-                <i class="fas fa-upload mr-2"></i>Upload Tracks
-            </a>
+            <div class="flex gap-4">
+                <a href="{% url 'music:upload_page' %}" class="glass-red-tint glass-radius-xl glass-pressable px-6 py-3 font-semibold">
+                    <i class="fas fa-upload mr-2"></i>Upload Tracks
+                </a>
+                <a href="{% url 'music:download_manager' %}" class="glass-layer-3 glass-radius-xl glass-pressable px-6 py-3 font-semibold">
+                    <i class="fas fa-download mr-2"></i>Download Tracks
+                </a>
+            </div>
         </div>
         {% endfor %}
     </div>
@@ -192,7 +295,7 @@ if (!localStorage.getItem('steam_ui_tour')) {
                 </div>
                 <div class="flex-1">
                     <h4 class="font-bold text-lg mb-1">Welcome to Music Stream!</h4>
-                    <p class="text-sm text-white/70 mb-3">Click any track to play. Hover for quick actions.</p>
+                    <p class="text-sm text-white/70 mb-3">Click any track to play. Check out the new Download Manager!</p>
                     <button onclick="this.closest('div').closest('div').closest('div').remove(); localStorage.setItem('steam_ui_tour', 'true');" 
                             class="glass-red-tint glass-radius-lg glass-pressable px-4 py-2 text-sm font-semibold">
                         Got it!
