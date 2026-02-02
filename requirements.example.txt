@@ -1,0 +1,32 @@
+# Steam UI Framework - Example requirements.txt
+# =============================================
+# This file shows different ways to include Steam UI Framework
+# in your project's requirements.txt without needing Git installed.
+
+# Method 1: Install from ZIP (Recommended - No Git Required)
+# This is the most reliable method for users without Git
+steam-ui-framework @ https://github.com/vitorpixel-6436/music-stream-app/archive/refs/heads/main.zip
+
+# Method 2: Install from specific release (No Git Required)
+# Replace v1.1.0 with the version you need
+# steam-ui-framework @ https://github.com/vitorpixel-6436/music-stream-app/releases/download/v1.1.0/steam_ui_framework-1.1.0-py3-none-any.whl
+
+# Method 3: Install from Git (Requires Git installed)
+# steam-ui-framework @ git+https://github.com/vitorpixel-6436/music-stream-app.git
+
+# Method 4: Install from PyPI (Coming soon)
+# steam-ui-framework>=1.1.0
+
+# ============================================
+# Other dependencies for your project
+# ============================================
+
+Django>=4.0,<6.0
+pillow>=9.0.0
+mutagen>=1.45.0
+python-dotenv>=0.19.0
+
+# Optional: If you want development tools
+# pytest>=7.0
+# black>=22.0
+# flake8>=4.0
