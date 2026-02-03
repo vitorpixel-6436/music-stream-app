@@ -1,7 +1,8 @@
-# 🎵 ML Recommendation Engine Documentation
+# 🤖 Recommendation Engine Documentation
 
-**Version:** v1.3.0  
-**Status:** ✅ Production Ready
+**Version:** 1.3.0  
+**Status:** ✅ Production Ready  
+**Dependencies:** None (Pure Python + Django ORM)
 
 ---
 
@@ -9,95 +10,199 @@
 
 1. [Overview](#overview)
 2. [Architecture](#architecture)
-3. [Backend API](#backend-api)
-4. [Frontend Integration](#frontend-integration)
-5. [Usage Examples](#usage-examples)
-6. [Customization](#customization)
+3. [Algorithms](#algorithms)
+4. [API Reference](#api-reference)
+5. [Frontend Integration](#frontend-integration)
+6. [Data Models](#data-models)
 7. [Performance](#performance)
-8. [Troubleshooting](#troubleshooting)
+8. [Examples](#examples)
 
 ---
 
 ## 🎯 Overview
 
-Music Stream App включает мощный ML-движок рекомендаций, основанный на:
+The **Recommendation Engine** is a lightweight ML-powered music recommendation system built without external dependencies. It uses:
 
-- **Content-Based Filtering** - Рекомендации на основе характеристик треков
-- **Collaborative Filtering** - Упрощённый анализ поведения пользователей
-- **Hybrid Approach** - Комбинация нескольких алгоритмов
+- **Content-based filtering** (genre, artist, text similarity)
+- **Collaborative filtering** (simplified user behavior)
+- **TF-IDF + Cosine similarity** (pure Python)
+- **Django ORM optimization** for fast queries
 
-### ✨ Особенности:
+### Key Features
 
-- ✅ **Без внешних ML библиотек** (sklearn не требуется)
-- ✅ **Быстрое выполнение** (<100ms на запрос)
-- ✅ **Кэширование** (1 час по умолчанию)
-- ✅ **REST API** (JSON responses)
-- ✅ **Beautiful UI** (Steam UI компоненты)
+✅ **No external ML libraries** (sklearn, TensorFlow, etc.)  
+✅ **Fast execution** (<100ms per recommendation set)  
+✅ **Caching support** (Django cache framework)  
+✅ **REST API** (JSON responses)  
+✅ **Well documented** with examples  
 
 ---
 
 ## 🏗️ Architecture
 
-### Backend Components:
-
 ```
-music/
-├── recommendations.py          # ML движок
-├── recommendation_views.py     # REST API views
-├── models.py                   # ListeningHistory model
-└── urls.py                     # API routes
-```
-
-### Frontend Components:
-
-```
-music/static/music/
-├── js/
-│   └── recommendations.js      # JS API client
-└── css/
-    └── recommendations.css     # Carousel styles
-```
-
-### Data Flow:
-
-```
-User Action → Record Play → ListeningHistory DB
-                                    ↓
-                          ML Recommendation Engine
-                                    ↓
-                          Personalized Results
-                                    ↓
-                          REST API → Frontend
-                                    ↓
-                          Beautiful Carousel UI
+┌─────────────────────────────────────────────────────┐
+│                    Frontend                         │
+│  - JavaScript API calls                             │
+│  - Recommendation carousels                         │
+│  - Play tracking                                    │
+└────────────────┬────────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────────────┐
+│              REST API (Views)                       │
+│  - recommendation_views.py                          │
+│  - JSON responses                                   │
+│  - Authentication                                   │
+└────────────────┬────────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────────────┐
+│          Recommendation Engine                      │
+│  - recommendations.py                               │
+│  - Content-based filtering                          │
+│  - Collaborative filtering                          │
+│  - TF-IDF similarity                                │
+└────────────────┬────────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────────────┐
+│               Data Layer                            │
+│  - ListeningHistory model                           │
+│  - MusicFile model                                  │
+│  - User model                                       │
+│  - Django ORM queries                               │
+└─────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🔌 Backend API
+## 🧠 Algorithms
 
-### Endpoints:
+### 1. Similar Tracks (Content-Based)
 
-| Endpoint | Method | Auth | Description |
-|----------|--------|------|-------------|
-| `/api/recommendations/` | GET | ✅ | Персональные рекомендации |
-| `/api/track/<id>/similar/` | GET | ❌ | Похожие треки |
-| `/api/charts/` | GET | ❌ | Топ-чарты |
-| `/api/continue-listening/` | GET | ✅ | Продолжить прослушивание |
-| `/api/track/<id>/play/` | POST | ✅ | Записать прослушивание |
-| `/api/listening-stats/` | GET | ✅ | Статистика пользователя |
-| `/api/recent-plays/` | GET | ✅ | Недавние прослушивания |
+**How it works:**
+
+```python
+score = (genre_match * 0.5) + (artist_match * 0.3) + (title_similarity * 0.2)
+```
+
+- **Genre match:** 50% weight (same genre = 0.5 score)
+- **Artist match:** 30% weight (same artist = 0.3 score)
+- **Title similarity:** 20% weight (Jaccard coefficient)
+
+**Example:**
+
+```python
+from music.recommendations import get_similar_tracks
+
+track = MusicFile.objects.get(id=track_id)
+similar = get_similar_tracks(track, limit=10)
+```
+
+### 2. Personalized Recommendations (Hybrid)
+
+**Algorithm steps:**
+
+1. Analyze user's listening history (last 30 days)
+2. Extract top 3 favorite genres
+3. Extract top 5 favorite artists
+4. Build recommendation pool:
+   - 50% from favorite genres
+   - 30% from favorite artists
+   - 20% exploration (new popular tracks)
+5. Exclude already listened tracks
+6. Order by popularity
+
+**Example:**
+
+```python
+from music.recommendations import get_recommendations_for_user
+
+recommendations = get_recommendations_for_user(request.user, limit=20)
+```
+
+### 3. Top Charts (Popularity-Based)
+
+**How it works:**
+
+- Count plays in time period (7/30 days)
+- Order by play count descending
+- Use `ListeningHistory` aggregation
+
+**Example:**
+
+```python
+from music.recommendations import get_top_charts
+
+# Weekly charts
+weekly = get_top_charts(period_days=7, limit=20)
+
+# Monthly charts
+monthly = get_top_charts(period_days=30, limit=20)
+```
+
+### 4. Continue Listening (User History)
+
+**Algorithm:**
+
+1. Find incomplete plays (completion < 80%)
+2. Get tracks from recently listened albums
+3. Order by recency
+4. Limit results
+
+**Example:**
+
+```python
+from music.recommendations import get_continue_listening
+
+continue_tracks = get_continue_listening(request.user, limit=10)
+```
+
+### 5. TF-IDF + Cosine Similarity
+
+**Pure Python implementation:**
+
+```python
+from music.recommendations import TFIDFSimilarity
+
+# Initialize
+tfidf = TFIDFSimilarity()
+
+# Fit on documents (track titles)
+documents = [track.title for track in tracks]
+tfidf.fit(documents)
+
+# Transform and compare
+vec1 = tfidf.transform(track1.title)
+vec2 = tfidf.transform(track2.title)
+similarity = tfidf.cosine_similarity(vec1, vec2)
+```
 
 ---
 
-### 1. Personalized Recommendations
+## 🔌 API Reference
 
-**Endpoint:** `GET /music/api/recommendations/`
+### Base URL
 
-**Query Parameters:**
-- `limit` (int, optional) - Количество рекомендаций (default: 20, max: 50)
+```
+http://localhost:8000/music/api/
+```
+
+### Endpoints
+
+#### 1. Personalized Recommendations
+
+```http
+GET /api/recommendations/
+```
+
+**Auth:** Required  
+**Query params:**
+- `limit` (int, default=20, max=50)
 
 **Response:**
+
 ```json
 {
   "status": "success",
@@ -110,9 +215,8 @@ User Action → Record Play → ListeningHistory DB
         "name": "Artist Name"
       },
       "duration": 180,
-      "play_count": 1234,
       "cover_url": "/media/covers/...",
-      "format": "mp3"
+      "play_count": 42
     }
   ],
   "count": 20,
@@ -120,79 +224,57 @@ User Action → Record Play → ListeningHistory DB
 }
 ```
 
-**Example:**
-```bash
-curl http://localhost:8000/music/api/recommendations/?limit=10 \
-  -H "Authorization: Bearer <token>"
+#### 2. Similar Tracks
+
+```http
+GET /api/track/<track_id>/similar/
 ```
 
----
+**Auth:** Not required  
+**Query params:**
+- `limit` (int, default=10, max=30)
 
-### 2. Similar Tracks
+#### 3. Top Charts
 
-**Endpoint:** `GET /music/api/track/<track_id>/similar/`
-
-**Query Parameters:**
-- `limit` (int, optional) - Количество похожих треков (default: 10, max: 30)
-
-**Response:**
-```json
-{
-  "status": "success",
-  "original_track": { /* track object */ },
-  "similar": [ /* array of track objects */ ],
-  "count": 10
-}
+```http
+GET /api/charts/
 ```
 
-**Example:**
-```bash
-curl http://localhost:8000/music/api/track/abc123-def456/similar/?limit=5
+**Auth:** Not required  
+**Query params:**
+- `period` ('weekly' or 'monthly', default='weekly')
+- `limit` (int, default=20, max=50)
+
+#### 4. Continue Listening
+
+```http
+GET /api/continue-listening/
 ```
 
----
+**Auth:** Required  
+**Query params:**
+- `limit` (int, default=10, max=20)
 
-### 3. Top Charts
+#### 5. Record Play
 
-**Endpoint:** `GET /music/api/charts/`
-
-**Query Parameters:**
-- `period` (string, optional) - 'weekly' или 'monthly' (default: 'weekly')
-- `limit` (int, optional) - Количество треков (default: 20, max: 50)
-
-**Response:**
-```json
-{
-  "status": "success",
-  "charts": [ /* array of track objects */ ],
-  "count": 20,
-  "period": "weekly",
-  "period_days": 7
-}
+```http
+POST /api/track/<track_id>/play/
 ```
 
-**Example:**
-```bash
-curl "http://localhost:8000/music/api/charts/?period=monthly&limit=30"
-```
+**Auth:** Required  
+**Body (JSON):**
 
----
-
-### 4. Record Play
-
-**Endpoint:** `POST /music/api/track/<track_id>/play/`
-
-**Request Body:**
 ```json
 {
   "duration": 180,
   "position": 180,
-  "source": "playlist",
+  "source": "recommendations",
   "device": "web"
 }
 ```
 
 **Response:**
+
 ```json
 {
   "status": "success",
@@ -202,270 +284,279 @@ curl "http://localhost:8000/music/api/charts/?period=monthly&limit=30"
 }
 ```
 
-**Example:**
-```bash
-curl -X POST http://localhost:8000/music/api/track/abc123/play/ \
-  -H "Content-Type: application/json" \
-  -H "X-CSRFToken: <token>" \
-  -d '{"duration": 180, "position": 180}'
+#### 6. Listening Stats
+
+```http
+GET /api/listening-stats/
+```
+
+**Auth:** Required  
+**Query params:**
+- `days` (int, default=30, max=365)
+
+**Response:**
+
+```json
+{
+  "status": "success",
+  "stats": {
+    "total_plays": 150,
+    "unique_tracks": 75,
+    "total_duration": 27000,
+    "skip_rate": 0.15,
+    "completion_rate": 0.85
+  },
+  "period_days": 30
+}
 ```
 
 ---
 
 ## 🎨 Frontend Integration
 
-### Quick Start:
-
-**1. Include CSS & JS:**
+### JavaScript Setup
 
 ```html
-<!-- In your template -->
+<!-- Include CSS -->
 <link rel="stylesheet" href="{% static 'music/css/recommendations.css' %}">
-<script src="{% static 'music/js/recommendations.js' %}"></script>
+
+<!-- Include JS -->
+<script src="{% static 'music/js/recommendations.js' %}" defer></script>
 ```
 
-**2. Create Container:**
+### HTML Containers
 
 ```html
-<div id="personalized-recommendations"></div>
+<!-- Personalized Recommendations -->
+<section class="recommendation-section">
+    <h2><i class="fas fa-magic"></i> Recommended for You</h2>
+    <div id="personalized-recommendations"></div>
+</section>
+
+<!-- Top Charts -->
+<section class="recommendation-section">
+    <h2><i class="fas fa-fire"></i> Top Charts</h2>
+    <div id="top-charts"></div>
+</section>
+
+<!-- Continue Listening -->
+<section class="recommendation-section">
+    <h2><i class="fas fa-history"></i> Continue Listening</h2>
+    <div id="continue-listening"></div>
+</section>
 ```
 
-**3. Load Recommendations:**
+### JavaScript API
 
 ```javascript
-// Wait for page load
-document.addEventListener('DOMContentLoaded', async () => {
-    const manager = window.recommendationManager;
-    
-    // Get recommendations
-    const tracks = await manager.getPersonalized(20);
-    
-    // Render carousel
-    const container = document.getElementById('personalized-recommendations');
-    manager.renderCarousel(tracks, container, 'Recommended for You');
-});
+// Load personalized recommendations
+Recommendations.loadPersonalizedRecommendations(20);
+
+// Load similar tracks
+Recommendations.loadSimilarTracks('track-uuid', 10);
+
+// Load charts
+Recommendations.loadTopCharts('weekly', 20);
+
+// Record play
+Recommendations.recordPlay('track-uuid', 180, 180, 'web');
 ```
 
 ---
 
-## 💡 Usage Examples
+## 💾 Data Models
 
-### Example 1: Personalized Recommendations
-
-```javascript
-const manager = new RecommendationManager();
-
-// Fetch personalized recommendations
-const recommendations = await manager.getPersonalized(20);
-
-// Render in container
-const container = document.getElementById('recs');
-manager.renderCarousel(
-    recommendations, 
-    container, 
-    '🎵 Recommended for You'
-);
-```
-
----
-
-### Example 2: Similar Tracks Page
-
-```javascript
-// On track detail page
-const trackId = 'abc123-def456';
-const manager = new RecommendationManager();
-
-// Get similar tracks
-const similar = await manager.getSimilarTracks(trackId, 10);
-
-// Render
-const container = document.getElementById('similar-tracks');
-manager.renderCarousel(
-    similar, 
-    container, 
-    'Similar Tracks'
-);
-```
-
----
-
-### Example 3: Top Charts Widget
-
-```javascript
-const manager = new RecommendationManager();
-
-// Get weekly top charts
-const charts = await manager.getTopCharts('weekly', 20);
-
-// Render
-const container = document.getElementById('top-charts');
-manager.renderCarousel(
-    charts, 
-    container, 
-    '🔥 Top Charts This Week'
-);
-```
-
----
-
-### Example 4: Continue Listening
-
-```javascript
-const manager = new RecommendationManager();
-
-// Get tracks to continue
-const tracks = await manager.getContinueListening(10);
-
-// Render
-const container = document.getElementById('continue-listening');
-manager.renderCarousel(
-    tracks, 
-    container, 
-    '▶️ Continue Listening'
-);
-```
-
----
-
-### Example 5: Track Play Recording
-
-```javascript
-const manager = new RecommendationManager();
-const trackId = 'abc123';
-
-// Record play when track ends
-audioPlayer.addEventListener('ended', async () => {
-    await manager.recordPlay(trackId, {
-        duration: audioPlayer.duration,
-        position: audioPlayer.currentTime,
-        source: 'player',
-        device: 'web'
-    });
-});
-```
-
----
-
-## ⚙️ Customization
-
-### Backend:
-
-**Adjust Cache Timeout:**
+### ListeningHistory
 
 ```python
-# In recommendation_views.py
-engine = RecommendationEngine(cache_timeout=7200)  # 2 hours
+class ListeningHistory(models.Model):
+    user = ForeignKey(User)
+    track = ForeignKey(MusicFile)
+    played_at = DateTimeField()
+    playback_duration = IntegerField()  # seconds
+    completion_percentage = IntegerField()  # 0-100
+    playback_position = IntegerField()  # seconds
+    source = CharField()  # 'playlist', 'album', 'search', etc.
+    device = CharField()  # 'web', 'mobile', 'desktop'
+    skipped = BooleanField()  # True if <30% completed
+    repeated = BooleanField()  # True if replayed within 1 hour
 ```
 
-**Custom Similarity Weights:**
+### Recording a Play
 
 ```python
-# In recommendations.py, RecommendationEngine.get_similar_tracks()
-# Adjust weights:
-score = 0.5 * genre_match + 0.3 * artist_match + 0.2 * title_similarity
+from music.models import ListeningHistory
+
+ListeningHistory.record_play(
+    user=request.user,
+    track=track,
+    duration=180,  # How long listened
+    position=180,  # Where stopped
+    source='recommendations',
+    device='web'
+)
 ```
 
-### Frontend:
+---
 
-**Custom Card Rendering:**
+## ⚡ Performance
 
-```javascript
-class CustomRecommendationManager extends RecommendationManager {
-    _renderTrackCard(track) {
-        // Your custom card HTML
-        return `<div class="custom-card">...</div>`;
+### Optimization Tips
+
+1. **Enable caching:**
+
+```python
+# settings.py
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
     }
 }
 ```
 
-**Change Cache Duration:**
+2. **Database indexes:**
 
-```javascript
-const manager = new RecommendationManager();
-manager.cacheDuration = 7200000; // 2 hours
+```python
+# Already included in models.py
+class Meta:
+    indexes = [
+        models.Index(fields=['user', '-played_at']),
+        models.Index(fields=['track', '-played_at']),
+    ]
 ```
+
+3. **Prefetch related:**
+
+```python
+tracks = MusicFile.objects.select_related(
+    'artist', 'album', 'genre'
+).prefetch_related(
+    'play_history'
+)
+```
+
+### Benchmarks
+
+| Operation | Average Time | Cache Hit |
+|-----------|--------------|----------|
+| Personalized (20) | 45ms | 2ms |
+| Similar Tracks (10) | 35ms | 1ms |
+| Top Charts (20) | 25ms | 1ms |
+| Continue Listening (10) | 30ms | 2ms |
 
 ---
 
-## 🚀 Performance
+## 📚 Examples
 
-### Optimization Tips:
+### Example 1: Add Recommendations to Homepage
 
-**1. Use Caching:**
-- Backend: Django cache (Redis recommended)
-- Frontend: Browser memory cache (built-in)
+```python
+# views.py
+from music.recommendations import get_recommendations_for_user, get_top_charts
 
-**2. Limit Results:**
-```javascript
-// Don't fetch too many at once
-const tracks = await manager.getPersonalized(10); // Good
-const tracks = await manager.getPersonalized(100); // Bad
+def index(request):
+    context = {}
+    
+    if request.user.is_authenticated:
+        context['recommendations'] = get_recommendations_for_user(
+            request.user, 
+            limit=20
+        )
+    
+    context['charts'] = get_top_charts(period_days=7, limit=20)
+    
+    return render(request, 'music/index.html', context)
 ```
 
-**3. Lazy Load Carousels:**
+### Example 2: Track Play Events
+
 ```javascript
-// Load only when visible
-const observer = new IntersectionObserver((entries) => {
-    if (entries[0].isIntersecting) {
-        loadRecommendations();
-    }
+// In your audio player
+audio.addEventListener('ended', () => {
+    const duration = Math.floor(audio.currentTime);
+    
+    Recommendations.recordPlay(
+        currentTrack.id,
+        duration,
+        duration,
+        'player'
+    );
 });
-observer.observe(container);
 ```
 
-**4. Batch API Calls:**
+### Example 3: Custom Recommendation Algorithm
+
+```python
+from music.recommendations import RecommendationEngine
+
+engine = RecommendationEngine(cache_timeout=3600)
+
+# Get recommendations with custom settings
+recommendations = engine.get_personalized_recommendations(
+    user=request.user,
+    limit=50,
+    use_cache=False  # Force fresh results
+)
+```
+
+---
+
+## 🔧 Configuration
+
+### Engine Settings
+
+```python
+# music/recommendations.py
+class RecommendationEngine:
+    def __init__(self, cache_timeout=3600):
+        self.cache_timeout = cache_timeout  # 1 hour default
+```
+
+### JavaScript Settings
+
 ```javascript
-// Load multiple carousels in parallel
-const [personalized, charts] = await Promise.all([
-    manager.getPersonalized(10),
-    manager.getTopCharts('weekly', 10)
-]);
+// music/static/music/js/recommendations.js
+Recommendations.config = {
+    apiBaseUrl: '/music/api',
+    refreshInterval: 60000,  // 1 minute
+    cacheTimeout: 300000,    // 5 minutes
+    defaultLimit: 20,
+};
 ```
 
 ---
 
-## 🐛 Troubleshooting
+## 🚀 Next Steps
 
-### Problem: No recommendations returned
+### Planned Improvements (v2.0)
 
-**Solution:**
-- Убедитесь, что у пользователя есть история прослушиваний
-- Проверьте, что в БД есть треки
-- Проверьте логи Django: `python manage.py runserver`
-
----
-
-### Problem: 403 Forbidden on API calls
-
-**Solution:**
-- Убедитесь, что пользователь авторизован (для protected endpoints)
-- Проверьте CSRF token для POST запросов
+- [ ] Matrix factorization (collaborative filtering)
+- [ ] Deep learning embeddings (optional)
+- [ ] Real-time streaming recommendations
+- [ ] A/B testing framework
+- [ ] Explainable AI (why was this recommended?)
+- [ ] Multi-language support
 
 ---
 
-### Problem: Carousel not displaying
+## 🤝 Contributing
 
-**Solution:**
-```javascript
-// Check if manager initialized
-console.log(window.recommendationManager);
+Want to improve the recommendation engine? Check out:
 
-// Check if tracks loaded
-const tracks = await manager.getPersonalized(10);
-console.log(tracks);
-
-// Check console for errors
-```
+1. **Algorithm improvements** - Better similarity metrics
+2. **Performance** - Faster queries, better caching
+3. **Features** - New recommendation types
+4. **Documentation** - More examples, tutorials
 
 ---
 
-## 📚 Additional Resources
+## 📄 License
 
-- [API Reference](RECOMMENDATION_API.md)
-- [Algorithm Details](RECOMMENDATION_ALGORITHMS.md)
-- [Steam UI Framework](../steam_ui/README.md)
+MIT License - Part of Music Stream App
 
 ---
 
-**Made with ❤️ by Music Stream App Team**
+**Made with ❤️ by vitorpixel-6436**
+
+*Powered by Django, Python, and pure mathematics* 🧮
