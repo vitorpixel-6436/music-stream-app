@@ -2,149 +2,104 @@
  * Recommendation Carousel Styles
  * ===============================
  * 
- * Steam UI themed carousel for ML recommendations.
- * Features glass morphism, smooth animations, and responsive design.
+ * Steam UI themed recommendation carousels with:
+ * - Glass morphism effects
+ * - Smooth horizontal scrolling
+ * - Hover animations
+ * - Loading states
+ * - Responsive design
  */
 
-/* ============================================================================
-   CAROUSEL CONTAINER
-   ============================================================================ */
+/* ========================================================================== */
+/* RECOMMENDATION SECTION */
+/* ========================================================================== */
 
-.recommendation-carousel {
+.recommendation-section {
     margin: 2rem 0;
-    padding: 1.5rem 0;
-    position: relative;
+    padding: 0;
 }
 
-.carousel-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    padding: 0 1rem;
-}
-
-.carousel-title {
+.recommendation-section h2 {
     font-size: 1.5rem;
     font-weight: 700;
+    margin-bottom: 1rem;
     color: #fff;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin: 0;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.carousel-title i {
-    color: #00D9FF;
-    font-size: 1.25rem;
-    animation: pulse-glow 2s ease-in-out infinite;
-}
-
-@keyframes pulse-glow {
-    0%, 100% {
-        opacity: 1;
-        filter: drop-shadow(0 0 4px #00D9FF);
-    }
-    50% {
-        opacity: 0.8;
-        filter: drop-shadow(0 0 8px #00D9FF);
-    }
-}
-
-/* ============================================================================
-   NAVIGATION CONTROLS
-   ============================================================================ */
-
-.carousel-controls {
-    display: flex;
     gap: 0.5rem;
 }
 
-.carousel-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background: rgba(27, 58, 75, 0.3);
-    backdrop-filter: blur(8px);
-    color: #fff;
-    cursor: pointer;
-    transition: all 0.3s ease;
+.recommendation-section h2 i {
+    color: #00D9FF;
+    font-size: 1.2rem;
+}
+
+.recommendation-section .section-subtitle {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* ========================================================================== */
+/* RECOMMENDATION CAROUSEL */
+/* ========================================================================== */
+
+.recommendation-carousel {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.875rem;
-}
-
-.carousel-btn:hover:not(:disabled) {
-    background: rgba(0, 217, 255, 0.2);
-    border-color: #00D9FF;
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0, 217, 255, 0.3);
-}
-
-.carousel-btn:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-}
-
-.carousel-btn:active:not(:disabled) {
-    transform: scale(0.95);
-}
-
-/* ============================================================================
-   CAROUSEL TRACK
-   ============================================================================ */
-
-.carousel-track-wrapper {
-    position: relative;
-    overflow: hidden;
-    padding: 0.5rem 0;
-}
-
-.carousel-track {
-    display: flex;
-    gap: 1.25rem;
+    gap: 1rem;
     overflow-x: auto;
     overflow-y: hidden;
+    padding: 1rem 0;
     scroll-behavior: smooth;
-    padding: 0.5rem 1rem;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0, 217, 255, 0.3) rgba(27, 58, 75, 0.3);
+    cursor: grab;
+    user-select: none;
+    
+    /* Hide scrollbar but keep functionality */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
 }
 
-.carousel-track::-webkit-scrollbar {
-    height: 6px;
+.recommendation-carousel::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
 }
 
-.carousel-track::-webkit-scrollbar-track {
-    background: rgba(27, 58, 75, 0.3);
-    border-radius: 3px;
+.recommendation-carousel.active {
+    cursor: grabbing;
 }
 
-.carousel-track::-webkit-scrollbar-thumb {
-    background: rgba(0, 217, 255, 0.3);
-    border-radius: 3px;
-    transition: background 0.3s ease;
+/* Scroll indicators (optional) */
+.recommendation-carousel::before,
+.recommendation-carousel::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    pointer-events: none;
+    z-index: 2;
 }
 
-.carousel-track::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 217, 255, 0.5);
+.recommendation-carousel::before {
+    left: 0;
+    background: linear-gradient(to right, rgba(27, 58, 75, 0.8), transparent);
 }
 
-/* ============================================================================
-   RECOMMENDATION CARD
-   ============================================================================ */
+.recommendation-carousel::after {
+    right: 0;
+    background: linear-gradient(to left, rgba(27, 58, 75, 0.8), transparent);
+}
+
+/* ========================================================================== */
+/* RECOMMENDATION CARD */
+/* ========================================================================== */
 
 .recommendation-card {
-    min-width: 200px;
-    max-width: 200px;
-    flex-shrink: 0;
+    flex: 0 0 200px;
+    width: 200px;
     background: rgba(27, 58, 75, 0.15);
     backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     overflow: hidden;
     cursor: pointer;
@@ -154,39 +109,51 @@
 
 .recommendation-card:hover {
     transform: translateY(-8px) scale(1.02);
-    border-color: rgba(0, 217, 255, 0.5);
-    box-shadow: 0 12px 32px rgba(0, 217, 255, 0.3),
-                0 0 20px rgba(0, 217, 255, 0.2);
+    border-color: rgba(0, 217, 255, 0.3);
+    box-shadow: 0 12px 32px rgba(0, 217, 255, 0.2);
 }
 
-/* ============================================================================
-   CARD IMAGE
-   ============================================================================ */
+.recommendation-card:active {
+    transform: translateY(-4px) scale(1.01);
+}
 
-.card-image {
+/* ========================================================================== */
+/* CARD COVER */
+/* ========================================================================== */
+
+.card-cover {
     position: relative;
     width: 100%;
-    aspect-ratio: 1;
+    padding-top: 100%; /* 1:1 aspect ratio */
     overflow: hidden;
-    background: linear-gradient(135deg, #1B3A4B 0%, #0D1F2D 100%);
+    background: linear-gradient(135deg, #1B3A4B 0%, #0A1F2E 100%);
 }
 
-.card-image img {
+.card-cover img {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
     transition: transform 0.3s ease;
 }
 
-.recommendation-card:hover .card-image img {
+.recommendation-card:hover .card-cover img {
     transform: scale(1.1);
 }
 
+/* ========================================================================== */
+/* CARD OVERLAY (Play Button) */
+/* ========================================================================== */
+
 .card-overlay {
     position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -198,56 +165,57 @@
     opacity: 1;
 }
 
-.btn-play {
-    width: 56px;
-    height: 56px;
+.play-btn {
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #00D9FF 0%, #00A8CC 100%);
-    border: none;
-    color: #fff;
-    font-size: 1.25rem;
-    cursor: pointer;
+    background: linear-gradient(135deg, #00D9FF 0%, #0099CC 100%);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-left: 3px; /* Visual centering */
+    cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 16px rgba(0, 217, 255, 0.4);
 }
 
-.btn-play:hover {
-    transform: scale(1.15);
-    box-shadow: 0 8px 24px rgba(0, 217, 255, 0.6);
+.play-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 24px rgba(0, 217, 255, 0.6);
 }
 
-.btn-play:active {
-    transform: scale(1.05);
+.play-btn:active {
+    transform: scale(0.95);
 }
 
-/* ============================================================================
-   CARD CONTENT
-   ============================================================================ */
+.play-btn i {
+    color: #fff;
+    font-size: 1.5rem;
+    margin-left: 3px; /* Optical centering */
+}
 
-.card-content {
+/* ========================================================================== */
+/* CARD INFO */
+/* ========================================================================== */
+
+.card-info {
     padding: 1rem;
-    background: rgba(0, 0, 0, 0.2);
 }
 
 .card-title {
-    font-size: 0.9375rem;
+    font-size: 0.95rem;
     font-weight: 600;
     color: #fff;
-    margin: 0 0 0.375rem 0;
+    margin: 0 0 0.25rem 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    line-height: 1.3;
 }
 
 .card-artist {
-    font-size: 0.8125rem;
+    font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.7);
-    margin: 0 0 0.75rem 0;
+    margin: 0 0 0.5rem 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -255,7 +223,7 @@
 
 .card-meta {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.5rem;
     font-size: 0.75rem;
     color: rgba(255, 255, 255, 0.5);
 }
@@ -266,122 +234,196 @@
     gap: 0.25rem;
 }
 
-.card-meta i {
-    font-size: 0.6875rem;
+/* ========================================================================== */
+/* LOADING STATE */
+/* ========================================================================== */
+
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    gap: 1rem;
 }
 
-/* ============================================================================
-   EMPTY STATE
-   ============================================================================ */
+.loading-state .spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(0, 217, 255, 0.2);
+    border-top-color: #00D9FF;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
 
-.no-recommendations {
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-state p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+/* ========================================================================== */
+/* ERROR STATE */
+/* ========================================================================== */
+
+.error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    gap: 1rem;
     text-align: center;
-    padding: 3rem 1rem;
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.9375rem;
-    background: rgba(27, 58, 75, 0.15);
-    backdrop-filter: blur(16px);
-    border: 1px dashed rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    margin: 1rem 0;
 }
 
-/* ============================================================================
-   RESPONSIVE DESIGN
-   ============================================================================ */
+.error-state i {
+    font-size: 3rem;
+    color: #FF0055;
+}
+
+.error-state p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+.error-state button {
+    padding: 0.5rem 1.5rem;
+    background: linear-gradient(135deg, #00D9FF 0%, #0099CC 100%);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.error-state button:hover {
+    transform: scale(1.05);
+}
+
+/* ========================================================================== */
+/* EMPTY STATE */
+/* ========================================================================== */
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    gap: 0.5rem;
+    text-align: center;
+    background: rgba(27, 58, 75, 0.1);
+    border-radius: 12px;
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: rgba(255, 255, 255, 0.3);
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+    margin: 0;
+}
+
+.empty-state small {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.85rem;
+}
+
+/* ========================================================================== */
+/* RESPONSIVE DESIGN */
+/* ========================================================================== */
 
 @media (max-width: 768px) {
     .recommendation-card {
-        min-width: 160px;
-        max-width: 160px;
+        flex: 0 0 160px;
+        width: 160px;
     }
 
-    .carousel-title {
+    .recommendation-section h2 {
         font-size: 1.25rem;
     }
 
-    .carousel-header {
-        padding: 0 0.5rem;
+    .play-btn {
+        width: 50px;
+        height: 50px;
     }
 
-    .carousel-track {
-        padding: 0.5rem 0.5rem;
-        gap: 1rem;
-    }
-
-    .btn-play {
-        width: 48px;
-        height: 48px;
-        font-size: 1.125rem;
+    .play-btn i {
+        font-size: 1.2rem;
     }
 }
 
 @media (max-width: 480px) {
     .recommendation-card {
-        min-width: 140px;
-        max-width: 140px;
+        flex: 0 0 140px;
+        width: 140px;
     }
 
-    .card-content {
+    .card-info {
         padding: 0.75rem;
     }
 
-    .carousel-controls {
-        display: none; /* Hide on mobile, use touch scroll */
+    .card-title {
+        font-size: 0.85rem;
+    }
+
+    .card-artist {
+        font-size: 0.75rem;
     }
 }
 
-/* ============================================================================
-   LOADING STATE
-   ============================================================================ */
+/* ========================================================================== */
+/* DARK MODE ADJUSTMENTS */
+/* ========================================================================== */
 
-.recommendation-carousel.loading .carousel-track {
-    opacity: 0.5;
-    pointer-events: none;
-}
+@media (prefers-color-scheme: dark) {
+    .recommendation-card {
+        background: rgba(0, 0, 0, 0.4);
+        border-color: rgba(0, 217, 255, 0.1);
+    }
 
-.recommendation-carousel.loading::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 40px;
-    height: 40px;
-    border: 3px solid rgba(255, 255, 255, 0.2);
-    border-top-color: #00D9FF;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: translate(-50%, -50%) rotate(360deg);
+    .recommendation-card:hover {
+        background: rgba(0, 0, 0, 0.5);
     }
 }
 
-/* ============================================================================
-   ANIMATIONS
-   ============================================================================ */
+/* ========================================================================== */
+/* ACCESSIBILITY */
+/* ========================================================================== */
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.recommendation-card:focus {
+    outline: 2px solid #00D9FF;
+    outline-offset: 2px;
 }
 
-.recommendation-card {
-    animation: fadeInUp 0.4s ease-out backwards;
+.play-btn:focus {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
 }
 
-.recommendation-card:nth-child(1) { animation-delay: 0.05s; }
-.recommendation-card:nth-child(2) { animation-delay: 0.1s; }
-.recommendation-card:nth-child(3) { animation-delay: 0.15s; }
-.recommendation-card:nth-child(4) { animation-delay: 0.2s; }
-.recommendation-card:nth-child(5) { animation-delay: 0.25s; }
-.recommendation-card:nth-child(6) { animation-delay: 0.3s; }
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    .recommendation-card,
+    .card-cover img,
+    .play-btn,
+    .card-overlay {
+        transition: none;
+    }
+
+    .recommendation-carousel {
+        scroll-behavior: auto;
+    }
+
+    .loading-state .spinner {
+        animation: none;
+    }
+}
