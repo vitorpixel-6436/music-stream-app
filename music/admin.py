@@ -17,7 +17,7 @@ from django.utils.html import format_html
 from django.urls import reverse
 from django.db.models import Sum, Count
 from .models import (
-    Genre, Artist, Album, MusicFile, Playlist, 
+    Genre, Artist, Album, MusicFile, Playlist, PlaylistTrack,
     Favorite, SystemSettings, UploadSession, DownloadTask
 )
 
@@ -500,13 +500,24 @@ class DownloadTaskAdmin(admin.ModelAdmin):
 # Playlist & Favorite Admin
 # ============================================================================
 
+class PlaylistTrackInline(admin.TabularInline):
+    """Inline admin for playlist tracks with ordering"""
+    model = PlaylistTrack
+    extra = 1
+    fields = ('track', 'order')
+    autocomplete_fields = ['track']
+
+
 @admin.register(Playlist, site=admin_site)
 class PlaylistAdmin(admin.ModelAdmin):
     list_display = ('name', 'user', 'track_count', 'is_public', 'created_at')
     list_filter = ('is_public', 'created_at', 'user')
     search_fields = ('name', 'user__username')
-    filter_horizontal = ('tracks',)
     ordering = ('-created_at',)
+    inlines = [PlaylistTrackInline]
+    
+    # REMOVED: filter_horizontal - cannot use with through model
+    # filter_horizontal = ('tracks',)  # <-- This caused the error
     
     def track_count(self, obj):
         return obj.tracks.count()
