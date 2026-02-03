@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from . import download_views
+from . import recommendation_views
 
 app_name = 'music'
 
@@ -27,6 +28,45 @@ urlpatterns = [
     # Search & Discovery
     # ============================================================================
     path('api/search/', views.api_search, name='api_search'),
+    
+    # ============================================================================
+    # ML Recommendations API (v1.3.0)
+    # ============================================================================
+    
+    # Personalized recommendations
+    path('api/recommendations/', 
+         recommendation_views.personalized_recommendations, 
+         name='api_recommendations'),
+    
+    # Similar tracks
+    path('api/track/<uuid:track_id>/similar/', 
+         recommendation_views.similar_tracks, 
+         name='api_similar_tracks'),
+    
+    # Top charts
+    path('api/charts/', 
+         recommendation_views.top_charts, 
+         name='api_charts'),
+    
+    # Continue listening
+    path('api/continue-listening/', 
+         recommendation_views.continue_listening, 
+         name='api_continue_listening'),
+    
+    # Record play
+    path('api/track/<uuid:track_id>/play/', 
+         recommendation_views.record_play, 
+         name='api_record_play'),
+    
+    # User stats
+    path('api/listening-stats/', 
+         recommendation_views.listening_stats, 
+         name='api_listening_stats'),
+    
+    # Recent plays
+    path('api/recent-plays/', 
+         recommendation_views.recent_plays, 
+         name='api_recent_plays'),
     
     # ============================================================================
     # Download Manager (URL Import)
