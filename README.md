@@ -1,12 +1,13 @@
 # 🎵 Music Stream App
 
-**Django web application for music streaming and downloading with full metadata support**
+**Django web application for music streaming and downloading with ML-powered recommendations**
 
 Featuring the **Steam UI Framework** - a modular, reusable component library for beautiful gaming-inspired interfaces.
 
-![Django](https://img.shields.io/badge/django-5.0-green)
+![Django](https://img.shields.io/badge/django-6.0-green)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
-![License](https://img.shields.io/badge/license-MIT-orange)
+![Version](https://img.shields.io/badge/version-1.3.0-orange)
+![License](https://img.shields.io/badge/license-MIT-purple)
 
 ---
 
@@ -14,7 +15,8 @@ Featuring the **Steam UI Framework** - a modular, reusable component library for
 
 ### Music App
 - 🎶 **Upload & Stream** - MP3, FLAC, OGG, M4A, WAV support
-- 📥 **Download Manager** ⭐ NEW! - Import from YouTube, SoundCloud, Bandcamp
+- 📥 **Download Manager** - Import from YouTube, SoundCloud, Bandcamp
+- 🤖 **ML Recommendations** ⭐ NEW! - Personalized music recommendations
 - 📊 **Real-time Progress** - Live download tracking with progress bars
 - 🎨 **Automatic Metadata** - Extract title, artist, album from files
 - 🖼️ **Cover Art** - Automatic extraction or manual upload
@@ -22,7 +24,17 @@ Featuring the **Steam UI Framework** - a modular, reusable component library for
 - 📦 **Export** - Get your files back anytime
 - 📊 **Admin Panel** - Full Django admin integration
 
-### Download Manager ⭐ NEW!
+### ML Recommendation Engine ⭐ NEW! (v1.3.0)
+- 🧠 **Content-Based Filtering** - Similar tracks by genre, artist, metadata
+- 👥 **Collaborative Filtering** - Based on user listening patterns
+- 📈 **Top Charts** - Weekly/monthly trending tracks
+- ⏯️ **Continue Listening** - Resume incomplete tracks
+- 📊 **Listening Stats** - Track your music habits
+- ⚡ **No External Dependencies** - Pure Python + Django ORM
+- 🚀 **Fast** - <100ms response time with caching
+- 🎯 **7 REST API Endpoints** - Easy frontend integration
+
+### Download Manager
 - 🌐 **Multiple Sources** - YouTube, SoundCloud, Bandcamp, Direct URLs
 - 📈 **Live Progress Tracking** - Real-time progress bars (0-100%)
 - 🔄 **Auto-retry** - Up to 3 automatic retry attempts
@@ -45,7 +57,53 @@ Featuring the **Steam UI Framework** - a modular, reusable component library for
 
 ## 🚀 Quick Start
 
-### Full App Installation
+### ⚡ Automatic Installation (Recommended)
+
+#### Linux/macOS:
+
+```bash
+# 1. Clone repository
+git clone https://github.com/vitorpixel-6436/music-stream-app.git
+cd music-stream-app
+
+# 2. Run automatic installer
+chmod +x install.sh
+./install.sh
+
+# 3. Start server
+source venv/bin/activate
+python manage.py runserver
+```
+
+#### Windows:
+
+```cmd
+REM 1. Clone repository
+git clone https://github.com/vitorpixel-6436/music-stream-app.git
+cd music-stream-app
+
+REM 2. Run automatic installer (double-click or run in cmd)
+install.bat
+
+REM 3. Start server
+venv\Scripts\activate
+python manage.py runserver
+```
+
+**That's it! 🎉** The installer handles:
+- ✅ Virtual environment creation
+- ✅ Dependency installation
+- ✅ Database setup and migrations
+- ✅ Superuser creation
+- ✅ Static files collection
+- ✅ Recommendation engine setup
+
+---
+
+### 📋 Manual Installation
+
+<details>
+<summary>Click to expand manual installation steps</summary>
 
 #### 1. Clone Repository
 
@@ -92,58 +150,126 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-#### 6. Run Development Server
+#### 6. Collect Static Files
+
+```bash
+python manage.py collectstatic
+```
+
+#### 7. Run Development Server
 
 ```bash
 python manage.py runserver
 ```
 
-Visit: 
-- **Main App:** http://localhost:8000
-- **Download Manager:** http://localhost:8000/music/downloads/
-
-### ⚡ Download Manager Quick Start
-
-**New to Download Manager?**
-
-👉 [**5-Minute Quick Start Guide**](docs/DOWNLOAD_QUICKSTART.md) ⭐
+</details>
 
 ---
 
-## 📥 Download Manager Documentation
+## 🌐 Access Points
 
-### Getting Started
+After installation, visit:
 
-1. **[Quick Start (5 min)](docs/DOWNLOAD_QUICKSTART.md)** ⭐ - Your first download
-2. **[Full Setup Guide](docs/DOWNLOAD_SETUP.md)** - Detailed configuration
-3. **[API Reference](docs/DOWNLOAD_API.md)** - REST API documentation
+| Feature | URL |
+|---------|-----|
+| **Main App** | http://localhost:8000 |
+| **Download Manager** | http://localhost:8000/music/downloads/ |
+| **Admin Panel** | http://localhost:8000/admin/ |
+| **API Root** | http://localhost:8000/api/ |
 
-### Features in Detail
+### 🤖 Recommendation API Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `/api/recommendations/` | Personalized recommendations |
+| `/api/track/<id>/similar/` | Similar tracks |
+| `/api/charts/` | Top charts (weekly/monthly) |
+| `/api/continue-listening/` | Resume listening |
+| `/api/track/<id>/play/` | Record play event |
+| `/api/listening-stats/` | User statistics |
+| `/api/recent-plays/` | Recent play history |
+
+---
+
+## 📚 Documentation
+
+### Core Documentation
+- 📖 [**Installation Guide**](INSTALL.md) - Detailed setup instructions
+- 📝 [**Usage Examples**](USAGE_EXAMPLE.md) - Code examples
+
+### Feature Documentation
+- 🤖 [**Recommendation Engine**](docs/RECOMMENDATIONS.md) ⭐ - ML algorithms & API reference
+- 📥 [**Download Manager Quick Start**](docs/DOWNLOAD_QUICKSTART.md) - 5-minute guide
+- 📥 [**Download Manager Setup**](docs/DOWNLOAD_SETUP.md) - Full configuration
+- 📥 [**Download API Reference**](docs/DOWNLOAD_API.md) - REST API docs
+
+### UI Framework
+- 🎨 [**Steam UI README**](steam_ui/README.md) - Component documentation
+- 🔧 [**Components API**](steam_ui/components.py) - Python reference
+- ⚙️ [**Configuration**](steam_ui/config.py) - Customization options
+
+---
+
+## 🤖 Using the Recommendation Engine
+
+### Python API
 
 ```python
-# Example: Download from YouTube
-from music.models import DownloadTask
-from django.contrib.auth.models import User
+from music.recommendations import RecommendationEngine
 
-user = User.objects.first()
-task = DownloadTask.objects.create(
-    user=user,
-    url='https://www.youtube.com/watch?v=jNQXAC9IVRw',
-    output_format='mp3',
-    output_quality='320k',
-    source_type='youtube'
+engine = RecommendationEngine()
+
+# Get personalized recommendations
+recommendations = engine.get_personalized_recommendations(
+    user=request.user,
+    limit=20
 )
 
-# Processing starts automatically!
-print(f"Progress: {task.progress}%")  # Live updates
-print(f"Status: {task.status}")        # pending → downloading → completed
+# Get similar tracks
+similar = engine.get_similar_tracks(
+    track=my_track,
+    limit=10
+)
+
+# Get top charts
+charts = engine.get_top_charts(
+    period_days=7,  # Weekly
+    limit=20
+)
 ```
 
-### Web Interface
+### REST API
 
-- **Create Downloads:** `/music/downloads/create/`
-- **Monitor Progress:** `/music/downloads/`
-- **Status API:** `/music/api/downloads/<id>/status/`
+```bash
+# Personalized recommendations
+curl http://localhost:8000/music/api/recommendations/
+
+# Top charts (weekly)
+curl http://localhost:8000/music/api/charts/?period=weekly
+
+# Similar tracks
+curl http://localhost:8000/music/api/track/<id>/similar/
+
+# Record play event
+curl -X POST http://localhost:8000/music/api/track/<id>/play/ \
+  -H "Content-Type: application/json" \
+  -d '{"duration": 180, "position": 180}'
+```
+
+### Frontend Integration
+
+```html
+<!-- Include CSS & JS -->
+<link rel="stylesheet" href="{% static 'music/css/recommendations.css' %}">
+<script src="{% static 'music/js/recommendations.js' %}" defer></script>
+
+<!-- Add containers -->
+<div id="personalized-recommendations"></div>
+<div id="top-charts"></div>
+<div id="continue-listening"></div>
+```
+
+The JavaScript automatically loads and displays recommendations with Steam UI styling.
 
 ---
 
@@ -155,49 +281,23 @@ This project includes **Steam UI Framework** - a standalone UI component library
 
 #### Option 1: Install from ZIP (⭐ Recommended - No Git Required)
 
-**For users without Git installed:**
-
 ```bash
 pip install https://github.com/vitorpixel-6436/music-stream-app/archive/refs/heads/main.zip
 ```
 
-#### Option 2: Install from GitHub Release (No Git Required)
+#### Option 2: Install from GitHub Release
 
 ```bash
-# Download wheel from Releases page, then:
-pip install steam_ui_framework-1.1.0-py3-none-any.whl
-
-# Or install directly from URL:
-pip install https://github.com/vitorpixel-6436/music-stream-app/releases/download/v1.1.0/steam_ui_framework-1.1.0-py3-none-any.whl
+pip install https://github.com/vitorpixel-6436/music-stream-app/releases/download/v1.3.0/steam_ui_framework-1.3.0-py3-none-any.whl
 ```
 
 #### Option 3: Install with Git
-
-**If you have Git installed:**
 
 ```bash
 pip install git+https://github.com/vitorpixel-6436/music-stream-app.git
 ```
 
-#### Option 4: Install from PyPI (Coming Soon)
-
-```bash
-pip install steam-ui-framework
-```
-
-### 📚 Detailed Installation Guide
-
-**Having trouble?** See [**INSTALL.md**](INSTALL.md) for:
-- Step-by-step instructions
-- Building from source
-- Troubleshooting
-- Platform-specific guides
-
----
-
-## 🎮 Using Steam UI Framework
-
-### Django Setup
+### Using Steam UI Framework
 
 Add to `settings.py`:
 ```python
@@ -207,79 +307,43 @@ INSTALLED_APPS = [
 ]
 ```
 
-### Template Usage
-
+Template usage:
 ```django
 {% load steam_ui %}
 
-<!-- Load styles and scripts -->
 {% steam_css %}
-
-<!-- Use components -->
 {% steam_featured featured_track %}
 {% steam_carousel tracks title="Recent" icon="fa-clock" %}
-{% steam_card track %}
-{% steam_player_bar current_track %}
-{% steam_playlist playlist %}
-
 {% steam_js %}
 ```
-
-### Python Usage
-
-```python
-from steam_ui import Card, Carousel, PlayerBar, Playlist
-
-# Create components
-card = Card(show_actions=True, size='normal')
-html = card.render(track=my_track)
-
-player = PlayerBar(autoplay=False)
-player_html = player.render(current_track=track)
-```
-
-### Documentation
-
-- 📖 [**Steam UI README**](steam_ui/README.md) - Full component documentation
-- 📝 [**Usage Examples**](USAGE_EXAMPLE.md) - Code examples and migration guide  
-- 🔧 [**Installation Guide**](INSTALL.md) - Detailed installation instructions
-- 🛠️ [**Components**](steam_ui/components.py) - Python API reference
-- ⚙️ [**Configuration**](steam_ui/config.py) - Customization options
 
 ---
 
 ## 🐛 Troubleshooting
 
-### "Cannot find command 'git'" Error
+### Installation Issues
 
-**Problem:** Git is not installed on your system.
+**Problem:** Python not found  
+**Solution:** Install Python 3.10+ from [python.org](https://www.python.org/downloads/)
 
-**Solutions:**
-1. **Use Option 1 or 2 above** (No Git required) ⭐
-2. Install Git from [git-scm.com](https://git-scm.com/downloads)
-3. See [INSTALL.md](INSTALL.md) for more details
+**Problem:** FFmpeg not found  
+**Solution:** 
+- Windows: `choco install ffmpeg`
+- Linux: `sudo apt install ffmpeg`
+- macOS: `brew install ffmpeg`
 
-### Package Installation Issues
+**Problem:** Permission denied on `install.sh`  
+**Solution:** `chmod +x install.sh`
 
-```bash
-# Update pip first
-python -m pip install --upgrade pip
+### Runtime Issues
 
-# Then try installation again
-pip install https://github.com/vitorpixel-6436/music-stream-app/archive/refs/heads/main.zip
-```
+**Problem:** Static files not loading  
+**Solution:** `python manage.py collectstatic`
 
-### Static Files Not Loading
+**Problem:** Recommendations not showing  
+**Solution:** Make sure migrations are applied: `python manage.py migrate`
 
-```bash
-python manage.py collectstatic
-```
-
-### Download Manager Issues
-
-See [**Download Manager Troubleshooting**](docs/DOWNLOAD_SETUP.md#troubleshooting)
-
-**Full troubleshooting guide:** [INSTALL.md](INSTALL.md)
+**Full troubleshooting:** See [INSTALL.md](INSTALL.md) or [docs/RECOMMENDATIONS.md](docs/RECOMMENDATIONS.md)
 
 ---
 
@@ -287,29 +351,34 @@ See [**Download Manager Troubleshooting**](docs/DOWNLOAD_SETUP.md#troubleshootin
 
 ```
 music-stream-app/
-├── config/                 # Django settings
-├── music/                  # Main music app
-│   ├── models.py           # Track, Artist, DownloadTask models
-│   ├── views.py            # Views and logic
-│   ├── download_views.py   # Download manager views ⭐ NEW!
-│   ├── downloaders.py      # yt-dlp integration ⭐ NEW!
-│   ├── tasks.py            # Background processing ⭐ NEW!
-│   ├── templates/          # HTML templates
-│   └── static/             # Music app static files
-├── steam_ui/               # 🎨 UI Framework (standalone package)
-│   ├── __init__.py
-│   ├── components.py       # Component classes
-│   ├── config.py           # Configuration
-│   ├── templatetags/       # Django template tags
-│   ├── templates/          # Component templates
-│   └── static/             # CSS & JS
-├── docs/                   # Documentation
-│   ├── DOWNLOAD_QUICKSTART.md  # ⭐ 5-minute guide
-│   ├── DOWNLOAD_SETUP.md       # Full setup
-│   └── DOWNLOAD_API.md         # API reference
-├── media/                  # Uploaded files
-├── setup.py                # Package setup
-├── build_package.py        # Build automation
+├── config/                     # Django settings
+├── music/                      # Main music app
+│   ├── models.py               # Track, Artist, DownloadTask, ListeningHistory
+│   ├── views.py                # Views and logic
+│   ├── download_views.py       # Download manager views
+│   ├── recommendation_views.py # Recommendation API ⭐ NEW!
+│   ├── recommendations.py      # ML engine ⭐ NEW!
+│   ├── downloaders.py          # yt-dlp integration
+│   ├── tasks.py                # Background processing
+│   ├── templates/              # HTML templates
+│   └── static/                 # CSS, JS
+│       ├── css/
+│       │   └── recommendations.css  # ⭐ NEW!
+│       └── js/
+│           └── recommendations.js   # ⭐ NEW!
+├── steam_ui/                   # 🎨 UI Framework (standalone)
+│   ├── components.py
+│   ├── templatetags/
+│   ├── templates/
+│   └── static/
+├── docs/                       # Documentation
+│   ├── RECOMMENDATIONS.md      # ⭐ NEW! ML engine docs
+│   ├── DOWNLOAD_QUICKSTART.md
+│   ├── DOWNLOAD_SETUP.md
+│   └── DOWNLOAD_API.md
+├── install.sh                  # ⭐ NEW! Linux/Mac installer
+├── install.bat                 # ⭐ NEW! Windows installer
+├── setup.py                    # Package setup
 ├── requirements.txt
 └── manage.py
 ```
@@ -318,17 +387,19 @@ music-stream-app/
 
 ## 🛠️ Technology Stack
 
-- **Backend:** Django 5.0
+- **Backend:** Django 6.0, Python 3.10+
 - **Database:** SQLite (default), PostgreSQL (production)
+- **ML Engine:** Pure Python (TF-IDF, Cosine Similarity) ⭐
 - **Frontend:** 
   - Steam UI Framework (custom)
-  - Tailwind CSS
-  - Alpine.js (lightweight)
+  - Vanilla JavaScript
+  - CSS3 with Glass Morphism
 - **Audio:** 
   - Mutagen (metadata extraction)
   - FFmpeg (audio conversion)
-  - yt-dlp (YouTube/SoundCloud downloads) ⭐
+  - yt-dlp (YouTube/SoundCloud downloads)
 - **Task Processing:** Threading (upgradeable to Celery)
+- **Caching:** Django cache framework (Redis optional)
 - **Deployment:** Docker ready
 
 ---
@@ -347,16 +418,6 @@ python manage.py test
 python build_package.py
 ```
 
-This creates:
-- `dist/steam_ui_framework-1.1.0-py3-none-any.whl`
-- `dist/steam-ui-framework-1.1.0.tar.gz`
-
-### Collect Static Files
-
-```bash
-python manage.py collectstatic
-```
-
 ### Create Migrations
 
 ```bash
@@ -368,7 +429,7 @@ python manage.py migrate
 
 ## 🌐 Environment Variables
 
-Create `.env` file:
+Create `.env` file (automatically created by installer):
 
 ```env
 SECRET_KEY=your-secret-key
@@ -376,6 +437,9 @@ DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
 MAX_UPLOAD_SIZE=100
 SUPPORTED_FORMATS=mp3,flac,ogg,m4a,wav
+
+# Optional: Redis for caching
+# REDIS_URL=redis://127.0.0.1:6379/1
 ```
 
 ---
@@ -394,6 +458,14 @@ docker-compose up -d
 DEBUG = False
 ALLOWED_HOSTS = ['yourdomain.com']
 SECURE_SSL_REDIRECT = True
+
+# Use Redis for caching
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+    }
+}
 ```
 
 ---
@@ -417,12 +489,9 @@ MIT License - feel free to use this project and Steam UI Framework in your own w
 
 ## 🔗 Links
 
-- [Live Demo](#) (coming soon)
 - [Issue Tracker](https://github.com/vitorpixel-6436/music-stream-app/issues)
-- [Steam UI Docs](steam_ui/README.md)
-- [Installation Guide](INSTALL.md) ⭐
-- [Download Manager Quick Start](docs/DOWNLOAD_QUICKSTART.md) ⭐ NEW!
-- [Usage Examples](USAGE_EXAMPLE.md)
+- [Releases](https://github.com/vitorpixel-6436/music-stream-app/releases)
+- [Documentation](docs/)
 
 ---
 
@@ -434,46 +503,63 @@ MIT License - feel free to use this project and Steam UI Framework in your own w
 - [x] Responsive design ✅
 - [x] **Player Bar component** ✅ (v1.1.0)
 - [x] **Playlist component** ✅ (v1.1.0)
-- [x] **Git-free installation** ✅
-- [x] **Download Manager** ✅ (v1.2.0) ⭐ NEW!
+- [x] **Download Manager** ✅ (v1.2.0)
 - [x] Real-time progress tracking ✅
 - [x] YouTube/SoundCloud support ✅
+- [x] **ML Recommendation Engine** ✅ (v1.3.0) ⭐ NEW!
+- [x] Personalized recommendations ✅
+- [x] Listening history tracking ✅
+- [x] **Automatic Installers** ✅ (v1.3.0) ⭐ NEW!
 
 ### In Progress 🚧
 - [ ] Playlists functionality
-- [ ] ML-based recommendations
+- [ ] User authentication improvements
 
 ### Planned 📋
-- [ ] User authentication
+- [ ] Advanced ML models (deep learning)
 - [ ] Lyrics integration
-- [ ] Social features
+- [ ] Social features (sharing, following)
 - [ ] Mobile app (React Native)
 - [ ] Audio editor/mixer
+- [ ] Spotify/Apple Music import
 
 ---
 
 ## 📊 Version History
 
-### v1.2.0 (Latest) ⭐
+### v1.3.0 (Latest) ⭐ NEW!
+- 🤖 **ML-Powered Recommendation Engine**
+  - Content-based filtering
+  - Collaborative filtering
+  - TF-IDF + Cosine similarity (pure Python)
+  - 7 REST API endpoints
+  - Listening history tracking
+  - Top charts (weekly/monthly)
+  - Continue listening feature
+- 🚀 **Automatic Installers**
+  - One-command installation for Linux/Mac (`install.sh`)
+  - One-click installation for Windows (`install.bat`)
+  - Auto-setup database, migrations, static files
+- 📝 **Comprehensive Documentation**
+  - [Recommendation Engine Guide](docs/RECOMMENDATIONS.md)
+  - API reference with examples
+  - Frontend integration instructions
+
+### v1.2.0
 - ✨ **Download Manager** - Import from YouTube, SoundCloud, Bandcamp
 - 📊 Real-time progress tracking
 - 🔄 Auto-retry on failure
-- 🎵 Multiple format support (MP3, FLAC, OGG, M4A, WAV)
-- 🎨 Beautiful Steam-inspired UI
-- 📝 Comprehensive documentation (3 guides)
+- 🎵 Multiple format support
 
 ### v1.1.0
-- ✨ Added `PlayerBar` component (floating audio player)
+- ✨ Added `PlayerBar` component
 - ✨ Added `Playlist` component  
 - 🔧 Improved package distribution
-- 📝 Added comprehensive installation guide
-- 🐛 Fixed Git dependency issues
 
 ### v1.0.0
 - 🎉 Initial release
 - ✨ Core components: Card, Carousel, Featured Banner
 - 🎨 Glass morphism styling
-- 📦 Django template tags
 
 ---
 
@@ -481,9 +567,20 @@ MIT License - feel free to use this project and Steam UI Framework in your own w
 
 *Featuring:*
 - *Steam UI Framework - A modular component library for Django*
-- *Download Manager - Import music from anywhere* ⭐ NEW!
+- *ML Recommendation Engine - Personalized music discovery* ⭐ NEW!
+- *Download Manager - Import music from anywhere*
 
-**Getting Started:**
-- **App Installation:** See above ⬆️
-- **Download Manager:** [5-Minute Quick Start](docs/DOWNLOAD_QUICKSTART.md) ⭐
-- **Having issues?** [INSTALL.md](INSTALL.md) or [open an issue](https://github.com/vitorpixel-6436/music-stream-app/issues)
+**Quick Start:**
+```bash
+git clone https://github.com/vitorpixel-6436/music-stream-app.git
+cd music-stream-app
+./install.sh  # Linux/Mac
+# or
+install.bat   # Windows
+```
+
+**Need Help?**
+- 📖 [Installation Guide](INSTALL.md)
+- 🤖 [Recommendation Docs](docs/RECOMMENDATIONS.md) ⭐
+- 📥 [Download Manager Guide](docs/DOWNLOAD_QUICKSTART.md)
+- 🐛 [Open an Issue](https://github.com/vitorpixel-6436/music-stream-app/issues)
