@@ -596,3 +596,171 @@ class DownloadTask(models.Model):
         self.error_message = error_msg
         self.completed_at = timezone.now()
         self.save(update_fields=['status', 'error_message', 'completed_at'])
+
+
+# ============================================================================
+# v1.3.0 Models - ML & Recommendations
+# ============================================================================
+
+class ListeningHistory(models.Model):
+    """
+    Track user listening behavior for ML-powered recommendations.
+    
+    Captures:
+    - What users listen to
+    - When they listen
+    - How much of each track they complete
+    - Playback patterns
+    
+    Used by recommendation engine to:
+    - Find favorite genres/artists
+    - Detect listening patterns
+    - Generate personalized playlists
+    - Power "Continue Listening" feature
+    """
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    
+    # Core relationships
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='listening_history'
+    )
+    track = models.ForeignKey(
+        MusicFile,
+        on_delete=models.CASCADE,
+        related_name='play_history'
+    )
+    
+    # Playback data
+    played_at = models.DateTimeField(
+        auto_now_add=True,
+        db_index=True,
+        help_text="When the track was played"
+    )
+    
+    playback_duration = models.IntegerField(
+        default=0,
+        help_text="How long user listened in seconds"
+    )
+    
+    completion_percentage = models.IntegerField(
+        default=0,
+        help_text="Percentage of track completed (0-100)"
+    )
+    
+    playback_position = models.IntegerField(
+        default=0,
+        help_text="Position where user stopped (seconds)"
+    )
+    
+    # Context (optional)
+    source = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text="Where track was played from (playlist, album, search, radio)"
+    )
+    
+    device = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="Device type (web, mobile, desktop)"
+    )
+    
+    # Flags
+    skipped = models.BooleanField(
+        default=False,
+        help_text="True if user skipped before 30%"
+    )
+    
+    repeated = models.BooleanField(
+        default=False,
+        help_text="True if track was replayed within 1 hour"
+    )
+    
+    class Meta:
+        ordering = ['-played_at']
+        indexes = [
+            models.Index(fields=['user', '-played_at']),
+            models.Index(fields=['track', '-played_at']),
+            models.Index(fields=['user', 'track', '-played_at']),
+            models.Index(fields=['-played_at']),
+        ]
+        verbose_name = "Listening History"
+        verbose_name_plural = "Listening History"
+    
+    def __str__(self):
+        return f"{self.user.username} played {self.track.title} at {self.played_at}"
+    
+    def save(self, *args, **kwargs):
+        """
+        Auto-calculate completion percentage and skipped flag.
+        """
+        # Calculate completion percentage
+        if self.track.duration > 0 and self.playback_duration > 0:
+            self.completion_percentage = min(
+                100,
+                int((self.playback_duration / self.track.duration) * 100)
+            )
+        
+        # Mark as skipped if less than 30% completed
+        if self.completion_percentage < 30:
+            self.skipped = True
+        
+        super().save(*args, **kwargs)
+        
+        # Update track play count (only on first save)
+        if not self.pk:
+            self.track.increment_play_count()
+    
+    @classmethod
+    def record_play(cls, user, track, duration=None, position=None, source='', device=''):
+        """
+        Convenience method to record a play.
+        
+        Args:
+            user: User instance
+            track: MusicFile instance
+            duration: How long listened (seconds)
+            position: Position stopped at (seconds)
+            source: Where played from
+            device: Device type
+        
+        Returns:
+            ListeningHistory instance
+        """
+        return cls.objects.create(
+            user=user,
+            track=track,
+            playback_duration=duration or 0,
+            playback_position=position or 0,
+            source=source,
+            device=device
+        )
+    
+    @classmethod
+    def get_user_stats(cls, user, days=30):
+        """
+        Get listening statistics for user.
+        
+        Args:
+            user: User instance
+            days: Number of days to analyze
+        
+        Returns:
+            Dict with statistics
+        """
+        from django.utils import timezone
+        from datetime import timedelta
+        
+        cutoff = timezone.now() - timedelta(days=days)
+        history = cls.objects.filter(user=user, played_at__gte=cutoff)
+        
+        return {
+            'total_plays': history.count(),
+            'unique_tracks': history.values('track').distinct().count(),
+            'total_duration': sum(h.playback_duration for h in history),
+            'skip_rate': history.filter(skipped=True).count() / max(history.count(), 1),
+            'completion_rate': sum(h.completion_percentage for h in history) / max(history.count(), 1),
+        }
