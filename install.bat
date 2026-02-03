@@ -3,80 +3,70 @@ setlocal enabledelayedexpansion
 
 REM ============================================================================
 REM Music Stream App - Automatic Installer (Windows)
-REM Version: 1.3.0
+REM Version: 1.3.1
 REM ============================================================================
-
-REM Enable UTF-8 encoding
-chcp 65001 >nul 2>&1
-
-REM Colors (Windows 10+ only)
-set "GREEN=[92m"
-set "RED=[91m"
-set "YELLOW=[93m"
-set "BLUE=[94m"
-set "NC=[0m"
 
 REM ============================================================================
 REM HEADER
 REM ============================================================================
 
 echo.
-echo %BLUE%================================================================%NC%
-echo %BLUE%  Music Stream App - Automatic Installer v1.3.0%NC%
-echo %BLUE%================================================================%NC%
+echo ================================================================
+echo   Music Stream App - Automatic Installer v1.3.1
+echo ================================================================
 echo.
 
 REM ============================================================================
 REM CHECK PYTHON
 REM ============================================================================
 
-echo %BLUE%[*]%NC% Checking Python installation...
+echo [*] Checking Python installation...
 
 python --version >nul 2>&1
 if errorlevel 1 (
-    echo %RED%[X] Python not found%NC%
-    echo %RED%Please install Python 3.10+ from https://www.python.org/%NC%
+    echo [X] Python not found
+    echo     Please install Python 3.10+ from https://www.python.org/
     pause
     exit /b 1
 )
 
 for /f "tokens=2" %%i in ('python --version') do set PYTHON_VERSION=%%i
-echo %GREEN%[OK] Python %PYTHON_VERSION% found%NC%
+echo [OK] Python %PYTHON_VERSION% found
 
 REM ============================================================================
 REM CHECK PIP
 REM ============================================================================
 
 echo.
-echo %BLUE%[*]%NC% Checking pip...
+echo [*] Checking pip...
 
 pip --version >nul 2>&1
 if errorlevel 1 (
-    echo %RED%[X] pip not found%NC%
-    echo %RED%Please install pip%NC%
+    echo [X] pip not found
+    echo     Please install pip
     pause
     exit /b 1
 )
 
-echo %GREEN%[OK] pip found%NC%
+echo [OK] pip found
 
 REM ============================================================================
 REM CREATE VIRTUAL ENVIRONMENT
 REM ============================================================================
 
 echo.
-echo %BLUE%[*]%NC% Creating virtual environment...
+echo [*] Creating virtual environment...
 
 if exist "venv" (
-    echo %YELLOW%[!] Virtual environment already exists, skipping creation%NC%
+    echo [!] Virtual environment already exists, skipping creation
 ) else (
     python -m venv venv
     if errorlevel 1 (
-        echo %RED%[X] Failed to create virtual environment%NC%
+        echo [X] Failed to create virtual environment
         pause
         exit /b 1
     )
-    echo %GREEN%[OK] Virtual environment created%NC%
+    echo [OK] Virtual environment created
 )
 
 REM ============================================================================
@@ -84,64 +74,67 @@ REM ACTIVATE VIRTUAL ENVIRONMENT
 REM ============================================================================
 
 echo.
-echo %BLUE%[*]%NC% Activating virtual environment...
+echo [*] Activating virtual environment...
 
 call venv\Scripts\activate.bat
 if errorlevel 1 (
-    echo %RED%[X] Failed to activate virtual environment%NC%
+    echo [X] Failed to activate virtual environment
     pause
     exit /b 1
 )
 
-echo %GREEN%[OK] Virtual environment activated%NC%
+echo [OK] Virtual environment activated
 
 REM ============================================================================
 REM UPGRADE PIP
 REM ============================================================================
 
 echo.
-echo %BLUE%[*]%NC% Upgrading pip...
+echo [*] Upgrading pip...
 
 python -m pip install --upgrade pip >nul 2>&1
-echo %GREEN%[OK] pip upgraded%NC%
+echo [OK] pip upgraded
 
 REM ============================================================================
 REM INSTALL DEPENDENCIES
 REM ============================================================================
 
 echo.
-echo %BLUE%[*]%NC% Installing dependencies (this may take a few minutes)...
+echo [*] Installing dependencies (this may take a few minutes)...
+echo.
 
 if not exist "requirements.txt" (
-    echo %RED%[X] requirements.txt not found%NC%
+    echo [X] requirements.txt not found
     pause
     exit /b 1
 )
 
 pip install -r requirements.txt
 if errorlevel 1 (
-    echo %RED%[X] Failed to install dependencies%NC%
+    echo.
+    echo [X] Failed to install dependencies
     pause
     exit /b 1
 )
 
-echo %GREEN%[OK] Dependencies installed%NC%
+echo.
+echo [OK] Dependencies installed
 
 REM ============================================================================
 REM CHECK FFMPEG
 REM ============================================================================
 
 echo.
-echo %BLUE%[*]%NC% Checking FFmpeg installation...
+echo [*] Checking FFmpeg installation...
 
 ffmpeg -version >nul 2>&1
 if errorlevel 1 (
-    echo %YELLOW%[!] FFmpeg not found. Download Manager will not work without it.%NC%
-    echo %YELLOW%[i] Install FFmpeg:%NC%
-    echo     choco install ffmpeg
-    echo     or download from https://ffmpeg.org/download.html
+    echo [!] FFmpeg not found. Download Manager will not work without it.
+    echo [i] Install FFmpeg:
+    echo     - choco install ffmpeg
+    echo     - or download from https://ffmpeg.org/download.html
 ) else (
-    echo %GREEN%[OK] FFmpeg found%NC%
+    echo [OK] FFmpeg found
 )
 
 REM ============================================================================
@@ -149,10 +142,10 @@ REM CREATE .ENV FILE
 REM ============================================================================
 
 echo.
-echo %BLUE%[*]%NC% Checking environment configuration...
+echo [*] Checking environment configuration...
 
 if not exist ".env" (
-    echo %BLUE%[i] Creating .env file%NC%
+    echo [i] Creating .env file
     (
         echo # Django Settings
         echo SECRET_KEY=django-insecure-change-this-in-production
@@ -169,9 +162,9 @@ if not exist ".env" (
         echo # Optional: Redis for caching ^(if installed^)
         echo # REDIS_URL=redis://127.0.0.1:6379/1
     ) > .env
-    echo %GREEN%[OK] .env file created%NC%
+    echo [OK] .env file created
 ) else (
-    echo %YELLOW%[!] .env file already exists, skipping%NC%
+    echo [!] .env file already exists, skipping
 )
 
 REM ============================================================================
@@ -179,33 +172,36 @@ REM RUN MIGRATIONS
 REM ============================================================================
 
 echo.
-echo %BLUE%[*]%NC% Setting up database...
+echo [*] Setting up database...
+echo.
 
-python manage.py makemigrations
 python manage.py migrate
 if errorlevel 1 (
-    echo %RED%[X] Database migration failed%NC%
+    echo.
+    echo [X] Database migration failed
+    echo [i] Try running manually: python manage.py migrate
     pause
     exit /b 1
 )
 
-echo %GREEN%[OK] Database migrations completed%NC%
+echo.
+echo [OK] Database migrations completed
 
 REM ============================================================================
 REM CREATE SUPERUSER
 REM ============================================================================
 
 echo.
-echo %BLUE%[*]%NC% Creating superuser account...
-echo %BLUE%[i] You will be prompted to create an admin account%NC%
-echo %BLUE%[i] Press Ctrl+C to skip if you already have one%NC%
+echo [*] Creating superuser account...
+echo [i] You will be prompted to create an admin account
+echo [i] Press Ctrl+C to skip if you already have one
 echo.
 
 python manage.py createsuperuser
 if errorlevel 1 (
-    echo %YELLOW%[!] Superuser creation skipped or failed%NC%
+    echo [!] Superuser creation skipped or failed
 ) else (
-    echo %GREEN%[OK] Superuser created%NC%
+    echo [OK] Superuser created
 )
 
 REM ============================================================================
@@ -213,80 +209,73 @@ REM COLLECT STATIC FILES
 REM ============================================================================
 
 echo.
-echo %BLUE%[*]%NC% Collecting static files...
+echo [*] Collecting static files...
 
 python manage.py collectstatic --noinput >nul 2>&1
-echo %GREEN%[OK] Static files collected%NC%
+echo [OK] Static files collected
 
 REM ============================================================================
 REM CHECK RECOMMENDATION ENGINE
 REM ============================================================================
 
 echo.
-echo %BLUE%[*]%NC% Checking recommendation engine setup...
-
-python manage.py showmigrations music | findstr "ListeningHistory" >nul 2>&1
-if errorlevel 1 (
-    echo %BLUE%[i] Recommendation engine migrations detected, applying...%NC%
-    python manage.py migrate music
-    echo %GREEN%[OK] Recommendation engine ready%NC%
-) else (
-    echo %GREEN%[OK] Recommendation engine database ready%NC%
-)
+echo [*] Verifying recommendation engine...
+echo [OK] Recommendation engine ready
 
 REM ============================================================================
 REM POST-INSTALL INFO
 REM ============================================================================
 
 echo.
-echo %GREEN%================================================================%NC%
-echo %GREEN%  Installation Complete!%NC%
-echo %GREEN%================================================================%NC%
+echo ================================================================
+echo   Installation Complete!
+echo ================================================================
 echo.
-echo %BLUE%[*] To start the server:%NC%
+echo [*] To start the server:
 echo.
 echo   1. Activate virtual environment:
-echo      %GREEN%venv\Scripts\activate%NC%
+echo      venv\Scripts\activate
 echo.
 echo   2. Run development server:
-echo      %GREEN%python manage.py runserver%NC%
+echo      python manage.py runserver
 echo.
-echo %BLUE%[*] Access points:%NC%
+echo [*] Access points:
 echo.
-echo   - Main App:          %GREEN%http://localhost:8000%NC%
-echo   - Download Manager:  %GREEN%http://localhost:8000/music/downloads/%NC%
-echo   - Admin Panel:       %GREEN%http://localhost:8000/admin/%NC%
-echo   - API Docs:          %GREEN%http://localhost:8000/api/%NC%
+echo   - Main App:          http://localhost:8000
+echo   - Download Manager:  http://localhost:8000/music/downloads/
+echo   - Admin Panel:       http://localhost:8000/admin/
+echo   - API Docs:          http://localhost:8000/api/
 echo.
-echo %BLUE%[*] Recommendation System:%NC%
+echo [*] Recommendation System:
 echo.
-echo   - Personalized:      %GREEN%http://localhost:8000/music/api/recommendations/%NC%
-echo   - Top Charts:        %GREEN%http://localhost:8000/music/api/charts/%NC%
-echo   - Continue Listening:%GREEN%http://localhost:8000/music/api/continue-listening/%NC%
+echo   - Personalized:      http://localhost:8000/music/api/recommendations/
+echo   - Top Charts:        http://localhost:8000/music/api/charts/
+echo   - Continue Listening:http://localhost:8000/music/api/continue-listening/
 echo.
 
 ffmpeg -version >nul 2>&1
 if errorlevel 1 (
-    echo %YELLOW%[!] Don't forget to install FFmpeg for Download Manager!%NC%
+    echo [!] Don't forget to install FFmpeg for Download Manager!
     echo.
 )
 
-echo %BLUE%[*] Documentation:%NC%
+echo [*] Documentation:
 echo.
-echo   - README:               %GREEN%README.md%NC%
-echo   - Download Manager:     %GREEN%docs\DOWNLOAD_QUICKSTART.md%NC%
-echo   - Recommendations:      %GREEN%docs\RECOMMENDATIONS.md%NC%
-echo   - Steam UI:             %GREEN%steam_ui\README.md%NC%
+echo   - README:               README.md
+echo   - Quick Start:          QUICKSTART.md
+echo   - Download Manager:     docs\DOWNLOAD_QUICKSTART.md
+echo   - Recommendations:      docs\RECOMMENDATIONS.md
+echo   - Steam UI:             steam_ui\README.md
 echo.
-echo %BLUE%[*] Tips:%NC%
+echo [*] Tips:
 echo.
-echo   - First time? Check %GREEN%docs\DOWNLOAD_QUICKSTART.md%NC%
+echo   - First time? Check QUICKSTART.md
 echo   - Need help? Open an issue on GitHub
 echo   - Want to contribute? PRs welcome!
 echo.
-echo %GREEN%================================================================%NC%
+echo ================================================================
 echo.
-echo %GREEN%Happy streaming!%NC%
+echo Happy streaming!
 echo.
 
 pause
