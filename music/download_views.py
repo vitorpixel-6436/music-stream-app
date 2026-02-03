@@ -107,7 +107,7 @@ def download_create(request):
                         'success': True,
                         'task_id': str(task.id),
                         'message': 'Download task created and started',
-                        'redirect_url': '/music/downloads/'
+                        'redirect_url': '/downloads/'  # FIXED: was /music/downloads/
                     })
                 
                 return redirect('music:download_manager')
