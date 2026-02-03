@@ -494,7 +494,7 @@ async function refreshActiveTasks() {
     }
     
     try {
-        const response = await fetch(`/music/api/downloads/bulk-status/?task_ids=${taskIds.join(',')}`);
+        const response = await fetch(`/api/downloads/bulk-status/?task_ids=${taskIds.join(',')}`);
         const data = await response.json();
         
         if (data.success) {
@@ -512,7 +512,7 @@ async function cancelTask(taskId) {
     if (!confirm('Are you sure you want to cancel this download?')) return;
     
     try {
-        const response = await fetch(`/music/downloads/${taskId}/cancel/`, {
+        const response = await fetch(`/downloads/${taskId}/cancel/`, {
             method: 'POST',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
@@ -535,7 +535,7 @@ async function cancelTask(taskId) {
 // Retry task
 async function retryTask(taskId) {
     try {
-        const response = await fetch(`/music/downloads/${taskId}/retry/`, {
+        const response = await fetch(`/downloads/${taskId}/retry/`, {
             method: 'POST',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
